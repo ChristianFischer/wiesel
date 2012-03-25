@@ -1,0 +1,26 @@
+syntax: glob
+
+# Mercurial local files
+*.reject
+*.rej
+*.orig
+
+# OS specific excludes
+.DS_Store
+.directory
+Thumbs.db
+
+# Android build files & local settings (including android projects in nested folders)
+regexp:android(/.+)*/gen/
+regexp:android(/.+)*/libs/.*/
+regexp:android(/.+)*/bin/
+regexp:android(/.+)*/obj/
+regexp:android(/.+)*/assets/
+regexp:android(/.+)*/local.properties
+
+# Eclipse project files
+.classpath
+.project
+.cproject
+.settings/
+
