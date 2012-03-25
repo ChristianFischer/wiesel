@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="wiesel-build-support">
+
+	<!-- override clean target, to also clear the object files and compiled libraries -->
+	<target name="clean" description="Removes output files created by other targets.">
+		<delete dir="${out.absolute.dir}" verbose="${verbose}" />
+		<delete dir="${gen.absolute.dir}" verbose="${verbose}" />
+		<delete dir="${obj.absolute.dir}" verbose="${verbose}" />
+
+		<!-- call ndk-build clean -->
+		<exec
+				executable	= "bash"
+				failonerror	= "true"
+		>
+			<arg value="${ndk.dir}/ndk-build" />
+			<arg value="clean" />
+		</exec>
+	</target>
+
+
+	<!-- add copy-resources & build-native targets before the java build -->
+	<target name="-pre-build" depends="copy-resources, build-native" />
+
+
+	<!-- copy all resources from the Resources folder into assets -->
+	<target name="copy-resources">
+		<!-- delete and re-create the assets directory -->
+		<delete dir="${asset.absolute.dir}" failonerror="true" />
+		<mkdir  dir="${asset.absolute.dir}" />
+
+		<!-- copy all resources into the empty assets directory -->
+		<copy toDir="${asset.absolute.dir}" failOnError="false">
+			<fileset dir="../resources/common" />
+			<fileset dir="../resources/android" />
+		</copy>
+	</target>
+
+
+	<!-- build the native libraries -->
+	<target name="build-native">
+		<!-- determine the number of jobs, which will be started simultanous -->
+		<!-- put this value into your local.properties for custom values. should be [cores * 2] -->
+		<property name="ndk.build.jobs" value="4" />
+
+		<!-- compile native part of the application -->
+		<exec
+				executable	= "bash"
+				failonerror	= "true"
+		>
+			<arg value="${ndk.dir}/ndk-build" />
+			<arg value="-j${ndk.build.jobs}" />
+		</exec>
+	</target>
+
+
+	<!-- starts the first activity from the project's manifest -->
+	<target name="run" depends="install">
+        <xpath
+				input		= "AndroidManifest.xml"
+				expression	= "/manifest/@package"
+                output		= "launch.package"
+		/>
+
+        <xpath
+				input		= "AndroidManifest.xml"
+				expression	= "/manifest/application/activity/@android:name"
+                output		= "launch.activity"
+		/>
+
+		<echo>Launch: ${launch.package}/${launch.activity}</echo>
+
+		<exec executable="adb"	failonerror="true">
+			<arg value="shell" />
+			<arg value="am start -n ${launch.package}/${launch.activity} -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" />
+		</exec>
+	</target>
+
+</project>
