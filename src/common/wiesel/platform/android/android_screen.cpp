@@ -62,10 +62,11 @@ bool AndroidScreen::init() {
 	 * component compatible with on-screen windows
 	 */
 	const EGLint attribs[] = {
-			EGL_SURFACE_TYPE,	EGL_WINDOW_BIT,
-			EGL_BLUE_SIZE,		8,
-			EGL_GREEN_SIZE,		8,
-			EGL_RED_SIZE,		8,
+			EGL_SURFACE_TYPE,		EGL_WINDOW_BIT,
+			EGL_RENDERABLE_TYPE,	EGL_OPENGL_ES2_BIT,
+			EGL_BLUE_SIZE,			8,
+			EGL_GREEN_SIZE,			8,
+			EGL_RED_SIZE,			8,
 			EGL_NONE
 	};
 
@@ -111,7 +112,6 @@ bool AndroidScreen::init() {
 	// Initialize GL state.
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH);
 	glDisable(GL_DEPTH_TEST);
 
 	return true;
