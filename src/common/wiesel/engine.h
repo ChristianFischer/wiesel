@@ -90,15 +90,45 @@ namespace wiesel {
 		virtual void onShutdown() = 0;
 
 		/**
+		 * @brief first update of the engine.
+		 * May be used to invoke \ref startApp, but can be left empty.
+		 */
+		virtual void onRunFirst() = 0;
+
+		/**
 		 * @brief called periodically by the main loop to process the message loop.
 		 * @return \c true to stop the main loop
 		 */
 		virtual bool onRun() = 0;
 
+	// application control
+	protected:
+		/**
+		 * @brief start the application, when application state is \ref Application_Uninitialized.
+		 * Fails, if no application is available.
+		 * In other states, this method will have no effect.
+		 */
+		static void startApp();
+
+		/**
+		 * @brief suspends a running application.
+		 * Fails, if no application is available.
+		 * In other states, this method will have no effect.
+		 */
+		static void suspendApp();
+
+		/**
+		 * @brief resumes a suspended application.
+		 * Fails, if no application is available.
+		 * In other states, this method will have no effect.
+		 */
+		static void resumeSuspendedApp();
+
 	// static members
 	private:
 		static Engine*			current_instance;
 		static Application*		current_app;
+		static ApplicationState	current_app_state;
 		static bool				exit_requested;
 
 	// instance members

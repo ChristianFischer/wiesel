@@ -108,10 +108,12 @@ void AndroidEngine::__cmd_init_window() {
 		AndroidScreen *screen = new AndroidScreen(this, app);
 		if (screen->init()) {
 			this->screen = screen;
+			this->startApp();
 		}
 		else {
 			screen->release();
 			delete screen;
+			this->requestExit();
 		}
 	}
 
@@ -126,6 +128,11 @@ void AndroidEngine::onShutdown() {
 		screen = NULL;
 	}
 
+	return;
+}
+
+
+void AndroidEngine::onRunFirst() {
 	return;
 }
 

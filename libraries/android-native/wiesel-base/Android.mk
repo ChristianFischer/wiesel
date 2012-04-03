@@ -21,6 +21,7 @@ LOCAL_CFLAGS               := -Werror
 LOCAL_LDLIBS               := 
 LOCAL_STATIC_LIBRARIES     := 
 LOCAL_SRC_FILES            := $(MY_FILES)
+LOCAL_C_INCLUDES           := $(MY_LOCAL_FOLDERS)
 LOCAL_EXPORT_C_INCLUDES    := $(MY_LOCAL_FOLDERS)
 
 # Build the static library
