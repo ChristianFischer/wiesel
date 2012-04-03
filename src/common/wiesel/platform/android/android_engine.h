@@ -36,6 +36,7 @@ namespace wiesel {
 		virtual bool onInit();
 		virtual void onShutdown();
 
+		virtual void onRunFirst();
 		virtual bool onRun();
 
 	protected:

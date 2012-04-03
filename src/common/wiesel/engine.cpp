@@ -13,9 +13,10 @@
 using namespace wiesel;
 
 
-Engine*			Engine::current_instance		= NULL;
-Application*	Engine::current_app				= NULL;
-bool			Engine::exit_requested			= false;
+Engine*				Engine::current_instance		= NULL;
+Application*		Engine::current_app				= NULL;
+ApplicationState	Engine::current_app_state		= Application_Uninitialized;
+bool				Engine::exit_requested			= false;
 
 
 Engine::Engine()
@@ -89,19 +90,38 @@ void Engine::run(Application *application) {
 
 		Screen *screen = current_instance->getScreen();
 
-		// application onRun
-		application->onRun();
+		switch(current_app_state) {
+			case Application_Uninitialized: {
+				// do nothing
+				break;
+			}
 
-		if (screen) {
-			screen->preRender();
-			application->onRender();
-			screen->postRender();
+			case Application_Suspended: {
+				// do nothing
+				break;
+			}
+
+			case Application_Running: {
+				// application onRun
+				current_app->onRun();
+
+				if (screen) {
+					screen->preRender();
+					current_app->onRender();
+					screen->postRender();
+				}
+
+				break;
+			}
 		}
 
 		// exit requested by application?
 		done |= exit_requested;
 	}
 	while(!done);
+
+	// release the current app
+	current_app->onShutdown();
 
 	// clear current application
 	current_app = NULL;
@@ -115,3 +135,68 @@ void Engine::requestExit() {
 	return;
 }
 
+
+void Engine::startApp() {
+	assert(current_app != NULL);
+
+	switch(current_app_state) {
+		case Application_Uninitialized: {
+			if (current_app) {
+				current_app->onInit();
+				current_app_state = Application_Running;
+			}
+
+			break;
+		}
+
+		default: {
+			break;
+		}
+	}
+
+	return;
+}
+
+
+void Engine::suspendApp() {
+	assert(current_app != NULL);
+
+	switch(current_app_state) {
+		case Application_Running: {
+			if (current_app) {
+				current_app->onSuspend();
+				current_app_state = Application_Suspended;
+			}
+
+			break;
+		}
+
+		default: {
+			break;
+		}
+	}
+
+	return;
+}
+
+
+void Engine::resumeSuspendedApp() {
+	assert(current_app != NULL);
+
+	switch(current_app_state) {
+		case Application_Suspended: {
+			if (current_app) {
+				current_app->onResumeSuspended();
+				current_app_state = Application_Running;
+			}
+
+			break;
+		}
+
+		default: {
+			break;
+		}
+	}
+
+	return;
+}
