@@ -14,6 +14,9 @@
 // get the basic platform includes
 #include "wiesel/platform/platforms.h"
 
+// some useful default includes
+#include "wiesel/util/log.h"
+
 // should be useful for most applications
 #include <assert.h>
 #include <inttypes.h>

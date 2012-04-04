@@ -6,9 +6,6 @@
  */
 
 #include "vertexbuffer.h"
-
-#include <wiesel/platform/android/log.h>
-
 #include <assert.h>
 
 

@@ -1,0 +1,94 @@
+/*
+ * log.h
+ *
+ *  Created on: 04.04.2012
+ *      Author: Baldur
+ */
+
+#ifndef __WIESEL_UTIL_LOG_H__
+#define __WIESEL_UTIL_LOG_H__
+
+#include <ostream>
+#include <string>
+
+
+namespace wiesel {
+
+	/// define the default log tag
+	#ifndef WIESEL_LOG_TAG
+	#define WIESEL_LOG_TAG		"wiesel"
+	#endif
+
+
+	/**
+	 * @brief definitions of different logging levels.
+	 */
+	enum LogLevel {
+		LogLevel_None,
+		LogLevel_Error,
+		LogLevel_Warning,
+		LogLevel_Info,
+		LogLevel_Debug,
+	};
+
+
+
+	/**
+	 * @brief write a single log message to the output console, if the current log level is high enough.
+	 * @param level		The current log level.
+	 */
+	int logmsg(LogLevel level, const char *tag, const char *message, ...)
+	#if defined(__GNUC__)
+		__attribute__ ((format(printf, 3, 4)))
+	#endif
+	;
+
+
+
+	/**
+	 * @brief A Log class for logging messages using a std::ostream derived class.
+	 */
+	class Log : public std::basic_ostream< char, std::char_traits<char> >
+	{
+	public:
+		Log(std::basic_streambuf<char, std::char_traits<char> > *buffer);
+		virtual ~Log();
+
+	public:
+		static Log err;			//!< error log level for critical error messages.
+		static Log warn;		//!< warning log level for minor errors and warnings.
+		static Log info;		//!< info log level for simple program information.
+		static Log debug;		//!< detailed log level for detailed program information, not relevant for productive usage.
+
+
+		/**
+		 * @brief set the current \ref LogLevel.
+		 * All messages with a higher level than the currently configured level will be discarded.
+		 */
+		static void setLevel(LogLevel level);
+
+		/**
+		 * @brief get the current \ref LogLevel.
+		 */
+		static inline LogLevel getLevel() {
+			return current_log_level;
+		}
+
+		/**
+		 * @brief checks, if a specific combination of log tag and \ref LogLevel will be included in the log messages.
+		 */
+		static bool isLogged(LogLevel level, const char *tag);
+
+		/**
+		 * @brief checks, if a specific combination of log tag and \ref LogLevel will be included in the log messages.
+		 */
+		inline static bool isLogged(LogLevel level, const std::string &tag) {
+			return isLogged(level, tag.c_str());
+		}
+
+	private:
+		static LogLevel		current_log_level;
+	};
+
+} /* namespace wiesel */
+#endif /* __WIESEL_UTIL_LOG_H__ */

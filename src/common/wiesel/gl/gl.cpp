@@ -6,8 +6,7 @@
  */
 
 #include "gl.h"
-
-#include <wiesel/platform/android/log.h>
+#include "wiesel/util/log.h"
 
 
 void wiesel::checkGlError(const char *file, int line) {
@@ -22,7 +21,7 @@ void wiesel::checkGlError(const char *file, int line) {
 			default:						message = "unknown";					break;
     	}
 
-        LOGE("GLES Error @%s, %d: %s (0x%x)\n", file, line, message, error);
+        logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "@%s, %d: %s (0x%x)\n", file, line, message, error);
     }
 
     return;
