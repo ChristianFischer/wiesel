@@ -6,8 +6,9 @@
  */
 
 #include "shader.h"
-#include "../../platform/android/log.h"
 
+#include "wiesel/gl/gl.h"
+#include "wiesel/util/log.h"
 #include <assert.h>
 
 using namespace wiesel;
@@ -76,11 +77,11 @@ Shader *Shader::compile(const string &source, ShaderType type) {
 			if (buffer) {
 				GLint length_read = 0;
 				glGetShaderInfoLog(shader, infoLen, &length_read, buffer);
-				LOGE("Couldn't compile shader:\n%s\n", buffer);
+				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Couldn't compile shader:\n%s\n", buffer);
 				delete buffer;
 			}
 			else {
-				LOGE("Couldn't compile shader for unknown reason.");
+				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Couldn't compile shader for unknown reason.");
 			}
 		}
 
@@ -156,7 +157,7 @@ bool ShaderProgram::link() {
 
 		// fail, if program could not be created.
 		if (program == 0) {
-			LOGE("could not create shader program");
+			logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "could not create shader program");
 			return false;
 		}
 
@@ -171,7 +172,6 @@ bool ShaderProgram::link() {
 		// check link status
 		GLint linkStatus = GL_FALSE;
 		glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-		LOGE("link status: %d", linkStatus);
 
 		if (linkStatus != GL_TRUE) {
 			GLint length = 0;
@@ -182,11 +182,11 @@ bool ShaderProgram::link() {
 				if (buffer) {
 					GLint length_read = 0;
 					glGetProgramInfoLog(program, length, &length_read, buffer);
-					LOGE("Could not link program:\n%s\n", buffer);
+					logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Could not link program:\n%s\n", buffer);
 					delete buffer;
 				}
 				else {
-					LOGE("Could not link program for unknown reason.");
+					logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Could not link program for unknown reason.");
 				}
 			}
 

@@ -6,7 +6,6 @@
 using namespace wiesel;
 
 
-
 class HelloWiesel
 : public wiesel::Application
 {
@@ -16,6 +15,8 @@ public:
 
 public:
 	virtual bool onInit() {
+		Log::info << "start application HelloWiesel" << std::endl;
+
 		const char src_vertex_shader[] =
 			"attribute vec4 vPosition;\n"
 			"void main() {\n"

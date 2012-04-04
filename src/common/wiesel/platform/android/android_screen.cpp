@@ -6,9 +6,8 @@
  */
 
 #include "android_screen.h"
-#include "log.h"
-
 #include <wiesel/gl/gl.h>
+#include <wiesel/util/log.h>
 #include <assert.h>
 
 
@@ -102,7 +101,7 @@ bool AndroidScreen::init() {
 	CHECK_GL_ERROR;
 
 	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-		LOGE("eglMakeCurrent failed!");
+		logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "eglMakeCurrent failed!");
 		return false;
 	}
 
@@ -125,11 +124,11 @@ bool AndroidScreen::init() {
 	glViewport(0, 0, w, h);
 
 	// log OpenGL information
-	LOGI("OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));
-	LOGI("OpenGL Vendor:     %s", ((const char*)glGetString(GL_VENDOR)));
-	LOGI("OpenGL Renderer:   %s", ((const char*)glGetString(GL_RENDERER)));
-	LOGI("OpenGL Shader:     %s", ((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
-	LOGI("OpenGL Extensions: %s", ((const char*)glGetString(GL_EXTENSIONS)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Vendor:     %s", ((const char*)glGetString(GL_VENDOR)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Renderer:   %s", ((const char*)glGetString(GL_RENDERER)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Shader:     %s", ((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Extensions: %s", ((const char*)glGetString(GL_EXTENSIONS)));
 
 	CHECK_GL_ERROR;
 

@@ -13,7 +13,7 @@
 #include <GLES2/gl2.h>
 
 
-
+#define WIESEL_GL_LOG_TAG	"GL"
 #define CHECK_GL_ERROR		wiesel::checkGlError(__FILE__,__LINE__)
 
 
