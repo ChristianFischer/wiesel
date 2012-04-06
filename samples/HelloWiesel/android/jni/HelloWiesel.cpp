@@ -19,14 +19,18 @@ public:
 
 		const char src_vertex_shader[] =
 			"attribute vec4 vPosition;\n"
+			"attribute vec4 vColor;\n"
+			"varying vec4 my_color;\n"
 			"void main() {\n"
 			"  gl_Position = vPosition;\n"
+			"  my_color = vColor;\n"
 			"}\n";
 
 		const char src_fragment_shader[] =
 			"precision mediump float;\n"
+			"varying vec4 my_color;\n"
 			"void main() {\n"
-			"  gl_FragColor = vec4 (0.63671875, 0.76953125, 0.22265625, 1.0);\n"
+			"  gl_FragColor = my_color;\n"
 			"}\n";
 
 		vertex_shader   = Shader::compile(src_vertex_shader,   ShaderType_VertexShader);
@@ -35,15 +39,24 @@ public:
 		assert(fragment_shader);
 
 		vertex_shader->attrib_vertex_position	= "vPosition";
+		vertex_shader->attrib_vertex_color		= "vColor";
 
 		program = new ShaderProgram();
 		program->attach(vertex_shader);
 		program->attach(fragment_shader);
 		program->link();
 
-		vbo.addVertex( 0.0f,  0.5f);
+		vbo.setupVertexPositions(2);
+		vbo.setupVertexColors(4);
+		vbo.addVertex(-0.5f,  0.5f);
 		vbo.addVertex(-0.5f, -0.5f);
+		vbo.addVertex( 0.5f,  0.5f);
 		vbo.addVertex( 0.5f, -0.5f);
+
+		vbo.setVertexColor(0, 1.0f, 0.0f, 0.0f, 1.0f);
+		vbo.setVertexColor(1, 0.0f, 1.0f, 0.0f, 1.0f);
+		vbo.setVertexColor(2, 1.0f, 1.0f, 0.0f, 1.0f);
+		vbo.setVertexColor(3, 0.0f, 0.0f, 1.0f, 1.0f);
 
 		return true;
 	}
@@ -57,6 +70,7 @@ public:
 	virtual void onRender() {
 		vbo.bind(program);
 		vbo.render();
+		vbo.unbind(program);
 		return;
 	}
 

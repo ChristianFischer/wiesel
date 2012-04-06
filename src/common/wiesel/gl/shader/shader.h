@@ -68,6 +68,8 @@ namespace wiesel {
 	public:
 		/// name of the vertex position attribute
 		std::string		attrib_vertex_position;
+		std::string		attrib_vertex_normal;
+		std::string		attrib_vertex_color;
 
 	// attributes (fragment shader)
 	public:
@@ -130,6 +132,14 @@ namespace wiesel {
 			return attrib_handle_vertex_position;
 		}
 
+		inline GLuint getVertexNormalAttribute() const {
+			return attrib_handle_vertex_normal;
+		}
+
+		inline GLuint getVertexColorAttribute() const {
+			return attrib_handle_vertex_color;
+		}
+
 	// private members
 	private:
 		std::vector<Shader*>	shaders;
@@ -137,6 +147,8 @@ namespace wiesel {
 		bool					need_link;
 
 		GLuint					attrib_handle_vertex_position;
+		GLuint					attrib_handle_vertex_normal;
+		GLuint					attrib_handle_vertex_color;
 	};
 
 }
