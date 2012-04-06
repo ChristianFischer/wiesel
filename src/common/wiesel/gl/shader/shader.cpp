@@ -70,6 +70,7 @@ Shader *Shader::compile(const string &source, ShaderType type) {
 		// get the info message, which caused the compile to fail
 		GLint infoLen = 0;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+		logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Could not compile shader:\n%s", pSource);
 
 		if (infoLen) {
 			char *buffer = new char[infoLen];
@@ -77,11 +78,11 @@ Shader *Shader::compile(const string &source, ShaderType type) {
 			if (buffer) {
 				GLint length_read = 0;
 				glGetShaderInfoLog(shader, infoLen, &length_read, buffer);
-				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Couldn't compile shader:\n%s\n", buffer);
+				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "%s", buffer);
 				delete buffer;
 			}
 			else {
-				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Couldn't compile shader for unknown reason.");
+				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "unknown reason.");
 			}
 		}
 
@@ -215,6 +216,18 @@ void ShaderProgram::bindAttributes() {
 			case ShaderType_VertexShader: {
 				if (shader->attrib_vertex_position.empty() == false) {
 					attrib_handle_vertex_position = glGetAttribLocation(program, shader->attrib_vertex_position.c_str());
+					CHECK_GL_ERROR;
+					assert(attrib_handle_vertex_position != -1);
+				}
+
+				if (shader->attrib_vertex_normal.empty() == false) {
+					attrib_handle_vertex_normal = glGetAttribLocation(program, shader->attrib_vertex_normal.c_str());
+					CHECK_GL_ERROR;
+					assert(attrib_handle_vertex_position != -1);
+				}
+
+				if (shader->attrib_vertex_color.empty() == false) {
+					attrib_handle_vertex_color = glGetAttribLocation(program, shader->attrib_vertex_color.c_str());
 					CHECK_GL_ERROR;
 					assert(attrib_handle_vertex_position != -1);
 				}
