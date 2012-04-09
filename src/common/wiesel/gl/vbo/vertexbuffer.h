@@ -10,6 +10,7 @@
 
 #include <wiesel/gl/gl.h>
 #include <wiesel/gl/shader/shader.h>
+#include <wiesel/gl/texture/texture.h>
 
 #include <vector>
 
@@ -123,6 +124,12 @@ namespace wiesel {
 		void setVertexColor(index_t index, float r, float g, float b, float a=1.0f);
 
 		/**
+		 * @brief set the first texture layer's coordinate of a vertex.
+		 * @param index		The index of the vertex to change.
+		 */
+		void setVertexTextureCoordinate(index_t index, float u, float v);
+
+		/**
 		 * @brief set the texture coordinate of a vertex.
 		 * @param index		The index of the vertex to change.
 		 * @param layer		The texture layer which coordinate should be set.
@@ -137,19 +144,40 @@ namespace wiesel {
 		/**
 		 * @brief bind this vertex buffer to a shader
 		 * and link each shader attribute to the correct data pointer.
+		 * This method does not bind any textures.
+		 * @param program	The shader program used to render this vertex buffer.
 		 * @return true, when each field of this buffer was successfully bound to a shader attribute.
 		 */
-		bool bind(const ShaderProgram *shader);
+		bool bind(const ShaderProgram *program) const;
+
+		/**
+		 * @brief bind this vertex buffer to a shader
+		 * and link each shader attribute to the correct data pointer.
+		 * @param program	The shader program used to render this vertex buffer.
+		 * @param texture	A single texture - only valid if this vertex buffer is using exaclty one texture.
+		 * @return true, when each field of this buffer was successfully bound to a shader attribute.
+		 */
+		bool bind(const ShaderProgram *program, const Texture *texture) const;
+
+		/**
+		 * @brief bind this vertex buffer to a shader
+		 * and link each shader attribute to the correct data pointer.
+		 * @param program	The shader program used to render this vertex buffer.
+		 * @param textures	A list of textures which should be used for rendering.
+		 * 					Only valid, when the list has the exactly number of textures required of the buffer.
+		 * @return true, when each field of this buffer was successfully bound to a shader attribute.
+		 */
+		bool bind(const ShaderProgram *program, const std::vector<Texture*> &textures) const;
 
 		/**
 		 * @brief removes the bindings of this vertex buffer.
 		 */
-		void unbind(const ShaderProgram *shader);
+		void unbind(const ShaderProgram *program) const;
 
 		/**
 		 * @brief renders this vertex buffer.
 		 */
-		void render();
+		void render() const;
 
 	protected:
 		/// checks, if the setup of this vertex buffer can be changed.
@@ -169,13 +197,16 @@ namespace wiesel {
 		void updateOffsets();
 
 		/// get the pointer of a specific
-		data_t getVertexPtr(index_t index, const component &comp);
+		data_t getVertexPtr(index_t index, const component &comp) const;
 
 		/// writes a single value into the buffer
 		template <typename T>
 		void setValue(data_t ptr, size_t offset, T value) {
 			*(reinterpret_cast<T*>(ptr + offset)) = value;
 		}
+
+		/// private bind function - because it's not allowed to pass a pointer-to-textures directly to the bind-code
+		bool private_bind(const ShaderProgram *program, const Texture* const* pTextures) const;
 
 		component				positions;
 		component				normals;

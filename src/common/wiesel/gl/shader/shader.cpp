@@ -95,6 +95,7 @@ Shader *Shader::compile(const string &source, ShaderType type) {
 	if (shader) {
 		Shader *sh = new Shader();
 		sh->shader = shader;
+		sh->type   = type;
 		return sh;
 	}
 
@@ -121,6 +122,8 @@ ShaderProgram::ShaderProgram()
   	need_link(false)
 {
 	attrib_handle_vertex_position		= -1;
+	attrib_handle_vertex_normal			= -1;
+	attrib_handle_vertex_color			= -1;
 	return;
 }
 
@@ -232,10 +235,24 @@ void ShaderProgram::bindAttributes() {
 					assert(attrib_handle_vertex_position != -1);
 				}
 
+				attrib_handle_vertex_texcoords.clear();
+				for(vector<string>::const_iterator it=shader->attrib_vertex_texcoords.begin(); it!=shader->attrib_vertex_texcoords.end(); it++) {
+					GLuint handle = glGetAttribLocation(program, it->c_str());
+					attrib_handle_vertex_texcoords.push_back(handle);
+					CHECK_GL_ERROR;
+				}
+
 				break;
 			}
 
 			case ShaderType_FragmentShader: {
+				attrib_handle_vertex_textures.clear();
+				for(vector<string>::const_iterator it=shader->attrib_vertex_textures.begin(); it!=shader->attrib_vertex_textures.end(); it++) {
+					GLuint handle = glGetUniformLocation(program, it->c_str());
+					attrib_handle_vertex_textures.push_back(handle);
+					CHECK_GL_ERROR;
+				}
+
 				break;
 			}
 		}

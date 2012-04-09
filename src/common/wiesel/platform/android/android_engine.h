@@ -39,6 +39,22 @@ namespace wiesel {
 		virtual void onRunFirst();
 		virtual bool onRun();
 
+	public:
+		virtual bool decodeImage(
+				const std::string &filename,
+				unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+				int *pRbits, int *pGbits, int *pBbits, int *pAbits,
+				bool as_texture
+		);
+
+	private:
+		virtual bool decodeImage_PNG(
+				const std::string &filename,
+				unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+				int *pRbits, int *pGbits, int *pBbits, int *pAbits,
+				bool as_texture
+		);
+
 	protected:
 		struct android_app*		app;
 	};
