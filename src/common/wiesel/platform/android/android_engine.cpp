@@ -9,11 +9,14 @@
 #include "android_engine.h"
 #include "android_screen.h"
 
+#include "wiesel/util/log.h"
+
 #include <assert.h>
 #include <android_native_app_glue.h>
 
 
 using namespace wiesel;
+using namespace std;
 
 
 AndroidEngine::AndroidEngine(struct android_app *app) {
@@ -158,6 +161,30 @@ bool AndroidEngine::onRun() {
 	}
 
     return false;
+}
+
+
+
+bool AndroidEngine::decodeImage(
+		const std::string &filename,
+		unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+		int *pRbits, int *pGbits, int *pBbits, int *pAbits,
+		bool as_texture
+) {
+	size_t dot_pos = filename.rfind('.');
+	if (dot_pos == string::npos) {
+		return false;
+	}
+
+	// get file extension
+	string file_ext = filename.substr(dot_pos + 1);
+	// TODO: convert to lower case
+
+	if (file_ext == "png") {
+		return decodeImage_PNG(filename, pBuffer, pSize, pWidth, pHeight, pRbits, pGbits, pBbits, pAbits, as_texture);
+	}
+
+	return false;
 }
 
 #endif // __ANDROID__

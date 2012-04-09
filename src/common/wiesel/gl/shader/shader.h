@@ -71,8 +71,13 @@ namespace wiesel {
 		std::string		attrib_vertex_normal;
 		std::string		attrib_vertex_color;
 
+		/// names of texture coordinate attributes
+		std::vector<std::string>	attrib_vertex_texcoords;
+
 	// attributes (fragment shader)
 	public:
+		/// names of texture coordinate attributes
+		std::vector<std::string>	attrib_vertex_textures;
 
 	private:
 		ShaderType		type;
@@ -140,6 +145,14 @@ namespace wiesel {
 			return attrib_handle_vertex_color;
 		}
 
+		inline GLuint getVertexTextureCoordAttribute(unsigned int layer) const {
+			return (attrib_handle_vertex_texcoords.size() > layer) ? attrib_handle_vertex_texcoords.at(layer) : 0;
+		}
+
+		inline GLuint getVertexTextureAttribute(unsigned int layer) const {
+			return (attrib_handle_vertex_textures.size() > layer) ? attrib_handle_vertex_textures.at(layer) : 0;
+		}
+
 	// private members
 	private:
 		std::vector<Shader*>	shaders;
@@ -149,6 +162,8 @@ namespace wiesel {
 		GLuint					attrib_handle_vertex_position;
 		GLuint					attrib_handle_vertex_normal;
 		GLuint					attrib_handle_vertex_color;
+		std::vector<GLuint>		attrib_handle_vertex_texcoords;
+		std::vector<GLuint>		attrib_handle_vertex_textures;
 	};
 
 }

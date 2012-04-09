@@ -10,6 +10,7 @@
 
 
 using namespace wiesel;
+using namespace std;
 
 
 VertexBuffer::VertexBuffer() {
@@ -187,7 +188,7 @@ void VertexBuffer::updateOffsets() {
 }
 
 
-VertexBuffer::data_t VertexBuffer::getVertexPtr(index_t index, const component &comp) {
+VertexBuffer::data_t VertexBuffer::getVertexPtr(index_t index, const component &comp) const {
 	assert(index < num_vertices);
 
 	if (index < num_vertices) {
@@ -363,6 +364,11 @@ void VertexBuffer::setVertexColor(index_t index, float r, float g, float b, floa
 }
 
 
+void VertexBuffer::setVertexTextureCoordinate(index_t index, float u, float v) {
+	setVertexTextureCoordinate(index, 0, u, v);
+}
+
+
 void VertexBuffer::setVertexTextureCoordinate(index_t index, int layer, float u, float v) {
 	assert(layer < textures.size());
 	if (layer < textures.size()) {
@@ -388,7 +394,37 @@ void VertexBuffer::setVertexTextureCoordinate(index_t index, int layer, float u,
 
 
 
-bool VertexBuffer::bind(const ShaderProgram *program) {
+bool VertexBuffer::bind(const ShaderProgram *program) const {
+	assert(textures.size() == 0);
+	if (textures.size() == 0) {
+		return private_bind(program, NULL);
+	}
+
+	return false;
+}
+
+
+bool VertexBuffer::bind(const ShaderProgram *program, const Texture *texture) const {
+	assert(textures.size() == 1);
+	if (textures.size() == 1) {
+		return private_bind(program, &texture);
+	}
+
+	return false;
+}
+
+
+bool VertexBuffer::bind(const ShaderProgram *program, const vector<Texture*> &textures) const {
+	assert(this->textures.size() == textures.size());
+	if (this->textures.size() == textures.size()) {
+		return private_bind(program, textures.data());
+	}
+
+	return false;
+}
+
+
+bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * const* pTextures) const {
 	assert(program);
 	bool success = true;
 
@@ -428,11 +464,32 @@ bool VertexBuffer::bind(const ShaderProgram *program) {
 		}
 	}
 
+	int num_textures = textures.size();
+	for(int i=0; i<num_textures; i++) {
+		GLuint attr_vertex_texcoord = program->getVertexTextureCoordAttribute(i);
+		GLuint attr_vertex_texture  = program->getVertexTextureAttribute(i);
+		assert(attr_vertex_texcoord != -1);
+		assert(attr_vertex_texture  != -1);
+		assert(pTextures != NULL);
+		assert(pTextures[i] != NULL);
+
+		if (attr_vertex_texcoord != -1 && attr_vertex_texture != -1) {
+			glVertexAttribPointer(attr_vertex_texcoord, textures[i].fields, GL_FLOAT, GL_FALSE, vertex_size, data + textures[i].offset);
+			glEnableVertexAttribArray(attr_vertex_texcoord);
+			CHECK_GL_ERROR;
+
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, pTextures[i]->getGlHandle());
+			glUniform1i(attr_vertex_texture, i);
+			CHECK_GL_ERROR;
+		}
+	}
+
 	return success;
 }
 
 
-void VertexBuffer::unbind(const ShaderProgram *program) {
+void VertexBuffer::unbind(const ShaderProgram *program) const {
 	if (positions.size) {
 		GLuint attr_vertex_position = program->getVertexPositionAttribute();
 		glDisableVertexAttribArray(attr_vertex_position);
@@ -448,14 +505,20 @@ void VertexBuffer::unbind(const ShaderProgram *program) {
 		glDisableVertexAttribArray(attr_vertex_colors);
 	}
 
+	int num_textures = textures.size();
+	for(int i=0; i<num_textures; i++) {
+		GLuint attr_vertex_texcoord = program->getVertexTextureCoordAttribute(i);
+		glDisableVertexAttribArray(attr_vertex_texcoord);
+	}
+
 	program->unbind();
 
 	return;
 }
 
 
-void VertexBuffer::render() {
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+void VertexBuffer::render() const {
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, num_vertices);
 	CHECK_GL_ERROR;
 	return;
 }

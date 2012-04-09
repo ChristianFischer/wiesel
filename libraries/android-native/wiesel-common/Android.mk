@@ -19,7 +19,7 @@ LOCAL_MODULE               := wiesel-common
 LOCAL_MODULE_FILENAME      := libwieselcommon
 LOCAL_CFLAGS               := -Werror
 LOCAL_LDLIBS               := 
-LOCAL_STATIC_LIBRARIES     := wiesel-base android_native_app_glue
+LOCAL_STATIC_LIBRARIES     := wiesel-base libpng-static android_native_app_glue
 LOCAL_SRC_FILES            := $(MY_FILES)
 LOCAL_C_INCLUDES           := $(MY_LOCAL_FOLDERS)
 LOCAL_EXPORT_C_INCLUDES    := $(MY_LOCAL_FOLDERS)
@@ -27,6 +27,9 @@ LOCAL_EXPORT_LDLIBS        := -landroid -llog -lEGL -lGLESv2
 
 # Build the static library
 include $(BUILD_STATIC_LIBRARY)
+
+# External third-party modules
+$(call import-module,third-party/libpng)
 
 # NativeActivity stuff
 $(call import-module,android/native_app_glue)

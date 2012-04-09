@@ -11,6 +11,8 @@
 #include "screen.h"
 #include "application.h"
 
+#include <string>
+
 
 namespace wiesel {
 
@@ -123,6 +125,27 @@ namespace wiesel {
 		 * In other states, this method will have no effect.
 		 */
 		static void resumeSuspendedApp();
+
+	// stuff
+	public:
+		/**
+		 * @brief decodes an image from file into a buffer.
+		 * Takes care of power-of-two size.
+		 * @param filename		Name of the file to load.
+		 * @param buffer		A buffer to receive the image data.
+		 * @param size			A pointer to receive the size of the buffer.
+		 * @param width			A pointer to receive the dimension of the image.
+		 * @param height		A pointer to receive the dimension of the image.
+		 * @param *_bits		Points to store the bit size of each RGBA component.
+		 * 						If non-zero, the implementation should try to force the bit-size to the given value.
+		 * @param as_textzre	When \c true, the implementation may try to fit the texture into required parameters.
+		 */
+		virtual bool decodeImage(
+								const std::string &filename,
+								unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+								int *pRbits, int *pGbits, int *pBbits, int *pAbits,
+								bool as_texture
+		) = 0;
 
 	// static members
 	private:
