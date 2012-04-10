@@ -8,6 +8,7 @@
 #ifndef __WIESEL_GL_VBO_VERTEXBUFFER_H__
 #define __WIESEL_GL_VBO_VERTEXBUFFER_H__
 
+#include <wiesel/util/managed_object.h>
 #include <wiesel/gl/gl.h>
 #include <wiesel/gl/shader/shader.h>
 #include <wiesel/gl/texture/texture.h>
@@ -22,7 +23,7 @@ namespace wiesel {
 	 * A vertex can contain 2D or 3D coordinates, normal, color,
 	 * and multiple texture coordinates.
 	 */
-	class VertexBuffer
+	class VertexBuffer : public ManagedObject
 	{
 	public:
 		/// alias type for the index of each vertex.

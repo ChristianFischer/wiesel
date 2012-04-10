@@ -19,11 +19,8 @@ Texture::Texture() {
 }
 
 Texture::~Texture() {
-	// texture should be released before deleting the object
-	assert(handle == 0);
-
 	if (handle) {
-		release();
+		release_texture();
 	}
 
 	return;
@@ -43,7 +40,7 @@ bool Texture::createHardwareTexture() {
 	assert(handle == 0);
 
 	// release the previous buffer
-	release();
+	release_texture();
 
 	unsigned char*	buffer		= NULL;
 	size_t			buffer_size	= 0;
@@ -78,7 +75,7 @@ bool Texture::createHardwareTexture() {
 }
 
 
-void Texture::release() {
+void Texture::release_texture() {
 	if (handle) {
 		glDeleteTextures(1, &handle);
 		handle = 0;

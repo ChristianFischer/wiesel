@@ -7,6 +7,8 @@
 
 #include "engine.h"
 
+#include <wiesel/util/managed_object.h>
+
 #include <assert.h>
 #include <stddef.h>
 
@@ -114,6 +116,9 @@ void Engine::run(Application *application) {
 				break;
 			}
 		}
+
+		// purge all dead objects at the end of each frame
+		ManagedObject::purgeDeadObjects();
 
 		// exit requested by application?
 		done |= exit_requested;
