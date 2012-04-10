@@ -20,11 +20,8 @@ Shader::Shader() {
 }
 
 Shader::~Shader() {
-	// shader should be released before deleting the object
-	assert(shader == 0);
-
 	if (shader) {
-		release();
+		release_shader();
 	}
 
 	return;
@@ -103,7 +100,7 @@ Shader *Shader::compile(const string &source, ShaderType type) {
 }
 
 
-void Shader::release() {
+void Shader::release_shader() {
 	if (shader) {
 		glDeleteShader(shader);
 		shader = 0;
@@ -129,11 +126,12 @@ ShaderProgram::ShaderProgram()
 
 
 ShaderProgram::~ShaderProgram() {
-	// shader program should be released before deleting the object
-	assert(program == 0);
-
 	if (program) {
-		release();
+		release_shader();
+	}
+
+	for(vector<Shader*>::iterator it=shaders.begin(); it!=shaders.end(); it++) {
+		(*it)->release();
 	}
 
 	return;
@@ -142,6 +140,7 @@ ShaderProgram::~ShaderProgram() {
 
 bool ShaderProgram::attach(Shader *shader) {
 	if (shader) {
+		shader->retain();
 		shaders.push_back(shader);
 		need_link = true;
 
@@ -264,7 +263,7 @@ void ShaderProgram::bindAttributes() {
 }
 
 
-void ShaderProgram::release() {
+void ShaderProgram::release_shader() {
 	glDeleteProgram(program);
 	return;
 }

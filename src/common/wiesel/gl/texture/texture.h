@@ -11,11 +11,12 @@
 #include <string>
 #include <wiesel/gl/gl.h>
 #include <wiesel/geometry.h>
+#include <wiesel/util/managed_object.h>
 
 
 namespace wiesel {
 
-	class Texture
+	class Texture : public ManagedObject
 	{
 	private:
 		Texture();
@@ -29,12 +30,6 @@ namespace wiesel {
 		static Texture *fromFile(const std::string &filename);
 
 		/**
-		 * @brief release the texture.
-		 * Needs to be used before deleting this object.
-		 */
-		void release();
-
-		/**
 		 * @brief get the OpenGL texture handle.
 		 */
 		inline GLuint getGlHandle() const {
@@ -44,6 +39,9 @@ namespace wiesel {
 	private:
 		/// creates the texture on hardware
 		bool createHardwareTexture();
+
+		/// release the texture.
+		void release_texture();
 
 	private:
 		std::string		filename;

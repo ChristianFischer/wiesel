@@ -3,6 +3,7 @@
 #include <wiesel/gl/shaders.h>
 #include <wiesel/gl/textures.h>
 #include <wiesel/gl/vbo.h>
+#include <wiesel.h>
 
 using namespace wiesel;
 
@@ -44,8 +45,8 @@ public:
 			"  gl_FragColor = texture2D(texture0, my_texcoord0);\n"
 			"}\n";
 
-		vertex_shader   = Shader::compile(src_vertex_shader,   ShaderType_VertexShader);
-		fragment_shader = Shader::compile(src_fragment_shader, ShaderType_FragmentShader);
+		Shader* vertex_shader   = Shader::compile(src_vertex_shader,   ShaderType_VertexShader);
+		Shader* fragment_shader = Shader::compile(src_fragment_shader, ShaderType_FragmentShader);
 		assert(vertex_shader);
 		assert(fragment_shader);
 
@@ -58,27 +59,31 @@ public:
 		program->attach(vertex_shader);
 		program->attach(fragment_shader);
 		program->link();
+		program->retain();
 
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
 		texture = Texture::fromFile("/mnt/sdcard/test.png");
+		texture->retain();
 
-		vbo.setupVertexPositions(2);
-		vbo.setupVertexColors(4);
-		vbo.setupTextureLayer(0);
-		vbo.addVertex(-1.0f / aspect_ratio,  1.0f);
-		vbo.addVertex(-1.0f / aspect_ratio, -1.0f);
-		vbo.addVertex( 1.0f / aspect_ratio,  1.0f);
-		vbo.addVertex( 1.0f / aspect_ratio, -1.0f);
+		vbo = new VertexBuffer();
+		vbo->retain();
+		vbo->setupVertexPositions(2);
+		vbo->setupVertexColors(4);
+		vbo->setupTextureLayer(0);
+		vbo->addVertex(-1.0f / aspect_ratio,  1.0f);
+		vbo->addVertex(-1.0f / aspect_ratio, -1.0f);
+		vbo->addVertex( 1.0f / aspect_ratio,  1.0f);
+		vbo->addVertex( 1.0f / aspect_ratio, -1.0f);
 
-		vbo.setVertexColor(0, 1.0f, 0.0f, 0.0f, 1.0f);
-		vbo.setVertexColor(1, 0.0f, 1.0f, 0.0f, 1.0f);
-		vbo.setVertexColor(2, 1.0f, 1.0f, 0.0f, 1.0f);
-		vbo.setVertexColor(3, 0.0f, 0.0f, 1.0f, 1.0f);
+		vbo->setVertexColor(0, 1.0f, 0.0f, 0.0f, 1.0f);
+		vbo->setVertexColor(1, 0.0f, 1.0f, 0.0f, 1.0f);
+		vbo->setVertexColor(2, 1.0f, 1.0f, 0.0f, 1.0f);
+		vbo->setVertexColor(3, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		vbo.setVertexTextureCoordinate(0, 0, 0.0f, 0.0f);
-		vbo.setVertexTextureCoordinate(1, 0, 0.0f, 1.0f);
-		vbo.setVertexTextureCoordinate(2, 0, 1.0f, 0.0f);
-		vbo.setVertexTextureCoordinate(3, 0, 1.0f, 1.0f);
+		vbo->setVertexTextureCoordinate(0, 0, 0.0f, 0.0f);
+		vbo->setVertexTextureCoordinate(1, 0, 0.0f, 1.0f);
+		vbo->setVertexTextureCoordinate(2, 0, 1.0f, 0.0f);
+		vbo->setVertexTextureCoordinate(3, 0, 1.0f, 1.0f);
 
 		return true;
 	}
@@ -90,35 +95,27 @@ public:
 
 
 	virtual void onRender() {
-		vbo.bind(program, texture);
-		vbo.render();
-		vbo.unbind(program);
+		vbo->bind(program, texture);
+		vbo->render();
+		vbo->unbind(program);
 		return;
 	}
 
 
 	virtual void onShutdown() {
-		program->release();
-		vertex_shader->release();
-		fragment_shader->release();
-		texture->release();
+		logmsg(LogLevel_Error, WIESEL_LOG_TAG, "references before release: %p, %p", program, texture);
 
-		delete program;
-		delete vertex_shader;
-		delete fragment_shader;
-		delete texture;
+		safe_release(program);
+		safe_release(texture);
+		safe_release(vbo);
 
 		return;
 	}
 
 private:
-	Shader*			vertex_shader;
-	Shader*			fragment_shader;
 	ShaderProgram*	program;
-
 	Texture*		texture;
-
-	VertexBuffer	vbo;
+	VertexBuffer*	vbo;
 };
 
 

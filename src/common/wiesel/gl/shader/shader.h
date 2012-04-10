@@ -9,6 +9,7 @@
 #define __WIESEL_GL_SHADER_SHADER_H__
 
 #include <wiesel/gl/gl.h>
+#include <wiesel/util/managed_object.h>
 #include <string>
 #include <vector>
 
@@ -31,7 +32,7 @@ namespace wiesel {
 	/**
 	 * @brief A class handling a single shader object.
 	 */
-	class Shader
+	class Shader : public ManagedObject
 	{
 	private:
 		Shader();
@@ -50,12 +51,6 @@ namespace wiesel {
 		inline ShaderType getType() const {
 			return type;
 		}
-
-		/**
-		 * @brief release the shader.
-		 * Needs to be used before deleting this object.
-		 */
-		void release();
 
 		/**
 		 * @brief get access to the OpenGL shader handle.
@@ -80,6 +75,13 @@ namespace wiesel {
 		std::vector<std::string>	attrib_vertex_textures;
 
 	private:
+		/**
+		 * @brief release the shader.
+		 * Needs to be used before deleting this object.
+		 */
+		void release_shader();
+
+	private:
 		ShaderType		type;
 		GLuint			shader;
 	};
@@ -89,7 +91,7 @@ namespace wiesel {
 	/**
 	 * @brief Handles a shader program with mulitple shaders linked.
 	 */
-	class ShaderProgram
+	class ShaderProgram : public ManagedObject
 	{
 	public:
 		/**
@@ -115,11 +117,6 @@ namespace wiesel {
 		 * @brief bind all attributes configured in the shaders.
 		 */
 		void bindAttributes();
-
-		/**
-		 * @brief release the shader.
-		 */
-		void release();
 
 		/**
 		 * @brief binds this program to the current OpenGL context.
@@ -152,6 +149,12 @@ namespace wiesel {
 		inline GLuint getVertexTextureAttribute(unsigned int layer) const {
 			return (attrib_handle_vertex_textures.size() > layer) ? attrib_handle_vertex_textures.at(layer) : 0;
 		}
+
+	private:
+		/**
+		 * @brief release the shader.
+		 */
+		void release_shader();
 
 	// private members
 	private:
