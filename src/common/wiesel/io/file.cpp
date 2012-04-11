@@ -15,10 +15,12 @@ using namespace std;
 File::File(Directory *parent)
 : parent(parent)
 {
+	safe_retain(this->parent);
 	return;
 }
 
 File::~File() {
+	safe_release(parent);
 	return;
 }
 
@@ -41,13 +43,19 @@ std::string File::getExtension() const {
 }
 
 
-std::string File::getContentAsString() const {
+DataSource *File::asDataSource() {
+	return new FileDataSource(this);
+}
+
+
+std::string File::getContentAsString() {
 	// TODO: implement me
 	return "";
 }
 
 
-vector<string> File::getLines() const {
+vector<string> File::getLines() {
+	// TODO: implement me
 	return vector<string>();
 }
 
@@ -56,3 +64,29 @@ void File::sortByName(FileList &list, bool asc) {
 	list.sort(asc ? FileSortByNameAscPredicate : FileSortByNameDescPredicate);
 }
 
+
+
+
+
+
+FileDataSource::FileDataSource(File *file)
+: file(file)
+{
+	if (file) {
+		file->retain();
+	}
+}
+
+FileDataSource::~FileDataSource() {
+	if (file) {
+		file->release();
+	}
+}
+
+DataBuffer *FileDataSource::getDataBuffer() {
+	return file->getContent();
+}
+
+File *FileDataSource::getFile() {
+	return file;
+}

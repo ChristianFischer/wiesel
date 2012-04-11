@@ -23,13 +23,23 @@ Texture::~Texture() {
 		release_texture();
 	}
 
+	if (data) {
+		data->release();
+	}
+
 	return;
 }
 
 
-Texture *Texture::fromFile(const string &filename) {
+Texture *Texture::fromFile(File *file) {
+	return fromDataSource(file->asDataSource());
+}
+
+
+Texture *Texture::fromDataSource(DataSource *data) {
 	Texture *texture = new Texture();
-	texture->filename = filename;
+	texture->data = data;
+	texture->data->retain();
 	texture->createHardwareTexture();
 
 	return texture;
@@ -52,7 +62,7 @@ bool Texture::createHardwareTexture() {
 	int				a_bits		= 0;
 
 	bool successful = Engine::getCurrent()->decodeImage(
-												filename,
+												data,
 												&buffer, &buffer_size, &width, &height,
 												&r_bits, &g_bits, &b_bits, &a_bits,
 												true

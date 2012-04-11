@@ -90,6 +90,18 @@ namespace wiesel {
 
 
 	/**
+	 * @brief Takes a pointer of a \ref SharedObject to retain it.
+	 * When the pointer is \ref NULL, nothing happens.
+	 */
+	inline void safe_retain(SharedObject* obj) {
+		if (obj != NULL) {
+			obj->retain();
+		}
+
+		return;
+	}
+
+	/**
 	 * @brief Takes a pointer of a \ref SharedObject to release it.
 	 * When the pointer is \ref NULL, nothing happens.
 	 * The pointer will be set to \ref NULL after releasing the object.

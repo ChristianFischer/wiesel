@@ -11,6 +11,8 @@
 
 #include "wiesel/platform/generic/generic_root_fs.h"
 
+#include "wiesel/io/datasource.h"
+#include "wiesel/io/file.h"
 #include "wiesel/util/log.h"
 
 #include <assert.h>
@@ -176,22 +178,22 @@ FileSystem *AndroidEngine::getRootFileSystem() {
 
 
 bool AndroidEngine::decodeImage(
-		const std::string &filename,
+		DataSource *data,
 		unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
 		int *pRbits, int *pGbits, int *pBbits, int *pAbits,
 		bool as_texture
 ) {
-	size_t dot_pos = filename.rfind('.');
-	if (dot_pos == string::npos) {
-		return false;
+	FileDataSource *filedata = dynamic_cast<FileDataSource*>(data);
+	if (filedata) {
+		string file_ext = filedata->getFile()->getExtension();
+		// TODO: convert to lower case
+
+		if (file_ext == "png") {
+			return decodeImage_PNG(data, pBuffer, pSize, pWidth, pHeight, pRbits, pGbits, pBbits, pAbits, as_texture);
+		}
 	}
-
-	// get file extension
-	string file_ext = filename.substr(dot_pos + 1);
-	// TODO: convert to lower case
-
-	if (file_ext == "png") {
-		return decodeImage_PNG(filename, pBuffer, pSize, pWidth, pHeight, pRbits, pGbits, pBbits, pAbits, as_texture);
+	else {
+		// TODO: implement loading from buffer
 	}
 
 	return false;

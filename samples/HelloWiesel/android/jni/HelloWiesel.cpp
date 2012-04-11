@@ -3,6 +3,7 @@
 #include <wiesel/gl/shaders.h>
 #include <wiesel/gl/textures.h>
 #include <wiesel/gl/vbo.h>
+#include <wiesel/io/filesystem.h>
 #include <wiesel.h>
 
 using namespace wiesel;
@@ -62,8 +63,15 @@ public:
 		program->retain();
 
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
-		texture = Texture::fromFile("/mnt/sdcard/test.png");
-		texture->retain();
+		File *tex_file = Engine::getCurrent()->getRootFileSystem()->findFile("/mnt/sdcard/test.png");
+		if (tex_file) {
+			Log::info << "load texture from: " << tex_file->getFullPath() << std::endl;
+			texture = Texture::fromFile(tex_file);
+			texture->retain();
+		}
+		else {
+			texture = NULL;
+		}
 
 		vbo = new VertexBuffer();
 		vbo->retain();

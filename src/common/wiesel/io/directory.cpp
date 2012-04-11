@@ -19,19 +19,13 @@ using namespace std;
 Directory::Directory(FileSystem *fs, Directory *parent)
 : fs(fs), parent(parent)
 {
-	if (parent) {
-		parent->retain();
-	}
-
+	safe_retain(this->parent);
 	return;
 }
 
 Directory::~Directory() {
 	// release parent directory
-	if (parent) {
-		parent->release();
-	}
-
+	safe_release(parent);
 	return;
 }
 
