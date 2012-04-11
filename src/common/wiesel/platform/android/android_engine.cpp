@@ -9,6 +9,8 @@
 #include "android_engine.h"
 #include "android_screen.h"
 
+#include "wiesel/platform/generic/generic_root_fs.h"
+
 #include "wiesel/util/log.h"
 
 #include <assert.h>
@@ -21,6 +23,10 @@ using namespace std;
 
 AndroidEngine::AndroidEngine(struct android_app *app) {
 	this->app = app;
+
+	// create file systems
+	root_fs		= new GenericFileSystem();
+
 	return;
 }
 
@@ -163,6 +169,10 @@ bool AndroidEngine::onRun() {
     return false;
 }
 
+
+FileSystem *AndroidEngine::getRootFileSystem() {
+	return root_fs;
+}
 
 
 bool AndroidEngine::decodeImage(
