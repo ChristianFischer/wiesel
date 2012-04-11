@@ -11,12 +11,12 @@
 #include <string>
 #include <wiesel/gl/gl.h>
 #include <wiesel/geometry.h>
-#include <wiesel/util/managed_object.h>
+#include <wiesel/util/shared_object.h>
 
 
 namespace wiesel {
 
-	class Texture : public ManagedObject
+	class Texture : public SharedObject
 	{
 	private:
 		Texture();

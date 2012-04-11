@@ -17,25 +17,25 @@ namespace wiesel {
 	/**
 	 * @brief A base-class for any objects, which want to use reference-counting.
 	 * Usage:
-	 * Each time, a reference to a \ref ManagedObject is referenced in a global object,
+	 * Each time, a reference to a \ref SharedObject is referenced in a global object,
 	 * this object should call \ref retain() to increment the reference counter.
 	 * When the object is no longer required, \ref release() should be used to decrement
 	 * the reference counter. When the reference counter hits zero, the object will be deleted.
 	 * Objects which are never retained will be deleted next time,
-	 * when \ref ManagedObjects::purgeDeadObjects() is called.
+	 * when \ref SharedObject::purgeDeadObjects() is called.
 	 */
-	class ManagedObject
+	class SharedObject
 	{
 	protected:
-		ManagedObject();
+		SharedObject();
 
 	public:
-		virtual ~ManagedObject();
+		virtual ~SharedObject();
 
 	// reference-counting
 	public:
 		/// An alias type for a list of managed objects.
-		typedef std::vector<ManagedObject*> List;
+		typedef std::vector<SharedObject*> List;
 
 		/**
 		 * @brief increment the reference-counter.
@@ -90,7 +90,7 @@ namespace wiesel {
 
 
 	/**
-	 * @brief Takes a pointer of a \ref ManagedObject to release it.
+	 * @brief Takes a pointer of a \ref SharedObject to release it.
 	 * When the pointer is \ref NULL, nothing happens.
 	 * The pointer will be set to \ref NULL after releasing the object.
 	 */

@@ -16,7 +16,7 @@
 
 // some useful default includes
 #include "wiesel/util/log.h"
-#include "wiesel/util/managed_object.h"
+#include "wiesel/util/shared_object.h"
 
 // should be useful for most applications
 #include <assert.h>
