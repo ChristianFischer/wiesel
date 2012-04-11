@@ -5,18 +5,18 @@
  *      Author: Baldur
  */
 
-#include "managed_object.h"
+#include "shared_object.h"
 #include <algorithm>
 
 using namespace wiesel;
 
 
 
-ManagedObject::List ManagedObject::living_objects = List();
+SharedObject::List SharedObject::living_objects = List();
 
 
 
-ManagedObject::ManagedObject() : references(0)
+SharedObject::SharedObject() : references(0)
 {
 	// add to living objects list
 	living_objects.push_back(this);
@@ -24,7 +24,7 @@ ManagedObject::ManagedObject() : references(0)
 }
 
 
-ManagedObject::~ManagedObject() {
+SharedObject::~SharedObject() {
 	// there shouldn't exist any references to this object when deleting
 	// when this assert fails, the object might be deleted by hand.
 	assert(references == 0);
@@ -39,7 +39,7 @@ ManagedObject::~ManagedObject() {
 }
 
 
-void ManagedObject::purgeDeadObjects() {
+void SharedObject::purgeDeadObjects() {
 	// we're using a separate list to store which objects should be deleted,
 	// instead of deleting them immediately, because deleting an object may cause
 	// other objects will also be deleted and thereby the living_objects list will change.
@@ -47,7 +47,7 @@ void ManagedObject::purgeDeadObjects() {
 	objects_to_delete.clear();
 
 	for(List::iterator it=living_objects.begin(); it!=living_objects.end(); it++) {
-		ManagedObject *obj = *it;
+		SharedObject *obj = *it;
 
 		if (obj->getReferenceCount() <= 0) {
 			objects_to_delete.push_back(obj);

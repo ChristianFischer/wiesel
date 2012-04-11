@@ -9,7 +9,7 @@
 #define __WIESEL_GL_SHADER_SHADER_H__
 
 #include <wiesel/gl/gl.h>
-#include <wiesel/util/managed_object.h>
+#include <wiesel/util/shared_object.h>
 #include <string>
 #include <vector>
 
@@ -32,7 +32,7 @@ namespace wiesel {
 	/**
 	 * @brief A class handling a single shader object.
 	 */
-	class Shader : public ManagedObject
+	class Shader : public SharedObject
 	{
 	private:
 		Shader();
@@ -91,7 +91,7 @@ namespace wiesel {
 	/**
 	 * @brief Handles a shader program with mulitple shaders linked.
 	 */
-	class ShaderProgram : public ManagedObject
+	class ShaderProgram : public SharedObject
 	{
 	public:
 		/**
