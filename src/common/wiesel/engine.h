@@ -16,6 +16,12 @@
 
 namespace wiesel {
 
+	// some external classes
+
+	class FileSystem;
+
+
+
 	/**
 	 * @brief An interface to the game engine.
 	 */
@@ -125,6 +131,14 @@ namespace wiesel {
 		 * In other states, this method will have no effect.
 		 */
 		static void resumeSuspendedApp();
+
+	// filesystems
+	public:
+		/**
+		 * @brief get the system's root file system where all data is stored.
+		 * The root filesystem may be read-only or empty for the application.
+		 */
+		virtual FileSystem *getRootFileSystem() = 0;
 
 	// stuff
 	public:

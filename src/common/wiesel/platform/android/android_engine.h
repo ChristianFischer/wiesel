@@ -17,6 +17,9 @@
 
 namespace wiesel {
 
+	class GenericFileSystem;
+
+
 	/**
 	 * @brief The android engine implementation.
 	 */
@@ -40,6 +43,9 @@ namespace wiesel {
 		virtual bool onRun();
 
 	public:
+		virtual FileSystem *getRootFileSystem();
+
+	public:
 		virtual bool decodeImage(
 				const std::string &filename,
 				unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
@@ -56,7 +62,8 @@ namespace wiesel {
 		);
 
 	protected:
-		struct android_app*		app;
+		struct android_app*			app;
+		GenericFileSystem*			root_fs;
 	};
 
 }
