@@ -119,4 +119,8 @@ string GenericFileSystemFile::getName() const {
 }
 
 
+DataBuffer *GenericFileSystemFile::getContent() {
+	// TODO: implement me
+	return NULL;
+}
 

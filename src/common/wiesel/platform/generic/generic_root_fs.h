@@ -55,6 +55,8 @@ namespace wiesel {
 
 		virtual std::string getName() const;
 
+		virtual DataBuffer *getContent();
+
 	private:
 		std::string		name;
 	};

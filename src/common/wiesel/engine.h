@@ -18,6 +18,7 @@ namespace wiesel {
 
 	// some external classes
 
+	class DataSource;
 	class FileSystem;
 
 
@@ -145,7 +146,7 @@ namespace wiesel {
 		/**
 		 * @brief decodes an image from file into a buffer.
 		 * Takes care of power-of-two size.
-		 * @param filename		Name of the file to load.
+		 * @param data			A \ref DataSource, the image data will be loaded from.
 		 * @param buffer		A buffer to receive the image data.
 		 * @param size			A pointer to receive the size of the buffer.
 		 * @param width			A pointer to receive the dimension of the image.
@@ -155,7 +156,7 @@ namespace wiesel {
 		 * @param as_textzre	When \c true, the implementation may try to fit the texture into required parameters.
 		 */
 		virtual bool decodeImage(
-								const std::string &filename,
+								DataSource *data,
 								unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
 								int *pRbits, int *pGbits, int *pBbits, int *pAbits,
 								bool as_texture

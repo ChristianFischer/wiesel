@@ -9,6 +9,7 @@
 #define __WIESEL_IO_FILE_H__
 
 #include "wiesel/util/shared_object.h"
+#include "datasource.h"
 
 #include <string>
 #include <vector>
@@ -62,16 +63,27 @@ namespace wiesel {
 		virtual std::string getExtension() const;
 
 		/**
+		 * @brief Get a \ref DataSource referencing to this file.
+		 * Usually this would be a \ref FileDataSource, but that's not guaranteed.
+		 */
+		virtual DataSource *asDataSource();
+
+		/**
+		 * @brief get a \ref DataBuffer with the content of this file.
+		 */
+		virtual DataBuffer *getContent() = 0;
+
+		/**
 		 * @brief get the full file content as string-object.
 		 * Binary files may return an empty string or garbage.
 		 */
-		virtual std::string getContentAsString() const;
+		virtual std::string getContentAsString();
 
 		/**
 		 * @brief read a text file's content as a vector of lines.
 		 * Binary files may return an empty list or garbage.
 		 */
-		virtual std::vector<std::string> getLines() const;
+		virtual std::vector<std::string> getLines();
 
 		/**
 		 * @brief get the parent-directory of this file.
@@ -106,6 +118,36 @@ namespace wiesel {
 	inline bool FileSortByNameDescPredicate(const File *lhs, const File *rhs) {
 		return lhs->getName() > rhs->getName();
 	}
+
+
+
+
+	/**
+	 * @brief A \ref DataSource object which provides access to a \ref FileObject.
+	 */
+	class FileDataSource : public DataSource
+	{
+	private:
+		FileDataSource() : file(NULL) {};
+
+	public:
+		/**
+		 * @brief Create a new \ref FileDataSource.
+		 */
+		FileDataSource(File *file);
+
+		~FileDataSource();
+
+		virtual DataBuffer *getDataBuffer();
+
+		/**
+		 * @brief Get the \ref File object associated with this file buffer.
+		 */
+		virtual File *getFile();
+
+	private:
+		File* file;
+	};
 
 } /* namespace wiesel */
 #endif /* __WIESEL_IO_FILE_H__ */

@@ -12,6 +12,8 @@
 #include <wiesel/gl/gl.h>
 #include <wiesel/geometry.h>
 #include <wiesel/util/shared_object.h>
+#include <wiesel/io/datasource.h>
+#include <wiesel/io/file.h>
 
 
 namespace wiesel {
@@ -25,9 +27,14 @@ namespace wiesel {
 		virtual ~Texture();
 
 		/**
-		 * @brief load a texture from a file.
+		 * @brief load a texture from a \ref File.
 		 */
-		static Texture *fromFile(const std::string &filename);
+		static Texture *fromFile(File *filename);
+
+		/**
+		 * @brief load a texture from a \ref DataSource.
+		 */
+		static Texture *fromDataSource(DataSource *data);
 
 		/**
 		 * @brief get the OpenGL texture handle.
@@ -44,7 +51,7 @@ namespace wiesel {
 		void release_texture();
 
 	private:
-		std::string		filename;
+		DataSource*		data;
 		dimension		size;
 		GLuint			handle;
 	};
