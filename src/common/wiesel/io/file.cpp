@@ -49,14 +49,38 @@ DataSource *File::asDataSource() {
 
 
 std::string File::getContentAsString() {
-	// TODO: implement me
-	return "";
+	DataBuffer *buffer = getContent();
+	const char *data = reinterpret_cast<const char*>(buffer->getData());
+	size_t size = buffer->getSize();
+	return string(data, size);
 }
 
 
 vector<string> File::getLines() {
-	// TODO: implement me
-	return vector<string>();
+	DataBuffer *buffer = getContent();
+	const char *data = reinterpret_cast<const char*>(buffer->getData());
+	size_t size = buffer->getSize();
+	vector<string> lines;
+
+	const char *file_end   = data + size;
+	const char *line_begin = data;
+	for(; data<=file_end; data++) {
+		if (data >= file_end || *data == '\r' || *data == '\n') {
+			size_t line_length = data - line_begin;
+			lines.push_back(string(line_begin, line_length));
+
+			// next line start
+			line_begin = data + 1;
+
+			// handle windows style linebreaks
+			if (line_begin < file_end && *data == '\r' && *line_begin == '\n') {
+				line_begin++;
+				data++;
+			}
+		}
+	}
+
+	return lines;
 }
 
 

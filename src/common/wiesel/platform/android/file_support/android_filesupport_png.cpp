@@ -13,6 +13,32 @@
 
 using namespace wiesel;
 
+
+struct PNG_BufferObject
+{
+	DataBuffer *buffer;
+	size_t offset;
+};
+
+
+// callback method to feed the PNG decoder with data from our buffer.
+static void pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t length) {
+	PNG_BufferObject *buffer = (PNG_BufferObject*)png_get_io_ptr(png_ptr);
+	size_t buffer_size = buffer->buffer->getSize();
+
+	// fail, when reading beyond buffer
+	if ((buffer->offset + length) > buffer_size) {
+	//	length = buffer_size - buffer->offset;
+		png_error(png_ptr, "pngReaderCallback failed");
+	}
+
+	const unsigned char *buffer_data = buffer->buffer->getData() + buffer->offset;
+	memcpy(data, buffer_data, length);
+	buffer->offset += length;
+}
+
+
+
 bool AndroidEngine::decodeImage_PNG(
 		DataSource *data, unsigned char **pBuffer,
 		size_t *pSize, unsigned int *pWidth, unsigned int *pHeight, int *pRbits,
@@ -40,20 +66,34 @@ bool AndroidEngine::decodeImage_PNG(
 		return false;
 	}
 
+	bool io_initialized = false;
 	FileDataSource *filedata = dynamic_cast<FileDataSource*>(data);
 	if (filedata) {
 		File *file = filedata->getFile();
 
 		// open the file
-		if ((fp = fopen(file->getFullPath().c_str(), "rb")) == NULL) {
-			Log::err << "file " << file->getFullPath() << " not found!" << std::endl;
-			return false;
+		if ((fp = fopen(file->getFullPath().c_str(), "rb")) != NULL) {
+			png_init_io(png_ptr, fp);
+
+			// success
+			io_initialized = true;
 		}
 
-		png_init_io(png_ptr, fp);
+		// maybe the file could not be opened, because it's not from a real file-system,
+		// so try the buffer-access now
 	}
-	else {
-		// TODO: implement loading from buffer
+
+	if (io_initialized == false) {
+		PNG_BufferObject readbuffer;
+		readbuffer.buffer = data->getDataBuffer();
+		readbuffer.offset = 0;
+        png_set_read_fn(png_ptr, &readbuffer, pngReadCallback);
+
+        io_initialized = true;
+	}
+
+	if (io_initialized == false) {
+		Log::info << "loading from source failed" << std::endl;
 		return false;
 	}
 

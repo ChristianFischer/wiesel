@@ -120,7 +120,22 @@ string GenericFileSystemFile::getName() const {
 
 
 DataBuffer *GenericFileSystemFile::getContent() {
-	// TODO: implement me
+	FILE *fp = fopen(getFullPath().c_str(), "rb");
+	if (fp != NULL) {
+		fseek(fp, 0, SEEK_END);
+		size_t size = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+
+		unsigned char *data = new unsigned char[size];
+		if (data) {
+			fread(data, size, 1, fp);
+		}
+
+		fclose(fp);
+
+		return new ExclusiveDataBuffer(data, size);
+	}
+
 	return NULL;
 }
 

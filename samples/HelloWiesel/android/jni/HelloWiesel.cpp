@@ -7,6 +7,7 @@
 #include <wiesel.h>
 
 using namespace wiesel;
+using namespace std;
 
 
 class HelloWiesel

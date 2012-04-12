@@ -24,14 +24,14 @@ DataBuffer::~DataBuffer() {
 
 
 
-ExclusiveDataBuffer *ExclusiveDataBuffer::createCopyOf(const data_t data, size_t size) {
-	data_t new_buffer = new unsigned char[size];
+ExclusiveDataBuffer *ExclusiveDataBuffer::createCopyOf(data_t data, size_t size) {
+	unsigned char *new_buffer = new unsigned char[size];
 	memcpy(new_buffer, data, size);
 	return new ExclusiveDataBuffer(new_buffer, size);
 }
 
 
-ExclusiveDataBuffer::ExclusiveDataBuffer(const data_t data, size_t size)
+ExclusiveDataBuffer::ExclusiveDataBuffer(data_t data, size_t size)
 : data(data), size(size)
 {
 	return;
@@ -43,7 +43,7 @@ ExclusiveDataBuffer::~ExclusiveDataBuffer() {
 	}
 }
 
-const ExclusiveDataBuffer::data_t ExclusiveDataBuffer::getData() const {
+ExclusiveDataBuffer::data_t ExclusiveDataBuffer::getData() const {
 	return data;
 }
 
@@ -55,7 +55,7 @@ size_t ExclusiveDataBuffer::getSize() const {
 
 
 
-SharedDataBuffer::SharedDataBuffer(const data_t data, size_t size)
+SharedDataBuffer::SharedDataBuffer(data_t data, size_t size)
 : data(data), size(size)
 {
 	return;
@@ -65,7 +65,7 @@ SharedDataBuffer::~SharedDataBuffer() {
 	// data is an external reference, so it will not be destroyed!
 }
 
-const SharedDataBuffer::data_t SharedDataBuffer::getData() const {
+SharedDataBuffer::data_t SharedDataBuffer::getData() const {
 	return data;
 }
 
