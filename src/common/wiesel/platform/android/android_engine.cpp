@@ -16,6 +16,7 @@
 #include "wiesel/util/log.h"
 
 #include <assert.h>
+#include <inttypes.h>
 #include <android_native_app_glue.h>
 
 
@@ -193,7 +194,19 @@ bool AndroidEngine::decodeImage(
 		}
 	}
 	else {
-		// TODO: implement loading from buffer
+		DataBuffer *buffer = data->getDataBuffer();
+
+		// check first bytes
+		if (buffer->getSize() >= 4) {
+			uint32_t header_32 = *(reinterpret_cast<const int32_t*>(buffer->getData()));
+
+			// when a format was recognized, we create a new BufferDataSource, to re-use the created data-buffer,
+			// because passing the original 'data' object could cause the buffer will be re-loaded from a storage.
+
+			if (header_32 == 0x474e5089U) {
+				return decodeImage_PNG(new BufferDataSource(buffer), pBuffer, pSize, pWidth, pHeight, pRbits, pGbits, pBbits, pAbits, as_texture);
+			}
+		}
 	}
 
 	return false;

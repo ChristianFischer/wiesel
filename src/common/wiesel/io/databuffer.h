@@ -22,7 +22,7 @@ namespace wiesel {
 		DataBuffer();
 
 	public:
-		typedef unsigned char* data_t;
+		typedef const unsigned char* data_t;
 
 		virtual ~DataBuffer();
 
@@ -33,7 +33,7 @@ namespace wiesel {
 		 * The application should not use this pointer after the
 		 * object was released.
 		 */
-		virtual const data_t getData() const = 0;
+		virtual data_t getData() const = 0;
 
 		/**
 		 * @brief Get the size of the data stored in the buffer.
@@ -56,7 +56,7 @@ namespace wiesel {
 		/**
 		 * @brief Creates a new \ref DataBuffer with a copy of \c data.
 		 */
-		static ExclusiveDataBuffer *createCopyOf(const data_t data, size_t size);
+		static ExclusiveDataBuffer *createCopyOf(data_t data, size_t size);
 
 		/**
 		 * @brief Creates a new \ref DataBuffer, which references to the given data.
@@ -64,15 +64,15 @@ namespace wiesel {
 		 * will be destroyed.
 		 * To create a copy of an existing buffer use \ref ExclusiveDataBuffer::copyOf(data_t,size_t).
 		 */
-		ExclusiveDataBuffer(const data_t data, size_t size);
+		ExclusiveDataBuffer(data_t data, size_t size);
 		~ExclusiveDataBuffer();
 
-		virtual const data_t getData() const;
+		virtual data_t getData() const;
 		virtual size_t getSize() const;
 
 	private:
-		const data_t	data;
-		size_t			size;
+		data_t	data;
+		size_t	size;
 	};
 
 
@@ -87,15 +87,15 @@ namespace wiesel {
 		SharedDataBuffer() : data(NULL), size(0) {}
 
 	public:
-		SharedDataBuffer(const data_t data, size_t size);
+		SharedDataBuffer(data_t data, size_t size);
 		~SharedDataBuffer();
 
-		virtual const data_t getData() const;
+		virtual data_t getData() const;
 		virtual size_t getSize() const;
 
 	private:
-		const data_t	data;
-		size_t			size;
+		data_t	data;
+		size_t	size;
 	};
 
 } /* namespace wiesel */
