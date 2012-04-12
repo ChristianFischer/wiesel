@@ -64,6 +64,21 @@ Directory *Directory::findDirectory(const std::string &name) {
 		next_entries  = name.substr(slash_pos + 1);
 	}
 
+	// '.' is the current directory
+	if (current_entry == ".") {
+		return findDirectory(next_entries);
+	}
+
+	// '..' is the parent directory
+	if (current_entry == "..") {
+		if (getParent()) {
+			return getParent()->findDirectory(next_entries);
+		}
+
+		// no parent? fail!
+		return NULL;
+	}
+
 	DirectoryList directories = getSubDirectories();
 	for(DirectoryList::iterator it=directories.begin(); it!=directories.end(); it++) {
 		Directory *dir = *it;
@@ -78,48 +93,34 @@ Directory *Directory::findDirectory(const std::string &name) {
 
 
 File *Directory::findFile(const std::string &name) {
-	if (name.empty()) {
-		// no file
-		return NULL;
-	}
-
-	if (name.size() > 0 && name[0] == '/') {
-		// ignore any leading slashes
-		return findFile(name.substr(1));
-	}
-
-	string::size_type slash_pos = name.find('/');
-	string current_entry;
-	string next_entries;
+	string::size_type slash_pos = name.rfind('/');
+	string dirname;
+	string filename;
 
 	if (slash_pos == string::npos) {
-		current_entry = name;
+		dirname  = "";
+		filename = name;
 	}
 	else {
-		current_entry = name.substr(0, slash_pos);
-		next_entries  = name.substr(slash_pos + 1);
+		dirname  = name.substr(0, slash_pos);
+		filename = name.substr(slash_pos + 1);
 	}
 
-	if (next_entries.empty()) {
+	if (dirname.empty()) {
 		// last entry, now we search for files
 		FileList files = getFiles();
 		for(FileList::iterator it=files.begin(); it!=files.end(); it++) {
 			File *file = *it;
 
-			if (file->getName() == current_entry) {
+			if (file->getName() == filename) {
 				return file;
 			}
 		}
 	}
 	else {
-		// search for subdirectories
-		DirectoryList directories = getSubDirectories();
-		for(DirectoryList::iterator it=directories.begin(); it!=directories.end(); it++) {
-			Directory *dir = *it;
-
-			if (dir->getName() == current_entry) {
-				return dir->findFile(next_entries);
-			}
+		Directory *dir = findDirectory(dirname);
+		if (dir) {
+			return dir->findFile(filename);
 		}
 	}
 
