@@ -10,6 +10,7 @@
 #include "android_screen.h"
 
 #include "wiesel/platform/generic/generic_root_fs.h"
+#include "wiesel/platform/android/file_support/android_asset_fs.h"
 
 #include "wiesel/io/datasource.h"
 #include "wiesel/io/file.h"
@@ -29,11 +30,14 @@ AndroidEngine::AndroidEngine(struct android_app *app) {
 
 	// create file systems
 	root_fs		= new GenericFileSystem();
+	asset_fs	= new AndroidAssetFileSystem(app->activity->assetManager);
 
 	return;
 }
 
 AndroidEngine::~AndroidEngine() {
+	delete root_fs;
+	delete asset_fs;
 	return;
 }
 
@@ -175,6 +179,11 @@ bool AndroidEngine::onRun() {
 
 FileSystem *AndroidEngine::getRootFileSystem() {
 	return root_fs;
+}
+
+
+FileSystem *AndroidEngine::getAssetFileSystem() {
+	return asset_fs;
 }
 
 

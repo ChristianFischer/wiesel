@@ -85,6 +85,13 @@ namespace wiesel {
 		virtual FileList getFiles() = 0;
 
 		/**
+		 * @brief Get a direct subdirectory by it's name.
+		 * This function does not resolve relative path names or does a recursive search into other subdirectories.
+		 * @returns \c NULL, if there's no direct subdirectory with the given name.
+		 */
+		virtual Directory *getSubDirectory(const std::string &name);
+
+		/**
 		 * @brief Tries to find a specific directory relative to the current directory by it's full name.
 		 * When the directory is not found, or the object which was found is a file-object,
 		 * \c findDirectory will return \c NULL.
