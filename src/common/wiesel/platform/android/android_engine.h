@@ -18,6 +18,7 @@
 namespace wiesel {
 
 	class GenericFileSystem;
+	class AndroidAssetFileSystem;
 
 
 	/**
@@ -44,6 +45,7 @@ namespace wiesel {
 
 	public:
 		virtual FileSystem *getRootFileSystem();
+		virtual FileSystem *getAssetFileSystem();
 
 	public:
 		virtual bool decodeImage(
@@ -64,6 +66,7 @@ namespace wiesel {
 	protected:
 		struct android_app*			app;
 		GenericFileSystem*			root_fs;
+		AndroidAssetFileSystem*		asset_fs;
 	};
 
 }

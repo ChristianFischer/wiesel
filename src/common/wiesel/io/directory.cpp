@@ -79,12 +79,25 @@ Directory *Directory::findDirectory(const std::string &name) {
 		return NULL;
 	}
 
+	Directory *subdir = getSubDirectory(current_entry);
+	if (subdir) {
+		return subdir->findDirectory(next_entries);
+	}
+
+	return NULL;
+}
+
+
+Directory *Directory::getSubDirectory(const string &name) {
+	// no slashes allowed - to find relative paths, use findDirectory()
+	assert(name.find('/') != string::npos);
+
 	DirectoryList directories = getSubDirectories();
 	for(DirectoryList::iterator it=directories.begin(); it!=directories.end(); it++) {
 		Directory *dir = *it;
 
-		if (dir->getName() == current_entry) {
-			return dir->findDirectory(next_entries);
+		if (dir->getName() == name) {
+			return dir;
 		}
 	}
 

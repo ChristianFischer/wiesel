@@ -76,6 +76,8 @@ namespace wiesel {
 		/**
 		 * @brief get the full file content as string-object.
 		 * Binary files may return an empty string or garbage.
+		 * When the file couldn't be opened, an empty string will be returned.
+		 * To handle the case, a file was not readable, use \ref getContent().
 		 */
 		virtual std::string getContentAsString();
 

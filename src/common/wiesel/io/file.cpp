@@ -50,14 +50,22 @@ DataSource *File::asDataSource() {
 
 std::string File::getContentAsString() {
 	DataBuffer *buffer = getContent();
-	const char *data = reinterpret_cast<const char*>(buffer->getData());
-	size_t size = buffer->getSize();
-	return string(data, size);
+	if (buffer) {
+		const char *data = reinterpret_cast<const char*>(buffer->getData());
+		size_t size = buffer->getSize();
+		return string(data, size);
+	}
+
+	return "";
 }
 
 
 vector<string> File::getLines() {
 	DataBuffer *buffer = getContent();
+	if (buffer == NULL) {
+		return vector<string>();
+	}
+
 	const char *data = reinterpret_cast<const char*>(buffer->getData());
 	size_t size = buffer->getSize();
 	vector<string> lines;

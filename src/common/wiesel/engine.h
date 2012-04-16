@@ -141,6 +141,11 @@ namespace wiesel {
 		 */
 		virtual FileSystem *getRootFileSystem() = 0;
 
+		/**
+		 * @brief get the file system, which stores the assets of the current application.
+		 */
+		virtual FileSystem *getAssetFileSystem() = 0;
+
 	// stuff
 	public:
 		/**
