@@ -189,7 +189,9 @@ FileSystem *AndroidEngine::getAssetFileSystem() {
 
 bool AndroidEngine::decodeImage(
 		DataSource *data,
-		unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+		unsigned char **pBuffer, size_t *pSize,
+		unsigned int *pWidth, unsigned int *pHeight,
+		unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
 		int *pRbits, int *pGbits, int *pBbits, int *pAbits,
 		bool as_texture
 ) {
@@ -199,7 +201,11 @@ bool AndroidEngine::decodeImage(
 		// TODO: convert to lower case
 
 		if (file_ext == "png") {
-			return decodeImage_PNG(data, pBuffer, pSize, pWidth, pHeight, pRbits, pGbits, pBbits, pAbits, as_texture);
+			return decodeImage_PNG(
+					data, pBuffer, pSize,
+					pWidth, pHeight, pOriginalWidth, pOriginalHeight,
+					pRbits, pGbits, pBbits, pAbits, as_texture
+			);
 		}
 	}
 	else {
@@ -213,7 +219,11 @@ bool AndroidEngine::decodeImage(
 			// because passing the original 'data' object could cause the buffer will be re-loaded from a storage.
 
 			if (header_32 == 0x474e5089U) {
-				return decodeImage_PNG(new BufferDataSource(buffer), pBuffer, pSize, pWidth, pHeight, pRbits, pGbits, pBbits, pAbits, as_texture);
+				return decodeImage_PNG(
+						new BufferDataSource(buffer), pBuffer, pSize,
+						pWidth, pHeight, pOriginalWidth, pOriginalHeight,
+						pRbits, pGbits, pBbits, pAbits, as_texture
+				);
 			}
 		}
 	}

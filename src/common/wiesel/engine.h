@@ -151,18 +151,22 @@ namespace wiesel {
 		/**
 		 * @brief decodes an image from file into a buffer.
 		 * Takes care of power-of-two size.
-		 * @param data			A \ref DataSource, the image data will be loaded from.
-		 * @param buffer		A buffer to receive the image data.
-		 * @param size			A pointer to receive the size of the buffer.
-		 * @param width			A pointer to receive the dimension of the image.
-		 * @param height		A pointer to receive the dimension of the image.
-		 * @param *_bits		Points to store the bit size of each RGBA component.
-		 * 						If non-zero, the implementation should try to force the bit-size to the given value.
-		 * @param as_textzre	When \c true, the implementation may try to fit the texture into required parameters.
+		 * @param data				A \ref DataSource, the image data will be loaded from.
+		 * @param pBuffer			A buffer to receive the image data.
+		 * @param pSize				A pointer to receive the size of the buffer.
+		 * @param pWidth			A pointer to receive the dimension of the image.
+		 * @param pHeight			A pointer to receive the dimension of the image.
+		 * @param pOriginalWidth	A pointer to receive the original dimension of the image, if it was resized to match pot-size.
+		 * @param pOriginalHeight	A pointer to receive the original dimension of the image, if it was resized to match pot-size.
+		 * @param p*Bits			Points to store the bit size of each RGBA component.
+		 * 							If non-zero, the implementation should try to force the bit-size to the given value.
+		 * @param as_textzre		When \c true, the implementation may try to fit the texture into required parameters.
 		 */
 		virtual bool decodeImage(
 								DataSource *data,
-								unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+								unsigned char **pBuffer, size_t *pSize,
+								unsigned int *pWidth, unsigned int *pHeight,
+								unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
 								int *pRbits, int *pGbits, int *pBbits, int *pAbits,
 								bool as_texture
 		) = 0;
