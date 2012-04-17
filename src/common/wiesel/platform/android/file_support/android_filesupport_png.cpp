@@ -9,6 +9,7 @@
 #include "../android_engine.h"
 #include "wiesel/io/file.h"
 #include "wiesel/util/log.h"
+#include "wiesel/util/imageutils.h"
 #include <png.h>
 
 using namespace wiesel;
@@ -40,9 +41,13 @@ static void pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t leng
 
 
 bool AndroidEngine::decodeImage_PNG(
-		DataSource *data, unsigned char **pBuffer,
-		size_t *pSize, unsigned int *pWidth, unsigned int *pHeight, int *pRbits,
-		int *pGbits, int *pBbits, int *pAbits, bool as_texture) {
+		DataSource *data,
+		unsigned char **pBuffer, size_t *pSize,
+		unsigned int *pWidth, unsigned int *pHeight,
+		unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
+		int *pRbits, int *pGbits, int *pBbits, int *pAbits,
+		bool as_texture
+) {
 	png_structp png_ptr;
 	png_infop info_ptr;
 	unsigned int sig_read = 0;
@@ -51,6 +56,8 @@ bool AndroidEngine::decodeImage_PNG(
 	int interlace_type;
 	png_uint_32 width;
 	png_uint_32 height;
+	png_uint_32 original_width;
+	png_uint_32 original_height;
 	FILE* fp = NULL;
 
 	// Create and initialize the png_struct with the desired error handler functions.
@@ -102,20 +109,26 @@ bool AndroidEngine::decodeImage_PNG(
 	// PNG_TRANSFORM_PACKING:     expand 1, 2 and 4-bit samples to bytes
 	// PNG_TRANSFORM_STRIP_16:    strip 16-bit samples to 8 bits
 	// PNG_TRANSFORM_GRAY_TO_RGB: expand grayscale samples to RGB (or GA to RGBA)
-	png_read_png(png_ptr, info_ptr,
-			PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_PACKING
-					| PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_GRAY_TO_RGB, 0);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_GRAY_TO_RGB, 0);
 
-	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
-			&interlace_type, 0, 0);
+	png_get_IHDR(png_ptr, info_ptr, &original_width, &original_height, &bit_depth, &color_type, &interlace_type, 0, 0);
+
+	// when we're loading a texture, we may need a power-of-two size
+	if (as_texture) {
+		width  = imageutils::getNextPowerOfTwo(original_width);
+		height = imageutils::getNextPowerOfTwo(original_height);
+	}
+	else {
+		width  = original_width;
+		height = original_height;
+	}
 
 	// init image info
 	bool has_alpha = (color_type & PNG_COLOR_MASK_ALPHA) ? true : false;
 	int bytesPerPixel = has_alpha ? 4 : 3;
 
 	// allocate memory and read data
-	unsigned char *image_data = reinterpret_cast<unsigned char*>(malloc(
-			width * height * bytesPerPixel));
+	unsigned char *image_data = reinterpret_cast<unsigned char*>(malloc(width * height * bytesPerPixel));
 	if (image_data == NULL) {
 		return false;
 	}
@@ -123,30 +136,45 @@ bool AndroidEngine::decodeImage_PNG(
 	png_bytep *png_rows = png_get_rows(png_ptr, info_ptr);
 
 	// copy data to image info
-	int bytesPerRow = width * bytesPerPixel;
-	for (unsigned int row = 0; row < height; ++row) {
-		memcpy(image_data + (row * bytesPerRow), png_rows[row], bytesPerRow);
+	int bytesPerRowSrc = original_width * bytesPerPixel;
+	int bytesPerRowDst = width * bytesPerPixel;
+	int gap            = bytesPerRowDst - bytesPerRowSrc;
+	for(unsigned int row=0; row<original_height; ++row) {
+		// copy the entire line
+		memcpy(image_data + (row * bytesPerRowDst), png_rows[row], bytesPerRowSrc);
+
+		// fill the gap to the next line with transparent black color
+		memset(image_data + (row * bytesPerRowDst) + bytesPerRowSrc, 0x00, gap);
 	}
 
-	// copy data into output pointers
-	if (pRbits)
-		*pRbits = bit_depth;
-	if (pGbits)
-		*pGbits = bit_depth;
-	if (pBbits)
-		*pBbits = bit_depth;
-	if (pAbits)
-		*pAbits = has_alpha ? bit_depth : 0;
-	if (pWidth)
-		*pWidth = width;
-	if (pHeight)
-		*pHeight = height;
-	if (pSize)
-		*pSize = width * height * bytesPerPixel;
+	// fill empty space of resized area
+	memset(
+			image_data + (original_height * bytesPerRowDst),
+			0x00,
+			(height - original_height) * bytesPerRowDst
+	);
 
-	if (pBuffer) {
+	// copy data into output pointers
+	if (pRbits)  *pRbits  = bit_depth;
+	if (pGbits)  *pGbits  = bit_depth;
+	if (pBbits)  *pBbits  = bit_depth;
+	if (pAbits)  *pAbits  = has_alpha ? bit_depth : 0;
+	if (pWidth)  *pWidth  = width;
+	if (pHeight) *pHeight = height;
+	if (pSize)   *pSize   = width * height * bytesPerPixel;
+
+	if  (pOriginalWidth) {
+		*pOriginalWidth = original_width;
+	}
+
+	if  (pOriginalHeight) {
+		*pOriginalHeight = original_height;
+	}
+
+	if  (pBuffer) {
 		*pBuffer = image_data;
-	} else {
+	}
+	else {
 		// when no buffer-pointer was provided, delete the image data
 		free(image_data);
 	}

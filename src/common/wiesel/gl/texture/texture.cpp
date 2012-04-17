@@ -66,7 +66,9 @@ bool Texture::createHardwareTexture() {
 
 	bool successful = Engine::getCurrent()->decodeImage(
 												data,
-												&buffer, &buffer_size, &width, &height,
+												&buffer, &buffer_size,
+												&width, &height,
+												&orig_width, &orig_height,
 												&r_bits, &g_bits, &b_bits, &a_bits,
 												true
 	);
@@ -76,6 +78,7 @@ bool Texture::createHardwareTexture() {
 
 	unsigned int texture_width	= width;
 	unsigned int texture_height	= height;
+
 	if (successful && buffer) {
 		// when power-of-two sizes are required, compute the next pot-size of the texture
 		texture_width	= imageutils::getNextPowerOfTwo(texture_width);
@@ -105,7 +108,8 @@ bool Texture::createHardwareTexture() {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		size = dimension(texture_width, texture_height);
+		size          = dimension(texture_width, texture_height);
+		original_size = dimension(orig_width,    orig_height);
 	}
 
 	if (buffer) {

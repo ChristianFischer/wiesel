@@ -50,7 +50,9 @@ namespace wiesel {
 	public:
 		virtual bool decodeImage(
 				DataSource *data,
-				unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+				unsigned char **pBuffer, size_t *pSize,
+				unsigned int *pWidth, unsigned int *pHeight,
+				unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
 				int *pRbits, int *pGbits, int *pBbits, int *pAbits,
 				bool as_texture
 		);
@@ -58,7 +60,9 @@ namespace wiesel {
 	private:
 		virtual bool decodeImage_PNG(
 				DataSource *data,
-				unsigned char **pBuffer, size_t *pSize, unsigned int *pWidth, unsigned int *pHeight,
+				unsigned char **pBuffer, size_t *pSize,
+				unsigned int *pWidth, unsigned int *pHeight,
+				unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
 				int *pRbits, int *pGbits, int *pBbits, int *pAbits,
 				bool as_texture
 		);
