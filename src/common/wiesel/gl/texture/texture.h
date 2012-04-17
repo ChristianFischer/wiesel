@@ -37,6 +37,24 @@ namespace wiesel {
 		static Texture *fromDataSource(DataSource *data);
 
 		/**
+		 * @brief get the texture's size.
+		 * The actual size of the texture may differ from the texture-file's size,
+		 * when the hardware doesn't support the file's dimension.
+		 */
+		inline const dimension& getSize() const {
+			return size;
+		}
+
+		/**
+		 * @brief get the texture's original size, as it was stored in the texture image.
+		 * The actual size of the texture may differ from the texture-file's size,
+		 * when the hardware doesn't support the file's dimension.
+		 */
+		inline const dimension& getOriginalSize() const {
+			return original_size;
+		}
+
+		/**
 		 * @brief get the OpenGL texture handle.
 		 */
 		inline GLuint getGlHandle() const {
@@ -53,6 +71,7 @@ namespace wiesel {
 	private:
 		DataSource*		data;
 		dimension		size;
+		dimension		original_size;
 		GLuint			handle;
 	};
 
