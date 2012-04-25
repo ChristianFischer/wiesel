@@ -18,6 +18,9 @@ regexp:android(/.+)*/obj/
 regexp:android(/.+)*/assets/
 regexp:android(/.+)*/local.properties
 
+# Any build folders (excluding the build-directory in the repository root)
+*/build/*
+
 # Eclipse project files
 .classpath
 .project
