@@ -67,7 +67,7 @@
             unless="wiesel.dir"
     />
     <!-- Import the wiesel build-support file for extra build-targets -->
-	<import file="${wiesel.dir}/build/build-support.xml" />
+	<import file="${wiesel.dir}/build/android/build-support.xml" />
 
     <!-- Import the actual build file.
 
