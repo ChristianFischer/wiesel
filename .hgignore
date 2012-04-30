@@ -21,6 +21,9 @@ regexp:android(/.+)*/local.properties
 # Any build folders (excluding the build-directory in the repository root)
 */build/*
 
+# Local config folders
+config/local/
+
 # Eclipse project files
 .classpath
 .project

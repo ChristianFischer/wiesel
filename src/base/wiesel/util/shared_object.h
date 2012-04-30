@@ -23,6 +23,7 @@
 #define __WIESEL_UTIL_MANAGED_OBJECT_H__
 
 #include <assert.h>
+#include <stddef.h>
 #include <vector>
 
 

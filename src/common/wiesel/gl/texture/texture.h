@@ -22,12 +22,12 @@
 #ifndef __WIESEL_GL_TEXTURE_TEXTURE_H__
 #define __WIESEL_GL_TEXTURE_TEXTURE_H__
 
-#include <string>
 #include <wiesel/gl/gl.h>
 #include <wiesel/geometry.h>
 #include <wiesel/util/shared_object.h>
 #include <wiesel/io/datasource.h>
 #include <wiesel/io/file.h>
+#include <string>
 
 
 namespace wiesel {

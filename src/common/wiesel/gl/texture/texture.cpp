@@ -22,6 +22,7 @@
 #include "texture.h"
 #include <wiesel.h>
 #include <wiesel/util/imageutils.h>
+#include <malloc.h>
 
 
 using namespace wiesel;

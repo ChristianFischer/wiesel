@@ -19,25 +19,44 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_GL_GLUTILS_H__
-#define __WIESEL_GL_GLUTILS_H__
+#ifndef __WIESEL_PLATFORM_SDL_SCREEN_H__
+#define __WIESEL_PLATFORM_SDL_SCREEN_H__
 
-// include platform specific OpenGL headers
-#include "wiesel/platform/gl_import.h"
+#if WIESEL_USE_LIBSDL
 
-#define WIESEL_GL_LOG_TAG	"GL"
-#define CHECK_GL_ERROR		wiesel::checkGlError(__FILE__,__LINE__)
+#include "../../screen.h"
+#include "sdl_engine.h"
+
+#include <wiesel/geometry.h>
 
 
-namespace wiesel
-{
+namespace wiesel {
+
 	/**
-	 * @brief check for OpenGL errors and print the error message.
-	 * @param file	The current source code file.
-	 * @param line	The current source code line.
+	 * @brief The SDL Screen implementation.
 	 */
-	void checkGlError(const char *file, int line);
+	class SdlScreen
+	: public Screen
+	{
+	private:
+		SdlScreen();
+
+	public:
+		SdlScreen(SdlEngine *engine);
+		virtual ~SdlScreen();
+
+		bool init();
+		bool release();
+
+		virtual void preRender();
+		virtual void postRender();
+
+	private:
+		SdlEngine*		engine;
+	};
+
 }
 
+#endif // WIESEL_USE_LIBSDL
 
-#endif /* __WIESEL_GL_GLUTILS_H__ */
+#endif /* __WIESEL_PLATFORM_SDL_SCREEN_H__ */
