@@ -19,6 +19,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
+#ifdef __ANDROID__
+
 #include <wiesel.h>
 #include <android/log.h>
 
@@ -40,3 +42,4 @@ int _logmsg_impl(LogLevel level, const char *tag, const char *message) {
 	return __android_log_print(priority, tag, message);
 }
 
+#endif // __ANDROID__

@@ -19,25 +19,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_GL_GLUTILS_H__
-#define __WIESEL_GL_GLUTILS_H__
+#ifndef __WIESEL_PLATFORM_GLIMPORT_H__
 
-// include platform specific OpenGL headers
-#include "wiesel/platform/gl_import.h"
+// android
+#include "android/android_gl.h"
 
-#define WIESEL_GL_LOG_TAG	"GL"
-#define CHECK_GL_ERROR		wiesel::checkGlError(__FILE__,__LINE__)
-
-
-namespace wiesel
-{
-	/**
-	 * @brief check for OpenGL errors and print the error message.
-	 * @param file	The current source code file.
-	 * @param line	The current source code line.
-	 */
-	void checkGlError(const char *file, int line);
-}
+// desktop
+#include "sdl/sdl_gl.h"
 
 
-#endif /* __WIESEL_GL_GLUTILS_H__ */
+#endif	/* GL_IMPORT_H */

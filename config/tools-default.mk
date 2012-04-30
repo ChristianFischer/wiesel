@@ -10,10 +10,10 @@ LINK			:= $(shell which g++)
 C_FLAGS			:=
 
 # C include directories
-C_INCLUDE		:=
+C_INCLUDE_PATHS		:=
 
 # C library search paths
-C_LDLIBRARY_PATH	:=
+LD_LIBRARY_PATHS	:=
 
 # Libraries to be linked with the target
 LD_LIBRARIES		:=

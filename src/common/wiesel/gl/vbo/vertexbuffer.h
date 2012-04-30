@@ -22,8 +22,8 @@
 #ifndef __WIESEL_GL_VBO_VERTEXBUFFER_H__
 #define __WIESEL_GL_VBO_VERTEXBUFFER_H__
 
-#include <wiesel/util/shared_object.h>
 #include <wiesel/gl/gl.h>
+#include <wiesel/util/shared_object.h>
 #include <wiesel/gl/shader/shader.h>
 #include <wiesel/gl/texture/texture.h>
 

@@ -31,6 +31,7 @@
 	#include "android/platform_main.h"
 #endif
 
+#include "sdl/sdl_platform.h"
 
 
 #endif // __WIESEL_PLATFORM_PLATFORMS_H__

@@ -19,6 +19,9 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
+
+#ifdef __ANDROID__
+
 #include "android_asset_fs.h"
 #include "wiesel/io/databuffer.h"
 #include "wiesel/util/log.h"
@@ -176,3 +179,4 @@ DataBuffer *AndroidAssetFileSystemFile::getContent() {
 	return NULL;
 }
 
+#endif // __ANDROID__

@@ -21,6 +21,8 @@
  */
 #include "vertexbuffer.h"
 #include <assert.h>
+#include <malloc.h>
+#include <string.h>
 
 
 using namespace wiesel;

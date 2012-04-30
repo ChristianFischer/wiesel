@@ -21,6 +21,7 @@
  */
 #include "imageutils.h"
 #include <assert.h>
+#include <malloc.h>
 #include <stddef.h>
 #include <string.h>
 

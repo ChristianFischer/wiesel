@@ -22,6 +22,7 @@
 #include "generic_root_fs.h"
 #include "wiesel/util/log.h"
 #include <dirent.h>
+#include <stdio.h>
 
 
 using namespace wiesel;

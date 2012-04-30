@@ -21,9 +21,13 @@
  */
 #include "log.h"
 
+#include <malloc.h>
+#include <stdarg.h>
+#include <stdio.h>
+
 #include <sstream>
 #include <string>
-#include <stdio.h>
+
 
 using namespace wiesel;
 using namespace std;

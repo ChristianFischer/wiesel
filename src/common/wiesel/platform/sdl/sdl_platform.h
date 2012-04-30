@@ -19,25 +19,24 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_GL_GLUTILS_H__
-#define __WIESEL_GL_GLUTILS_H__
+#ifndef __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__
+#define __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__
 
-// include platform specific OpenGL headers
-#include "wiesel/platform/gl_import.h"
+#include "../../application.h"
 
-#define WIESEL_GL_LOG_TAG	"GL"
-#define CHECK_GL_ERROR		wiesel::checkGlError(__FILE__,__LINE__)
+#if WIESEL_USE_LIBSDL
 
+/// application entry point macro
+#define	WIESEL_APPLICATION_SETUP(APPLICATION)						\
+	extern "C" int main(int argc, char* argv[]) {					\
+		APPLICATION app = APPLICATION();							\
+		__internal_sdl_app_main(&app, argc, argv);					\
+		return 0;													\
+	}
 
-namespace wiesel
-{
-	/**
-	 * @brief check for OpenGL errors and print the error message.
-	 * @param file	The current source code file.
-	 * @param line	The current source code line.
-	 */
-	void checkGlError(const char *file, int line);
-}
+/// delegate for the application entry point
+void __internal_sdl_app_main(wiesel::Application *app, int argc, char* argv[]);
 
+#endif // WIESEL_USE_LIBSDL
 
-#endif /* __WIESEL_GL_GLUTILS_H__ */
+#endif // __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__
