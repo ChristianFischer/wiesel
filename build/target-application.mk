@@ -3,7 +3,7 @@
 
 # macro for converting a source filename into a object filename
 define get-object-file
-$(BUILD_OBJ_DIR)/$(shell echo $(subst $(PROJECT_DIR),,$1) | sed -e 's/[\/\.]/_/g')$(OBJECTFILE_EXTENSION)
+$(BUILD_OBJ_DIR)/$(subst .,_,$(subst /,_,$(subst $(PROJECT_DIR),,$1)))$(OBJECTFILE_EXTENSION)
 endef
 
 
@@ -24,6 +24,7 @@ endef
 
 # get all directories within the source folders
 BUILD_FOLDERS			:= $(foreach dir,$(PROJECT_SOURCE_FOLDERS),$(shell /usr/bin/find $(dir) -type d -print))
+BUILD_SOURCE_H_FILES		:= $(foreach dir,$(BUILD_FOLDERS),$(wildcard $(dir)/*.h))
 BUILD_SOURCE_C_FILES		:= $(foreach dir,$(BUILD_FOLDERS),$(wildcard $(dir)/*.c))
 BUILD_SOURCE_CPP_FILES		:= $(foreach dir,$(BUILD_FOLDERS),$(wildcard $(dir)/*.cpp))
 BUILD_SOURCE_FILES		:= $(BUILD_SOURCE_C_FILES) $(BUILD_SOURCE_CPP_FILES)
@@ -69,13 +70,15 @@ $(BUILD_BIN_DIR):
 
 
 # build the dependency file
-#$(BUILD_DEPENDENCY_FILE): $(BUILD_OBJ_DIR) $(BUILD_SOURCE_FILES) $(BUILD_SOURCE_H_FILES)
-#	@echo "computing dependencies...";
-#	@echo "# build dependency file" > $(BUILD_DEPENDENCY_FILE);
-#	$(foreach file,$(BUILD_SOURCE_FILES), $(shell \
-#			$(COMPILE.CPP) $(BUILD_INCLUDE_PATHS) $(C_FLAGS) -MM -MQ"$(call get-object-file,$(file))" $(file) >> $(BUILD_DEPENDENCY_FILE); \
-#			echo "" >> $(BUILD_DEPENDENCY_FILE); \
-#	))
+$(BUILD_DEPENDENCY_FILE): $(BUILD_OBJ_DIR) $(BUILD_SOURCE_FILES) $(BUILD_SOURCE_H_FILES)
+	@echo "computing dependencies...";
+	@echo "# build dependency file" > $(BUILD_DEPENDENCY_FILE);
+	@for file in $(BUILD_SOURCE_FILES); do \
+		echo "# $$file" >> $(BUILD_DEPENDENCY_FILE); \
+		$(COMPILE.CPP) $(C_FLAGS) $(COMPILER_ARGUMENTS) \
+		-MM -MQ"$$file$(OBJECTFILE_EXTENSION)" $$file >> $(BUILD_DEPENDENCY_FILE); \
+		echo "" >> $(BUILD_DEPENDENCY_FILE); \
+	done;
 
 # get the dependencies
 #include $(BUILD_DEPENDENCY_FILE)
@@ -146,4 +149,4 @@ build: $(BUILD_TARGET)
 clean:
 	@rm -rf $(BUILD_BIN_DIR)
 	@rm -rf $(BUILD_OBJ_DIR)
-	
+
