@@ -27,11 +27,14 @@
 #include "wiesel/platform/generic/generic_root_fs.h"
 
 #include "wiesel/io/datasource.h"
-#include "wiesel/io/file.h"
+#include "wiesel/io/directory_filesystem.h"
 #include "wiesel/util/log.h"
 
 #include <assert.h>
 #include <inttypes.h>
+#include <sys/unistd.h>
+#include <sys/param.h>
+#include <sstream>
 
 
 using namespace wiesel;
@@ -40,15 +43,33 @@ using namespace std;
 
 SdlEngine::SdlEngine() {
 	// create file systems
-	root_fs		= new GenericFileSystem();
-	asset_fs	= new GenericFileSystem();
+	root_fs = new GenericFileSystem();
+	
+	// get the current working directory
+	char working_dir_name[MAXPATHLEN];
+	getcwd(working_dir_name, MAXPATHLEN);
+	
+	stringstream ss;
+	ss << working_dir_name;
+	ss << "/resources/common";
+	
+	Directory *asset_root = root_fs->findDirectory(ss.str());
+	assert(asset_root);
+	
+	if (asset_root) {
+		asset_fs = new DirectoryFileSystem(asset_root);
+	}
+	else {
+		// try another root file-system as a fallback
+		asset_fs = new GenericFileSystem();
+	}
 
 	return;
 }
 
 SdlEngine::~SdlEngine() {
-	delete root_fs;
 	delete asset_fs;
+	delete root_fs;
 	return;
 }
 

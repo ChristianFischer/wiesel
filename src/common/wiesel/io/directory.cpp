@@ -104,7 +104,7 @@ Directory *Directory::findDirectory(const std::string &name) {
 
 Directory *Directory::getSubDirectory(const string &name) {
 	// no slashes allowed - to find relative paths, use findDirectory()
-	assert(name.find('/') != string::npos);
+	assert(name.find('/') == string::npos);
 
 	DirectoryList directories = getSubDirectories();
 	for(DirectoryList::iterator it=directories.begin(); it!=directories.end(); it++) {

@@ -23,6 +23,7 @@
 #include "wiesel/util/log.h"
 #include <dirent.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 
 using namespace wiesel;
@@ -71,15 +72,25 @@ string GenericFileSystemDirectory::getName() const {
 DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 	DirectoryList directories;
 	struct dirent *dirp;
+	struct stat fileinfo;
 	DIR *dp;
 
 	if ((dp = opendir((getFullPath() + "/").c_str())) != NULL) {
 		while ((dirp = readdir(dp)) != NULL) {
-			if (dirp->d_type != DT_DIR) {
+			string newdirname = dirp->d_name;
+			string fullpath = getFullPath() + "/" + newdirname;
+
+			// get entry fileinfo
+			if (lstat(fullpath.c_str(), &fileinfo) < 0) {
 				continue;
 			}
 
-			string newdirname = dirp->d_name;
+			// skip, if is no directory
+			if (S_ISDIR(fileinfo.st_mode) == false) {
+				continue;
+			}
+
+			// skip "current" and "parent" directory entries
 			if (newdirname == "." || newdirname == "..") {
 				continue;
 			}
@@ -97,13 +108,25 @@ DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 FileList GenericFileSystemDirectory::getFiles() {
 	FileList files;
 	struct dirent *dirp;
+	struct stat fileinfo;
 	DIR *dp;
 
 	if ((dp = opendir((getFullPath() + "/").c_str())) != NULL) {
 		while ((dirp = readdir(dp)) != NULL) {
-			if (dirp->d_type == DT_REG) {
-				files.push_back(new GenericFileSystemFile(this, dirp->d_name));
+			string newfilename = dirp->d_name;
+			string fullpath = getFullPath() + "/" + newfilename;
+
+			// get entry fileinfo
+			if (lstat(fullpath.c_str(), &fileinfo) < 0) {
+				continue;
 			}
+
+			// skip, if not a file
+			if (S_ISREG(fileinfo.st_mode) == false) {
+				continue;
+			}
+
+			files.push_back(new GenericFileSystemFile(this, newfilename));
 		}
 
 		closedir(dp);
