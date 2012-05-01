@@ -65,8 +65,8 @@ namespace wiesel {
 		);
 
 	protected:
-		GenericFileSystem*			root_fs;
-		GenericFileSystem*			asset_fs;
+		FileSystem*		root_fs;
+		FileSystem*		asset_fs;
 	};
 
 }
