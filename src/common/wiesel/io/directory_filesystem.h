@@ -87,6 +87,7 @@ namespace wiesel {
 
 	public:
 		virtual std::string getName() const;
+		virtual std::string getNativePath();
 		virtual DirectoryList getSubDirectories();
 		virtual FileList getFiles();
 
@@ -131,6 +132,7 @@ namespace wiesel {
 
 	public:
 		virtual std::string getName() const;
+		virtual std::string getNativePath();
 		virtual DataBuffer *getContent();
 
 	private:

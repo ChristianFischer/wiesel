@@ -9,7 +9,7 @@ C_FLAGS				+= -D__WIN32__ -D_WIN32 -DWIN32
 
 # use SDL library
 C_FLAGS				+= -DWIESEL_USE_LIBSDL
-LD_LIBRARIES			+= SDL opengl32
+LD_LIBRARIES			+= SDL SDL_image opengl32
 LD_LIBRARY_PATHS		+= 
 
 OBJECTFILE_EXTENSION		:= .obj

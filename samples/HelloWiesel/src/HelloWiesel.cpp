@@ -40,7 +40,7 @@ public:
 public:
 	virtual bool onInit() {
 		Log::info << "start application HelloWiesel" << std::endl;
-
+		
 		// fix aspect ratio, until fixed by engine :-P
 		float aspect_ratio = Engine::getCurrent()->getScreen()->getAspectRatio();
 
@@ -61,7 +61,7 @@ public:
 			"precision mediump float;\n"
 			"varying vec4 my_color;\n"
 			"varying vec2 my_texcoord0;\n"
-			"uniform sampler2D texture0\n;"
+			"uniform sampler2D texture0;\n"
 			"void main() {\n"
 			"  //gl_FragColor = my_color;\n"
 			"  gl_FragColor = texture2D(texture0, my_texcoord0);\n"
@@ -84,13 +84,14 @@ public:
 		program->retain();
 
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
-		File *tex_file = Engine::getCurrent()->getRootFileSystem()->findFile("/mnt/sdcard/test.png");
+		File *tex_file = Engine::getCurrent()->getAssetFileSystem()->findFile("/images/test.png");
 		if (tex_file) {
 			Log::info << "load texture from: " << tex_file->getFullPath() << std::endl;
 			texture = Texture::fromFile(tex_file);
 			texture->retain();
 		}
 		else {
+			Log::info << "texture not found" << endl;
 			texture = NULL;
 		}
 

@@ -90,6 +90,11 @@ string DirectoryFileSystemDirectory::getName() const {
 }
 
 
+string DirectoryFileSystemDirectory::getNativePath() {
+	return getEnclosedDirectory()->getNativePath();
+}
+
+
 DirectoryList DirectoryFileSystemDirectory::getSubDirectories() {
 	DirectoryFileSystem *fs = dynamic_cast<DirectoryFileSystem*>(getFileSystem());
 	DirectoryList directories = getEnclosedDirectory()->getSubDirectories();
@@ -177,6 +182,11 @@ const File *DirectoryFileSystemFile::getEnclosedFile() const {
 
 string DirectoryFileSystemFile::getName() const {
 	return getEnclosedFile()->getName();
+}
+
+
+string DirectoryFileSystemFile::getNativePath() {
+	return getEnclosedFile()->getNativePath();
 }
 
 
