@@ -69,6 +69,11 @@ string GenericFileSystemDirectory::getName() const {
 }
 
 
+string GenericFileSystemDirectory::getNativePath() {
+	return getFullPath();
+}
+
+
 DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 	DirectoryList directories;
 	struct dirent *dirp;
@@ -154,6 +159,11 @@ GenericFileSystemFile::~GenericFileSystemFile() {
 
 string GenericFileSystemFile::getName() const {
 	return name;
+}
+
+
+string GenericFileSystemFile::getNativePath() {
+	return getFullPath();
 }
 
 

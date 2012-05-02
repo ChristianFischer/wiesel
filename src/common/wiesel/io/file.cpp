@@ -44,6 +44,11 @@ string File::getFullPath() {
 }
 
 
+string File::getNativePath() {
+	return "";
+}
+
+
 std::string File::getExtension() const {
 	const string filename = getName();
 	string::size_type dot_pos = filename.rfind('.');

@@ -100,6 +100,9 @@ void Engine::run(Application *application) {
 	// store the application object
 	current_app = application;
 
+	// first onRun before entering the main loop
+	current_instance->onRunFirst();
+
 	bool done = false;
 	do {
 		done = current_instance->onRun();

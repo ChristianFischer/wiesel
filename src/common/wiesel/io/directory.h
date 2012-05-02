@@ -68,6 +68,14 @@ namespace wiesel {
 		virtual std::string getFullPath();
 
 		/**
+		 * @brief get the directory's full path on the platform's native file system.
+		 * If there's no physical file system, for example on a in-memory stored
+		 * file system, this function will return an empty string.
+		 * @return the native path or an empty string, if there is no real filesystem.
+		 */
+		virtual std::string getNativePath();
+
+		/**
 		 * @brief get the \ref FileSystem, this directory is in.
 		 */
 		inline FileSystem* getFileSystem() {

@@ -45,13 +45,16 @@ Directory::~Directory() {
 
 
 string Directory::getFullPath() {
-	string path;
-
 	if (getParent()) {
 		return getParent()->getFullPath() + "/" + getName();
 	}
 
 	return getName();
+}
+
+
+string Directory::getNativePath() {
+	return "";
 }
 
 
