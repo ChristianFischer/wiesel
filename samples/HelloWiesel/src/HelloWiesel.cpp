@@ -84,7 +84,7 @@ public:
 		program->retain();
 
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
-		File *tex_file = Engine::getCurrent()->getAssetFileSystem()->findFile("/images/test.png");
+		File *tex_file = Engine::getCurrent()->getAssetFileSystem()->findFile("/images/wiesel.png");
 		if (tex_file) {
 			Log::info << "load texture from: " << tex_file->getFullPath() << std::endl;
 			texture = Texture::fromFile(tex_file);
