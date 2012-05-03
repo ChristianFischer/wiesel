@@ -14,6 +14,6 @@ ifeq ($(findstring MINGW32,$(PLATFORM)),MINGW32)
 endif
 
 # linux
-ifeq ($(findstring Linux,$(OS)),Linux)
+ifeq ($(findstring Linux,$(PLATFORM)),Linux)
 	PLATFORM	:= linux
 endif
