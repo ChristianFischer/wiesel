@@ -4,6 +4,9 @@
 C_FLAGS				+= -m32 -mwindows
 LD_FLAGS			+= -m32 -mwindows
 
+# required when compiling with MingGW
+LD_FLAGS			+= -static-libgcc -static-libstdc++
+
 # windows
 C_FLAGS				+= -D__WIN32__ -D_WIN32 -DWIN32
 

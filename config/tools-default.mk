@@ -1,10 +1,10 @@
 # configure the default tool paths
 # may be overridden in PROJECT_DIR/config/tools.mk
 
-MAKE			:= /usr/bin/make
-COMPILE.C		:= /usr/bin/gcc
-COMPILE.CPP		:= /usr/bin/g++
-LINK			:= /usr/bin/g++
+MAKE			:= make
+COMPILE.C		:= gcc
+COMPILE.CPP		:= g++
+LINK			:= g++
 
 # C compiler flags
 C_FLAGS			:=

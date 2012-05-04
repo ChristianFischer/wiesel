@@ -52,6 +52,18 @@ SdlEngine::SdlEngine() {
 	char working_dir_name[MAXPATHLEN];
 	getcwd(working_dir_name, MAXPATHLEN);
 
+	// replace backslashes with normal slashes, as the file system API
+	// cannot handle backslashes as separators yet.
+	for(int i=0; i<MAXPATHLEN; i++) {
+		if (working_dir_name[i] == '\0') {
+			break;
+		}
+
+		if (working_dir_name[i] == '\\') {
+			working_dir_name[i] =  '/';
+		}
+	}
+
 	stringstream ss;
 	ss << working_dir_name;
 	ss << "/resources/common";
