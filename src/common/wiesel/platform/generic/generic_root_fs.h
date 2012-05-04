@@ -52,6 +52,7 @@ namespace wiesel {
 		~GenericFileSystemDirectory();
 
 		virtual std::string getName() const;
+		virtual std::string getFullPath();
 		virtual std::string getNativePath();
 		virtual DirectoryList getSubDirectories();
 		virtual FileList getFiles();

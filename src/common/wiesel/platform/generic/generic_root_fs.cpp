@@ -19,11 +19,17 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
+#include "wiesel.h"
 #include "generic_root_fs.h"
 #include "wiesel/util/log.h"
 #include <dirent.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <sstream>
+
+#if WIESEL_PLATFORM_WINDOWS && !WIESEL_PLATFORM_CYGWIN
+#include "windows.h"
+#endif
 
 
 using namespace wiesel;
@@ -69,24 +75,60 @@ string GenericFileSystemDirectory::getName() const {
 }
 
 
+string GenericFileSystemDirectory::getFullPath() {
+	#if WIESEL_PLATFORM_WINDOWS && !WIESEL_PLATFORM_CYGWIN
+	if (getParent() && getParent()->getName().empty()) {
+		// this is a 2nd level directory, on a windows file system this
+		// would be a drive-letter, so we need to skip the leading slash
+		return getName();
+	}
+	#endif // windows
+
+	return Directory::getFullPath();
+}
+
+
 string GenericFileSystemDirectory::getNativePath() {
 	return getFullPath();
 }
 
 
 DirectoryList GenericFileSystemDirectory::getSubDirectories() {
+	#if WIESEL_PLATFORM_WINDOWS && !WIESEL_PLATFORM_CYGWIN
+	// on windows, the root folder should contain a list of windows drive letters
+	if (this->name.empty()) {
+		GenericFileSystem *fs = (GenericFileSystem*)(getFileSystem());
+		DirectoryList directories;
+		DWORD all_drives = GetLogicalDrives();
+
+		for(char drive=0; drive<=26; drive++) {
+			if ((all_drives & (1 << drive)) != 0) {
+				stringstream drive_name;
+				drive_name << (char)('A' + drive);
+				drive_name << ':';
+				Log::info << "drive: " << drive_name.str() << std::endl;
+				directories.push_back(new GenericFileSystemDirectory(fs, this, drive_name.str()));
+			}
+		}
+
+		return directories;
+	}
+	#endif // windows
+
 	DirectoryList directories;
 	struct dirent *dirp;
 	struct stat fileinfo;
 	DIR *dp;
 
-	if ((dp = opendir((getFullPath() + "/").c_str())) != NULL) {
+	string fullpath = (getFullPath() + "/");
+
+	if ((dp = opendir(fullpath.c_str())) != NULL) {
 		while ((dirp = readdir(dp)) != NULL) {
 			string newdirname = dirp->d_name;
 			string fullpath = getFullPath() + "/" + newdirname;
 
 			// get entry fileinfo
-			if (lstat(fullpath.c_str(), &fileinfo) < 0) {
+			if (stat(fullpath.c_str(), &fileinfo) < 0) {
 				continue;
 			}
 
@@ -122,7 +164,7 @@ FileList GenericFileSystemDirectory::getFiles() {
 			string fullpath = getFullPath() + "/" + newfilename;
 
 			// get entry fileinfo
-			if (lstat(fullpath.c_str(), &fileinfo) < 0) {
+			if (stat(fullpath.c_str(), &fileinfo) < 0) {
 				continue;
 			}
 
