@@ -23,5 +23,6 @@
 #define __WIESEL_GL_SHADERS_H__
 
 #include "shader/shader.h"
+#include "shader/shaders.h"
 
 #endif

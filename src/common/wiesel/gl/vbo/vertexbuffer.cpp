@@ -149,7 +149,8 @@ bool VertexBuffer::setupTextureLayer(int layer) {
 
 void VertexBuffer::disableVertexNormals() {
 	if (checkIfSetupPossible()) {
-		normals.size = 0;
+		normals.size   = 0;
+		normals.fields = 0;
 		updateOffsets();
 	}
 
@@ -159,7 +160,8 @@ void VertexBuffer::disableVertexNormals() {
 
 void VertexBuffer::disableVertexColors() {
 	if (checkIfSetupPossible()) {
-		colors.size = 0;
+		colors.size   = 0;
+		colors.fields = 0;
 		updateOffsets();
 	}
 
@@ -181,6 +183,33 @@ void VertexBuffer::disableTextureLayer(int layer) {
 
 	return;
 }
+
+
+
+bool VertexBuffer::hasNormals() const {
+	return (normals.size != 0);
+}
+
+bool VertexBuffer::hasColors() const {
+	return (colors.size != 0);
+}
+
+bool VertexBuffer::hasTextures() const {
+	return (textures.empty() == false);
+}
+
+int VertexBuffer::getVertexDimensions() const {
+	return positions.fields;
+}
+
+int VertexBuffer::getVertexColorComponents() const {
+	return colors.fields;
+}
+
+int VertexBuffer::getNumberOfTextureLayers() const {
+	return textures.size();
+}
+
 
 
 void VertexBuffer::updateOffsets() {
@@ -393,11 +422,11 @@ void VertexBuffer::setVertexTextureCoordinate(index_t index, int layer, float u,
 		assert(ptr);
 
 		if (ptr) {
-			if (colors.fields >= 1) {
+			if (textures[layer].fields >= 1) {
 				setValue(ptr, field_size * 0, u);
 			}
 
-			if (colors.fields >= 2) {
+			if (textures[layer].fields >= 2) {
 				setValue(ptr, field_size * 1, v);
 			}
 		}
