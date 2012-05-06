@@ -30,16 +30,18 @@ using namespace wiesel;
 
 // implementing the platform specific logging
 int _logmsg_impl(LogLevel level, const char *tag, const char *message) {
+	FILE *stream = stdout;
 	char lvl = '?';
 	switch(level) {
-		case LogLevel_Debug:	lvl = 'D';		break;
-		case LogLevel_Info:		lvl = 'I';		break;
-		case LogLevel_Warning:	lvl = 'W';		break;
-		case LogLevel_Error:	lvl = 'E';		break;
-		default:				lvl = '-';		break;	// should not happen
+		case LogLevel_Debug:	lvl = 'D';							break;
+		case LogLevel_Info:		lvl = 'I';							break;
+		case LogLevel_Warning:	lvl = 'W';							break;
+		case LogLevel_Error:	lvl = 'E';		stream = stderr;	break;
+		default:				lvl = '-';							break;	// should not happen
 	}
-	
-	printf("[%c] %-16s: %s\n", lvl, tag, message);
+
+	fprintf(stream, "[%c] %-16s %s\n", lvl, tag, message);
+	fflush(stream);
 	
 	return 0;
 }

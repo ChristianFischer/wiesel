@@ -67,7 +67,7 @@ int logmsg(LogLevel level, const char *message, ...) {
 
 int wiesel::logmsg(LogLevel level, const char *tag, const char *message, ...) {
 	if (Log::isLogged(level, tag)) {
-		size_t buffer_size = 1024;
+		size_t buffer_size = 10240;
 		char buffer[buffer_size];
 
 		va_list args;
