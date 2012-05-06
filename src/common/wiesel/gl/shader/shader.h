@@ -23,6 +23,7 @@
 #define __WIESEL_GL_SHADER_SHADER_H__
 
 #include <wiesel/gl/gl.h>
+#include <wiesel/io/datasource.h>
 #include <wiesel/util/shared_object.h>
 #include <string>
 #include <vector>
@@ -52,12 +53,41 @@ namespace wiesel {
 		Shader();
 
 	public:
+		/**
+		 * @brief Create a new shader with source code from a string
+		 * The created shader is not compiled. Call compile() to compile
+		 * the shader or use compile(const std::string&, ShaderType)
+		 * to get a compiled shader.
+		 */
+		Shader(const std::string &source, ShaderType type);
+
+		/**
+		 * @brief Create a new shader with source code from a DataSource
+		 * The created shader is not compiled. Call compile() to compile
+		 * the shader or use compile(const std::string&, ShaderType)
+		 * to get a compiled shader.
+		 */
+		Shader(DataSource *source, ShaderType type);
+
 		virtual ~Shader();
 
 		/**
 		 * @brief compile a shader from source code.
+		 * @return the created shader on success, \c NULL when compiling failed.
 		 */
 		static Shader *compile(const std::string &source, ShaderType type);
+
+		/**
+		 * @brief compile a shader from source code.
+		 * @return the created shader on success, \c NULL when compiling failed.
+		 */
+		static Shader *compile(DataSource *source, ShaderType type);
+
+		/**
+		 * 
+		 * @return \c true when the shader was compiled successfully, \c false otherwise.
+		 */
+		bool compile();
 
 		/**
 		 * @brief get the type of this shader.
@@ -96,6 +126,7 @@ namespace wiesel {
 		void release_shader();
 
 	private:
+		DataSource*		source;
 		ShaderType		type;
 		GLuint			shader;
 	};

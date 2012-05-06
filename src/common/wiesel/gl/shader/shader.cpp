@@ -33,7 +33,37 @@ Shader::Shader() {
 	return;
 }
 
+
+Shader::Shader(const std::string &source, ShaderType type) {
+	assert(type == ShaderType_VertexShader || type == ShaderType_FragmentShader);
+
+	DataBuffer *buffer = ExclusiveDataBuffer::createCopyOf(source);
+	this->shader = 0;
+	this->type   = type;
+	this->source = new BufferDataSource(buffer);
+	this->source->retain();
+
+	return;
+}
+
+
+Shader::Shader(DataSource *source, ShaderType type) {
+	assert(type == ShaderType_VertexShader || type == ShaderType_FragmentShader);
+
+	this->shader = 0;
+	this->type   = type;
+	this->source = source;
+	this->source->retain();
+
+	return;
+}
+
+
 Shader::~Shader() {
+	if (source) {
+		source->release();
+	}
+
 	if (shader) {
 		release_shader();
 	}
@@ -43,11 +73,40 @@ Shader::~Shader() {
 
 
 Shader *Shader::compile(const string &source, ShaderType type) {
+	Shader *shader = new Shader(source, type);
+	if (shader->compile()) {
+		return shader;
+	}
+	else {
+		delete shader;
+	}
+
+	return NULL;
+}
+
+
+Shader *Shader::compile(DataSource *source, ShaderType type) {
+	Shader *shader = new Shader(source, type);
+	if (shader->compile()) {
+		return shader;
+	}
+	else {
+		delete shader;
+	}
+
+	return NULL;
+}
+
+
+bool Shader::compile() {
 	assert(type == ShaderType_VertexShader || type == ShaderType_FragmentShader);
 
-	const char *pSource = source.c_str();
-	GLuint shader   = 0;
+	// release previous shader, if any
+	release_shader();
+
+	const char *pSource = source->getDataBuffer()->getDataAsCharPtr();
 	GLint  compiled = 0;
+	shader = 0;
 
 	switch(type) {
 		case ShaderType_VertexShader: {
@@ -62,7 +121,7 @@ Shader *Shader::compile(const string &source, ShaderType type) {
 	}
 
 	if (shader == 0) {
-		return NULL;
+		return false;
 	}
 
 	// assign the shader source
@@ -104,13 +163,10 @@ Shader *Shader::compile(const string &source, ShaderType type) {
 	CHECK_GL_ERROR;
 
 	if (shader) {
-		Shader *sh = new Shader();
-		sh->shader = shader;
-		sh->type   = type;
-		return sh;
+		return true;
 	}
 
-	return NULL;
+	return false;
 }
 
 
