@@ -536,19 +536,21 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 		GLuint attr_vertex_texcoord = program->getVertexTextureCoordAttribute(i);
 		GLuint attr_vertex_texture  = program->getVertexTextureAttribute(i);
 		assert(attr_vertex_texcoord != -1);
-		assert(attr_vertex_texture  != -1);
 		assert(pTextures != NULL);
-		assert(pTextures[i] != NULL);
 
-		if (attr_vertex_texcoord != -1 && attr_vertex_texture != -1) {
+		if (attr_vertex_texcoord != -1) {
 			glVertexAttribPointer(attr_vertex_texcoord, textures[i].fields, GL_FLOAT, GL_FALSE, vertex_size, data + textures[i].offset);
 			glEnableVertexAttribArray(attr_vertex_texcoord);
 			CHECK_GL_ERROR;
 
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, pTextures[i]->getGlHandle());
-			glUniform1i(attr_vertex_texture, i);
-			CHECK_GL_ERROR;
+			if (pTextures[i] && attr_vertex_texture != -1) {
+				assert(attr_vertex_texture  != -1);
+
+				glActiveTexture(GL_TEXTURE0 + i);
+				glBindTexture(GL_TEXTURE_2D, pTextures[i]->getGlHandle());
+				glUniform1i(attr_vertex_texture, i);
+				CHECK_GL_ERROR;
+			}
 		}
 	}
 

@@ -27,6 +27,7 @@
 #include <wiesel/util/shared_object.h>
 #include <string>
 #include <vector>
+#include <map>
 
 
 namespace wiesel {
@@ -90,6 +91,11 @@ namespace wiesel {
 		bool compile();
 
 		/**
+		 * @brief Add the name of a new uniform attribute.
+		 */
+		void addUniform(const std::string &name);
+
+		/**
 		 * @brief get the type of this shader.
 		 */
 		inline ShaderType getType() const {
@@ -117,6 +123,11 @@ namespace wiesel {
 	public:
 		/// names of texture coordinate attributes
 		std::vector<std::string>	attrib_vertex_textures;
+
+	// attributes (custom)
+	public:
+		/// names of custom uniform attributes to be set from user code
+		std::vector<std::string>	uniform_attributes;
 
 	private:
 		/**
@@ -188,14 +199,23 @@ namespace wiesel {
 		}
 
 		inline GLuint getVertexTextureCoordAttribute(unsigned int layer) const {
-			return (attrib_handle_vertex_texcoords.size() > layer) ? attrib_handle_vertex_texcoords.at(layer) : 0;
+			return (attrib_handle_vertex_texcoords.size() > layer) ? attrib_handle_vertex_texcoords.at(layer) : -1;
 		}
 
 		inline GLuint getVertexTextureAttribute(unsigned int layer) const {
-			return (attrib_handle_vertex_textures.size() > layer) ? attrib_handle_vertex_textures.at(layer) : 0;
+			return (attrib_handle_vertex_textures.size() > layer) ? attrib_handle_vertex_textures.at(layer) : -1;
 		}
 
+	public:
+		/// set the value of an uniform attribute
+		void set(const std::string &name, int value);
+
+		/// set the value of an uniform attribute
+		void set(const std::string &name, float value);
+
 	private:
+		GLuint getUniformHandle(const std::string &name) const;
+
 		/**
 		 * @brief release the shader.
 		 */
@@ -212,6 +232,8 @@ namespace wiesel {
 		GLuint					attrib_handle_vertex_color;
 		std::vector<GLuint>		attrib_handle_vertex_texcoords;
 		std::vector<GLuint>		attrib_handle_vertex_textures;
+
+		std::map<std::string,GLuint>	uniform_attributes;
 	};
 
 }

@@ -24,6 +24,7 @@
 #include "wiesel/gl/gl.h"
 #include "wiesel/util/log.h"
 #include <assert.h>
+#include <map>
 
 using namespace wiesel;
 using namespace std;
@@ -180,6 +181,11 @@ void Shader::release_shader() {
 }
 
 
+void Shader::addUniform(const std::string& name) {
+	uniform_attributes.push_back(name);
+}
+
+
 
 
 
@@ -280,6 +286,8 @@ bool ShaderProgram::link() {
 
 
 void ShaderProgram::bindAttributes() {
+	uniform_attributes.clear();
+
 	// get all attribute handles
 	for(vector<Shader*>::iterator it=shaders.begin(); it!=shaders.end(); it++) {
 		Shader *shader = *it;
@@ -325,11 +333,43 @@ void ShaderProgram::bindAttributes() {
 				break;
 			}
 		}
+
+		for(vector<string>::const_iterator it=shader->uniform_attributes.begin(); it!=shader->uniform_attributes.end(); it++) {
+			GLint handle = glGetUniformLocation(program, it->c_str());
+			uniform_attributes[*it] = handle;
+			CHECK_GL_ERROR;
+		}
 	}
 
 	CHECK_GL_ERROR;
 
 	return;
+}
+
+
+GLuint ShaderProgram::getUniformHandle(const std::string& name) const {
+	std::map<string,GLuint>::const_iterator it = uniform_attributes.find(name);
+	if (it != uniform_attributes.end()) {
+		return it->second;
+	}
+	
+	return -1;
+}
+
+
+void ShaderProgram::set(const std::string& name, int value) {
+	GLuint handle = getUniformHandle(name);
+	if (handle != -1) {
+		glUniform1i(handle, value);
+	}
+}
+
+
+void ShaderProgram::set(const std::string& name, float value) {
+	GLuint handle = getUniformHandle(name);
+	if (handle != -1) {
+		glUniform1f(handle, value);
+	}
 }
 
 
