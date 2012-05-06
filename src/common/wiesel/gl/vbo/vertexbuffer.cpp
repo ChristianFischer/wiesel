@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <malloc.h>
 #include <string.h>
+#include <sstream>
 
 
 using namespace wiesel;
@@ -208,6 +209,27 @@ int VertexBuffer::getVertexColorComponents() const {
 
 int VertexBuffer::getNumberOfTextureLayers() const {
 	return textures.size();
+}
+
+
+string VertexBuffer::getDefaultShaderName() const {
+	stringstream ss;
+
+	ss << "__vbo_default";
+
+	if (this->hasNormals()) {
+		ss << "_n";
+	}
+
+	if (this->hasColors()) {
+		ss << "_c";
+	}
+
+	if (this->hasTextures()) {
+		ss << "_t" << textures.size();
+	}
+
+	return ss.str();
 }
 
 

@@ -25,6 +25,9 @@
 #include "shader.h"
 
 #include "wiesel/gl/vbo/vertexbuffer.h"
+#include "wiesel/util/shared_object_cache.h"
+
+#include <string>
 
 
 namespace wiesel {
@@ -55,6 +58,31 @@ namespace wiesel {
 		static const char *VARYING_NORMAL;
 		static const char *VARYING_TEXTURE_COORDINATE;
 
+	// public types
+	public:
+		/// alias type for a cache for shader objects
+		typedef SharedObjectCache<std::string,Shader>			ShaderCache;
+
+		/// alias type for a cache for shader program objects
+		typedef SharedObjectCache<std::string,ShaderProgram>	ShaderProgramCache;
+
+	// caching
+	public:
+		/// get the cache for vertex shaders
+		inline ShaderCache *getVertexShaderCache() {
+			return &cached_vertex_shaders;
+		}
+
+		/// get the cache for fragment shaders
+		inline ShaderCache *getFragmentShaderCache() {
+			return &cached_fragment_shaders;
+		}
+
+		/// get the cache for shader programs
+		inline ShaderProgramCache *getShaderProgramCache() {
+			return &cached_shader_programs;
+		}
+
 	// vertex buffer shaders
 	public:
 		/// get a suitable shader for a given \ref VertexBuffer.
@@ -65,6 +93,11 @@ namespace wiesel {
 
 		/// get a suitable fragment shader for a given \ref VertexBuffer.
 		Shader *getFragmentShaderFor(VertexBuffer *vbo);
+
+	private:
+		ShaderCache				cached_vertex_shaders;
+		ShaderCache				cached_fragment_shaders;
+		ShaderProgramCache		cached_shader_programs;
 	};
 
 }

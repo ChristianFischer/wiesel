@@ -28,6 +28,7 @@
 #include <wiesel/gl/texture/texture.h>
 
 #include <vector>
+#include <string>
 
 
 namespace wiesel {
@@ -118,6 +119,11 @@ namespace wiesel {
 		 */
 		int getNumberOfTextureLayers() const;
 
+		/**
+		 * @brief get the name of the default shader for this vertex buffer.
+		 * This name will be used for caching the default shaders.
+		 */
+		std::string getDefaultShaderName() const;
 
 
 		/**
