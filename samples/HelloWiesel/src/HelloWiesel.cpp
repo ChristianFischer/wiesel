@@ -44,45 +44,6 @@ public:
 		// fix aspect ratio, until fixed by engine :-P
 		float aspect_ratio = Engine::getCurrent()->getScreen()->getAspectRatio();
 
-		const char src_vertex_shader[] =
-			"attribute vec4 vPosition;\n"
-			"attribute vec4 vColor;\n"
-			"attribute vec2 vTexCoord0;\n"
-			"varying vec4 my_color;\n"
-			"varying vec2 my_texcoord0;\n"
-			"uniform sampler2D texture0\n;"
-			"void main() {\n"
-			"  gl_Position = vPosition;\n"
-			"  my_color = vColor;\n"
-			"  my_texcoord0 = vTexCoord0;\n"
-			"}\n";
-
-		const char src_fragment_shader[] =
-			"precision mediump float;\n"
-			"varying vec4 my_color;\n"
-			"varying vec2 my_texcoord0;\n"
-			"uniform sampler2D texture0;\n"
-			"void main() {\n"
-			"  //gl_FragColor = my_color;\n"
-			"  gl_FragColor = texture2D(texture0, my_texcoord0);\n"
-			"}\n";
-
-		Shader* vertex_shader   = Shader::compile(src_vertex_shader,   ShaderType_VertexShader);
-		Shader* fragment_shader = Shader::compile(src_fragment_shader, ShaderType_FragmentShader);
-		assert(vertex_shader);
-		assert(fragment_shader);
-
-		vertex_shader->attrib_vertex_position	= "vPosition";
-		vertex_shader->attrib_vertex_color		= "vColor";
-		vertex_shader->attrib_vertex_texcoords.push_back("vTexCoord0");
-		fragment_shader->attrib_vertex_textures.push_back("texture0");
-
-		program = new ShaderProgram();
-		program->attach(vertex_shader);
-		program->attach(fragment_shader);
-		program->link();
-		program->retain();
-
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
 		File *tex_file = Engine::getCurrent()->getAssetFileSystem()->findFile("/images/wiesel.png");
 		if (tex_file) {
@@ -98,7 +59,7 @@ public:
 		vbo = new VertexBuffer();
 		vbo->retain();
 		vbo->setupVertexPositions(2);
-		vbo->setupVertexColors(4);
+	//	vbo->setupVertexColors(4);
 		vbo->setupTextureLayer(0);
 		vbo->addVertex(-1.0f / aspect_ratio,  1.0f);
 		vbo->addVertex(-1.0f / aspect_ratio, -1.0f);
@@ -114,6 +75,17 @@ public:
 		vbo->setVertexTextureCoordinate(1, 0, 0.0f, 1.0f);
 		vbo->setVertexTextureCoordinate(2, 0, 1.0f, 0.0f);
 		vbo->setVertexTextureCoordinate(3, 0, 1.0f, 1.0f);
+		
+		Shader *vertex_shader = Shaders::instance()->getVertexShaderFor(vbo);
+		Shader *fragment_shader = Shaders::instance()->getFragmentShaderFor(vbo);
+		assert(vertex_shader);
+		assert(fragment_shader);
+
+		program = new ShaderProgram();
+		program->attach(vertex_shader);
+		program->attach(fragment_shader);
+		program->link();
+		program->retain();
 
 		return true;
 	}

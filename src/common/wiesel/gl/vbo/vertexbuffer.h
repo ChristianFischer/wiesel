@@ -89,6 +89,38 @@ namespace wiesel {
 
 
 		/**
+		 * @brief check, if the vertices have normals.
+		 */
+		bool hasNormals() const;
+
+		/**
+		 * @brief check, if the vertices have a color component.
+		 */
+		bool hasColors() const;
+
+		/**
+		 * @brief check, if this vertex buffer contains texture data.
+		 */
+		bool hasTextures() const;
+
+		/**
+		 * @brief get the number of vertex dimensions.
+		 */
+		int getVertexDimensions() const;
+
+		/**
+		 * @brief get the number of color components of each vector.
+		 */
+		int getVertexColorComponents() const;
+
+		/**
+		 * @brief get the number of texture layers.
+		 */
+		int getNumberOfTextureLayers() const;
+
+
+
+		/**
 		 * @brief set the capacity of this vertex buffer to store the given amount of vertices.
 		 * The capacity cannot be lower than the current size of the buffer.
 		 * @brief returns the new capacity.
