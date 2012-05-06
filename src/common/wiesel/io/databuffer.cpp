@@ -23,6 +23,7 @@
 #include <string.h>
 
 using namespace wiesel;
+using namespace std;
 
 
 
@@ -35,6 +36,11 @@ DataBuffer::~DataBuffer() {
 }
 
 
+const char *DataBuffer::getDataAsCharPtr() const {
+	return reinterpret_cast<const char*>(getData());
+}
+
+
 
 
 
@@ -42,6 +48,16 @@ ExclusiveDataBuffer *ExclusiveDataBuffer::createCopyOf(data_t data, size_t size)
 	unsigned char *new_buffer = new unsigned char[size];
 	memcpy(new_buffer, data, size);
 	return new ExclusiveDataBuffer(new_buffer, size);
+}
+
+
+ExclusiveDataBuffer *ExclusiveDataBuffer::createCopyOf(const char* data, size_t size) {
+	return createCopyOf(reinterpret_cast<data_t>(data), size);
+}
+
+
+ExclusiveDataBuffer *ExclusiveDataBuffer::createCopyOf(const string& str) {
+	return createCopyOf(str.c_str(), str.size() + 1);
 }
 
 

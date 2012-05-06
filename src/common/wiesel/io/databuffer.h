@@ -23,6 +23,7 @@
 #define __WIESEL_IO_DATABUFFER_H__
 
 #include "wiesel/util/shared_object.h"
+#include <string>
 
 
 namespace wiesel {
@@ -53,6 +54,15 @@ namespace wiesel {
 		 * @brief Get the size of the data stored in the buffer.
 		 */
 		virtual size_t getSize() const = 0;
+
+		/**
+		 * @brief Receive a pointer to the data buffer as pointer to char.
+		 * It depends on the buffer's implementation, if the content
+		 * is accessible after the buffer's release.
+		 * The application should not use this pointer after the
+		 * object was released.
+		 */
+		virtual const char *getDataAsCharPtr() const;
 	};
 
 
@@ -71,6 +81,16 @@ namespace wiesel {
 		 * @brief Creates a new \ref DataBuffer with a copy of \c data.
 		 */
 		static ExclusiveDataBuffer *createCopyOf(data_t data, size_t size);
+
+		/**
+		 * @brief Creates a new \ref DataBuffer with a copy of \c data.
+		 */
+		static ExclusiveDataBuffer *createCopyOf(const char *data, size_t size);
+
+		/**
+		 * @brief Creates a new \ref DataBuffer with a copy of \c data.
+		 */
+		static ExclusiveDataBuffer *createCopyOf(const std::string &str);
 
 		/**
 		 * @brief Creates a new \ref DataBuffer, which references to the given data.
