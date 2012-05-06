@@ -106,7 +106,6 @@ DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 				stringstream drive_name;
 				drive_name << (char)('A' + drive);
 				drive_name << ':';
-				Log::info << "drive: " << drive_name.str() << std::endl;
 				directories.push_back(new GenericFileSystemDirectory(fs, this, drive_name.str()));
 			}
 		}
