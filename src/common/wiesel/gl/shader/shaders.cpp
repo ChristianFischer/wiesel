@@ -45,7 +45,16 @@ Shaders::Shaders() {
 }
 
 Shaders::~Shaders() {
+	// release all cached programs
+	getShaderProgramCache()->releaseAllObjects();
+
+	// release all cached shaders
+	getVertexShaderCache()->releaseAllObjects();
+	getFragmentShaderCache()->releaseAllObjects();
+
+	return;
 }
+
 
 Shaders *Shaders::instance() {
 	static Shaders singleton;
@@ -54,16 +63,28 @@ Shaders *Shaders::instance() {
 
 
 ShaderProgram *Shaders::getShaderFor(VertexBuffer* vbo) {
-	Shader *vert = getVertexShaderFor(vbo);
-	Shader *frag = getFragmentShaderFor(vbo);
+	string key = vbo->getDefaultShaderName();
 
-	if (vert && frag) {
-		ShaderProgram *prog = new ShaderProgram();
-		prog->attach(vert);
-		prog->attach(frag);
+	// check, if there's already an shader in the vertex shader cache
+	ShaderProgram *prog = getShaderProgramCache()->get(key);
+	if (prog) {
+		return prog;
+	}
+	else {
+		Shader *vert = getVertexShaderFor(vbo);
+		Shader *frag = getFragmentShaderFor(vbo);
 
-		if (prog->link()) {
-			return prog;
+		if (vert && frag) {
+			prog = new ShaderProgram();
+			prog->attach(vert);
+			prog->attach(frag);
+
+			if (prog->link()) {
+				// cache this object
+				getShaderProgramCache()->add(key, prog);
+
+				return prog;
+			}
 		}
 	}
 
@@ -72,7 +93,14 @@ ShaderProgram *Shaders::getShaderFor(VertexBuffer* vbo) {
 
 
 Shader *Shaders::getVertexShaderFor(VertexBuffer* vbo) {
+	string key = vbo->getDefaultShaderName();
 	stringstream ss;
+
+	// check, if there's already an shader in the vertex shader cache
+	Shader *shader = getVertexShaderCache()->get(key);
+	if (shader) {
+		return shader;
+	}
 
 	// vertex position attribute
 	ss << "attribute vec4 " << ATTRIBUTE_VERTEX_POSITION << ';' << endl;
@@ -110,7 +138,7 @@ Shader *Shaders::getVertexShaderFor(VertexBuffer* vbo) {
 
 	// compile the shader
 	string shader_source = ss.str();
-	Shader *shader = Shader::compile(shader_source, ShaderType_VertexShader);
+	shader = Shader::compile(shader_source, ShaderType_VertexShader);
 
 	if (shader) {
 		shader->attrib_vertex_position		= ATTRIBUTE_VERTEX_POSITION;
@@ -129,6 +157,9 @@ Shader *Shaders::getVertexShaderFor(VertexBuffer* vbo) {
 			tex_attr << i;
 			shader->attrib_vertex_texcoords.push_back(tex_attr.str());
 		}
+
+		// cache this object
+		getVertexShaderCache()->add(key, shader);
 	}
 
 	return shader;
@@ -136,8 +167,15 @@ Shader *Shaders::getVertexShaderFor(VertexBuffer* vbo) {
 
 
 Shader *Shaders::getFragmentShaderFor(VertexBuffer* vbo) {
-	int color_sources = 0;
+	string key = vbo->getDefaultShaderName();
 	stringstream ss;
+	int color_sources = 0;
+
+	// check, if there's already an shader in the vertex shader cache
+	Shader *shader = getFragmentShaderCache()->get(key);
+	if (shader) {
+		return shader;
+	}
 
 	// set the shader precision
 	ss << "precision mediump float;" << endl;
@@ -214,9 +252,7 @@ Shader *Shaders::getFragmentShaderFor(VertexBuffer* vbo) {
 
 	// compile the shader
 	string shader_source = ss.str();
-	Shader *shader = Shader::compile(shader_source, ShaderType_FragmentShader);
-
-	Log::info << shader_source << endl;
+	shader = Shader::compile(shader_source, ShaderType_FragmentShader);
 
 	if (shader) {
 		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
@@ -225,6 +261,9 @@ Shader *Shaders::getFragmentShaderFor(VertexBuffer* vbo) {
 			tex_attr << i;
 			shader->attrib_vertex_textures.push_back(tex_attr.str());
 		}
+
+		// cache this object
+		getFragmentShaderCache()->add(key, shader);
 	}
 
 	return shader;
