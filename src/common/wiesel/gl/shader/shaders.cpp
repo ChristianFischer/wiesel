@@ -35,7 +35,8 @@ const char *Shaders::ATTRIBUTE_VERTEX_NORMAL					= "vNormal";
 const char *Shaders::ATTRIBUTE_VERTEX_COLOR						= "vColor";
 const char *Shaders::ATTRIBUTE_VERTEX_TEXTURE_COORDINATE		= "vTexCoord";
 const char *Shaders::UNIFORM_TEXTURE							= "texture";
-const char *Shaders::UNIFORM_MODELVIEW_MATRIX					= "u_mvp";
+const char *Shaders::UNIFORM_PROJECTION_MATRIX					= "mProjection";
+const char *Shaders::UNIFORM_MODELVIEW_MATRIX					= "mModelview";
 const char *Shaders::VARYING_COLOR								= "my_color";
 const char *Shaders::VARYING_NORMAL								= "my_normal";
 const char *Shaders::VARYING_TEXTURE_COORDINATE					= "my_texcoord";
@@ -103,7 +104,8 @@ Shader *Shaders::getVertexShaderFor(VertexBuffer* vbo) {
 		return shader;
 	}
 
-	// modelview matrix
+	// modelview & projection matrix
+	ss << "uniform mat4 " << UNIFORM_PROJECTION_MATRIX << ';' << endl;
 	ss << "uniform mat4 " << UNIFORM_MODELVIEW_MATRIX << ';' << endl;
 
 	// vertex position attribute
@@ -125,7 +127,9 @@ Shader *Shaders::getVertexShaderFor(VertexBuffer* vbo) {
 	// start the main func
 	ss << "void main() {" << endl;
 	ss << "    gl_Position = " << ATTRIBUTE_VERTEX_POSITION;
-	ss << " * " << UNIFORM_MODELVIEW_MATRIX << ';' << endl;
+	ss << " * " << UNIFORM_MODELVIEW_MATRIX;
+	ss << " * " << UNIFORM_PROJECTION_MATRIX;
+	ss << ';' << endl;
 
 	// color value will be assigned to the color varying
 	if (vbo->hasColors()) {
@@ -146,6 +150,7 @@ Shader *Shaders::getVertexShaderFor(VertexBuffer* vbo) {
 	shader = Shader::compile(shader_source, ShaderType_VertexShader);
 
 	if (shader) {
+		shader->uniform_projection_matrix	= UNIFORM_PROJECTION_MATRIX;
 		shader->uniform_modelview_matrix	= UNIFORM_MODELVIEW_MATRIX;
 		shader->attrib_vertex_position		= ATTRIBUTE_VERTEX_POSITION;
 

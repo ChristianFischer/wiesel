@@ -112,7 +112,7 @@ namespace wiesel {
 
 	// attributes (vertex shader)
 	public:
-		/// name of the vertex position attribute
+		std::string		uniform_projection_matrix;
 		std::string		uniform_modelview_matrix;
 		std::string		attrib_vertex_position;
 		std::string		attrib_vertex_normal;
@@ -208,6 +208,10 @@ namespace wiesel {
 			return (attrib_handle_vertex_textures.size() > layer) ? attrib_handle_vertex_textures.at(layer) : -1;
 		}
 
+		inline GLuint getProjectionMatrixHandle() const {
+			return uniform_handle_projection_matrix;
+		}
+
 		inline GLuint getModelviewMatrixHandle() const {
 			return uniform_handle_modelview_matrix;
 		}
@@ -221,6 +225,9 @@ namespace wiesel {
 
 		/// set the value of an uniform attribute
 		void set(const std::string &name, float value);
+
+		/// set the projection matrix
+		void setProjectionMatrix(const matrix4x4 &matrix);
 
 		/// set the modelview matrix
 		void setModelviewMatrix(const matrix4x4 &matrix);
@@ -247,6 +254,7 @@ namespace wiesel {
 		GLuint					program;
 		bool					need_link;
 
+		GLuint					uniform_handle_projection_matrix;
 		GLuint					uniform_handle_modelview_matrix;
 		GLuint					attrib_handle_vertex_position;
 		GLuint					attrib_handle_vertex_normal;

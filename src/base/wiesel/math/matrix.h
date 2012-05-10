@@ -52,6 +52,31 @@ namespace wiesel {
 		~matrix4x4() {};
 
 	public:
+		/**
+		 * @brief Creates a matrix for orthographical projection.
+		 * @param left		Left border of the viewport.
+		 * @param right		Right border of the viewport.
+		 * @param bottom	Bottom border of the viewport.
+		 * @param top		Top border of the viewport.
+		 * @param near		Near clipping plane.
+		 * @param far		Far clipping plane.
+		 * @return
+		 */
+		static matrix4x4 ortho(float left, float right, float bottom, float top, float near, float far);
+
+		/**
+		 * @brief Creates a matrix for perspective projection.
+		 * @param left		Left border of the viewport.
+		 * @param right		Right border of the viewport.
+		 * @param bottom	Bottom border of the viewport.
+		 * @param top		Top border of the viewport.
+		 * @param near		Near clipping plane.
+		 * @param far		Far clipping plane.
+		 * @return
+		 */
+		static matrix4x4 frustum(float left, float right, float bottom, float top, float near, float far);
+
+	public:
 		/// compute the determinant
 		float det() const;
 

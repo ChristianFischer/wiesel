@@ -42,8 +42,11 @@ public:
 	virtual bool onInit() {
 		Log::info << "start application HelloWiesel" << std::endl;
 		
-		// fix aspect ratio, until fixed by engine :-P
-		float aspect_ratio = Engine::getCurrent()->getScreen()->getAspectRatio();
+		// get the screen centre
+		const dimension &screen = Engine::getCurrent()->getScreen()->getSize();
+		float center_x = screen.width  / 2;
+		float center_y = screen.height / 2;
+		float size     = min(screen.width, screen.height) / 2;
 
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
 		File *tex_file = Engine::getCurrent()->getAssetFileSystem()->findFile("/images/wiesel.png");
@@ -62,10 +65,10 @@ public:
 		vbo->setupVertexPositions(2);
 	//	vbo->setupVertexColors(4);
 		vbo->setupTextureLayer(0);
-		vbo->addVertex(-1.0f / aspect_ratio,  1.0f);
-		vbo->addVertex(-1.0f / aspect_ratio, -1.0f);
-		vbo->addVertex( 1.0f / aspect_ratio,  1.0f);
-		vbo->addVertex( 1.0f / aspect_ratio, -1.0f);
+		vbo->addVertex(center_x - size, center_y + size);
+		vbo->addVertex(center_x - size, center_y - size);
+		vbo->addVertex(center_x + size, center_y + size);
+		vbo->addVertex(center_x + size, center_y - size);
 
 		vbo->setVertexColor(0, 1.0f, 0.0f, 0.0f, 1.0f);
 		vbo->setVertexColor(1, 0.0f, 1.0f, 0.0f, 1.0f);
@@ -99,7 +102,8 @@ public:
 
 	virtual void onRender() {
 		program->bind();
-		program->setModelviewMatrix(m);
+		program->setProjectionMatrix(Engine::getCurrent()->getScreen()->getProjectionMatrix());
+		program->setModelviewMatrix(matrix4x4::identity);
 
 		vbo->bind(program, texture);
 		vbo->render();
