@@ -294,6 +294,12 @@ void ShaderProgram::bindAttributes() {
 
 		switch(shader->getType()) {
 			case ShaderType_VertexShader: {
+				if (shader->uniform_modelview_matrix.empty() == false) {
+					uniform_handle_modelview_matrix = glGetUniformLocation(program, shader->uniform_modelview_matrix.c_str());
+					CHECK_GL_ERROR;
+					assert(uniform_handle_modelview_matrix != -1);
+				}
+
 				if (shader->attrib_vertex_position.empty() == false) {
 					attrib_handle_vertex_position = glGetAttribLocation(program, shader->attrib_vertex_position.c_str());
 					CHECK_GL_ERROR;
@@ -347,6 +353,12 @@ void ShaderProgram::bindAttributes() {
 }
 
 
+void ShaderProgram::setDefaultValues() {
+	setModelviewMatrix(matrix4x4::identity);
+	return;
+}
+
+
 GLuint ShaderProgram::getUniformHandle(const std::string& name) const {
 	std::map<string,GLuint>::const_iterator it = uniform_attributes.find(name);
 	if (it != uniform_attributes.end()) {
@@ -373,6 +385,19 @@ void ShaderProgram::set(const std::string& name, float value) {
 }
 
 
+void ShaderProgram::setModelviewMatrix(const matrix4x4& matrix) {
+	// bind the modelview matrix
+	GLuint uniform_modelview_matrix = getModelviewMatrixHandle();
+	assert(uniform_modelview_matrix != -1);
+
+	if (uniform_modelview_matrix != -1) {
+		glUniformMatrix4fv(uniform_modelview_matrix, 1, false, matrix);
+	}
+
+	return;
+}
+
+
 void ShaderProgram::release_shader() {
 	glDeleteProgram(program);
 	return;
@@ -395,4 +420,11 @@ void ShaderProgram::unbind() const {
 	glUseProgram(0);
 	CHECK_GL_ERROR;
 	return;
+}
+
+
+bool ShaderProgram::isBound() const {
+	GLint current_program;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
+	return current_program == program;
 }

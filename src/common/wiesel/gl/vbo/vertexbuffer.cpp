@@ -495,8 +495,8 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 	assert(program);
 	bool success = true;
 
-	// bind the shader
-	program->bind();
+	// check, the program is currently active
+	assert(program->isBound());
 
 	if (positions.size) {
 		GLuint attr_vertex_position = program->getVertexPositionAttribute();
