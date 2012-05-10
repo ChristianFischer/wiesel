@@ -53,6 +53,7 @@ namespace wiesel {
 		static const char *ATTRIBUTE_VERTEX_NORMAL;
 		static const char *ATTRIBUTE_VERTEX_COLOR;
 		static const char *ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
+		static const char *UNIFORM_MODELVIEW_MATRIX;
 		static const char *UNIFORM_TEXTURE;
 		static const char *VARYING_COLOR;
 		static const char *VARYING_NORMAL;

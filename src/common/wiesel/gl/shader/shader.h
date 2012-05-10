@@ -23,6 +23,7 @@
 #define __WIESEL_GL_SHADER_SHADER_H__
 
 #include <wiesel/gl/gl.h>
+#include <wiesel/math/matrix.h>
 #include <wiesel/io/datasource.h>
 #include <wiesel/util/shared_object.h>
 #include <string>
@@ -112,6 +113,7 @@ namespace wiesel {
 	// attributes (vertex shader)
 	public:
 		/// name of the vertex position attribute
+		std::string		uniform_modelview_matrix;
 		std::string		attrib_vertex_position;
 		std::string		attrib_vertex_normal;
 		std::string		attrib_vertex_color;
@@ -170,11 +172,6 @@ namespace wiesel {
 		bool link();
 
 		/**
-		 * @brief bind all attributes configured in the shaders.
-		 */
-		void bindAttributes();
-
-		/**
 		 * @brief binds this program to the current OpenGL context.
 		 */
 		void bind() const;
@@ -183,6 +180,11 @@ namespace wiesel {
 		 * @brief removes this program from the current OpenGL context.
 		 */
 		void unbind() const;
+
+		/**
+		 * @brief check, if this shader is currently bound to the GL context.
+		 */
+		bool isBound() const;
 
 	// attribute access
 	public:
@@ -206,14 +208,32 @@ namespace wiesel {
 			return (attrib_handle_vertex_textures.size() > layer) ? attrib_handle_vertex_textures.at(layer) : -1;
 		}
 
+		inline GLuint getModelviewMatrixHandle() const {
+			return uniform_handle_modelview_matrix;
+		}
+
 	public:
+		/// set the default values of some uniform parameters like modelview- or projection-matrix
+		void setDefaultValues();
+
 		/// set the value of an uniform attribute
 		void set(const std::string &name, int value);
 
 		/// set the value of an uniform attribute
 		void set(const std::string &name, float value);
 
+		/// set the modelview matrix
+		void setModelviewMatrix(const matrix4x4 &matrix);
+
 	private:
+		/**
+		 * @brief bind all attributes configured in the shaders.
+		 */
+		void bindAttributes();
+
+		/**
+		 * @brief get the OpenGL handle to a specific uniform parameter.
+		 */
 		GLuint getUniformHandle(const std::string &name) const;
 
 		/**
@@ -227,6 +247,7 @@ namespace wiesel {
 		GLuint					program;
 		bool					need_link;
 
+		GLuint					uniform_handle_modelview_matrix;
 		GLuint					attrib_handle_vertex_position;
 		GLuint					attrib_handle_vertex_normal;
 		GLuint					attrib_handle_vertex_color;

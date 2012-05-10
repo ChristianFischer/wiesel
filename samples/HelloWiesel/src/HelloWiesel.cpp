@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include <wiesel/application_main.h>
+#include <wiesel/math/matrix.h>
 #include <wiesel/gl/shaders.h>
 #include <wiesel/gl/textures.h>
 #include <wiesel/gl/vbo.h>
@@ -34,7 +35,7 @@ class HelloWiesel
 : public wiesel::Application
 {
 public:
-	HelloWiesel() {}
+	HelloWiesel() : m(matrix4x4::identity) {}
 	virtual ~HelloWiesel() {}
 
 public:
@@ -97,16 +98,18 @@ public:
 
 
 	virtual void onRender() {
+		program->bind();
+		program->setModelviewMatrix(m);
+
 		vbo->bind(program, texture);
 		vbo->render();
 		vbo->unbind(program);
+
 		return;
 	}
 
 
 	virtual void onShutdown() {
-		logmsg(LogLevel_Error, WIESEL_LOG_TAG, "references before release: %p, %p", program, texture);
-
 		safe_release(program);
 		safe_release(texture);
 		safe_release(vbo);
@@ -118,6 +121,7 @@ private:
 	ShaderProgram*	program;
 	Texture*		texture;
 	VertexBuffer*	vbo;
+	matrix4x4		m;
 };
 
 
