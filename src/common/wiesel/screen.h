@@ -23,6 +23,7 @@
 #define __WIESEL_SCREEN_H__
 
 #include <wiesel/geometry.h>
+#include <wiesel/math/matrix.h>
 
 namespace wiesel {
 
@@ -44,6 +45,11 @@ namespace wiesel {
 			return size.width / size.height;
 		}
 
+		/// get the renderer's projection matrix
+		inline const matrix4x4 getProjectionMatrix() const {
+			return projection;
+		}
+
 	// overridables
 	public:
 		/// called before rendering a frame
@@ -52,7 +58,12 @@ namespace wiesel {
 		/// called after rendering a frame
 		virtual void postRender() = 0;
 
+	// member functions
 	protected:
+		virtual void updateScreenSize(float w, float h);
+
+	protected:
+		matrix4x4	projection;
 		dimension	size;
 	};
 

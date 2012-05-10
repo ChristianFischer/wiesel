@@ -130,7 +130,6 @@ bool AndroidScreen::init() {
 	this->display = display;
 	this->context = context;
 	this->surface = surface;
-	this->size    = dimension(w, h);
 
 	// Initialize GL state.
 	glDisable(GL_CULL_FACE);
@@ -138,6 +137,9 @@ bool AndroidScreen::init() {
 
 	// setup viewport
 	glViewport(0, 0, w, h);
+
+	// update screen size and projection
+	updateScreenSize(w, h);
 
 	// log OpenGL information
 	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));

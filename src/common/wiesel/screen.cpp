@@ -25,10 +25,18 @@ using namespace wiesel;
 
 
 Screen::Screen() {
+	projection = matrix4x4::identity;
 	return;
 }
 
 Screen::~Screen() {
+	return;
+}
+
+
+void Screen::updateScreenSize(float w, float h) {
+	size = dimension(w, h);
+	projection = matrix4x4::ortho(0, w, 0, h, 0, 1000);
 	return;
 }
 

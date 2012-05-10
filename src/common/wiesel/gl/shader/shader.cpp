@@ -294,6 +294,12 @@ void ShaderProgram::bindAttributes() {
 
 		switch(shader->getType()) {
 			case ShaderType_VertexShader: {
+				if (shader->uniform_projection_matrix.empty() == false) {
+					uniform_handle_projection_matrix = glGetUniformLocation(program, shader->uniform_projection_matrix.c_str());
+					CHECK_GL_ERROR;
+					assert(uniform_handle_projection_matrix != -1);
+				}
+
 				if (shader->uniform_modelview_matrix.empty() == false) {
 					uniform_handle_modelview_matrix = glGetUniformLocation(program, shader->uniform_modelview_matrix.c_str());
 					CHECK_GL_ERROR;
@@ -354,6 +360,7 @@ void ShaderProgram::bindAttributes() {
 
 
 void ShaderProgram::setDefaultValues() {
+	setProjectionMatrix(matrix4x4::identity);
 	setModelviewMatrix(matrix4x4::identity);
 	return;
 }
@@ -382,6 +389,19 @@ void ShaderProgram::set(const std::string& name, float value) {
 	if (handle != -1) {
 		glUniform1f(handle, value);
 	}
+}
+
+
+void ShaderProgram::setProjectionMatrix(const matrix4x4& matrix) {
+	// bind the projection matrix
+	GLuint uniform_projection_matrix = getProjectionMatrixHandle();
+	assert(uniform_projection_matrix != -1);
+
+	if (uniform_projection_matrix != -1) {
+		glUniformMatrix4fv(uniform_projection_matrix, 1, false, matrix);
+	}
+
+	return;
 }
 
 

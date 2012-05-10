@@ -21,6 +21,7 @@
  */
 #include "matrix.h"
 
+#include <assert.h>
 #include <math.h>
 #include <string.h>
 
@@ -84,6 +85,37 @@ matrix4x4::matrix4x4(
 {
 	return;
 }
+
+
+matrix4x4 matrix4x4::ortho(float l, float r, float b, float t, float n, float f) {
+	assert(l < r);
+	assert(b < t);
+	assert(n < f);
+
+	return matrix4x4(
+				2/(r-l),	0.0f,		0.0f,		-((r+l)/(r-l)),
+				0.0f,		2/(t-b),	0.0f,		-((t+b)/(t-b)),
+				0.0f,		0.0f,		(-2)/(f-n),	-((f+n)/(f-n)),
+				0.0f,		0.0f,		0.0f,		 1.0f
+	);
+}
+
+
+matrix4x4 matrix4x4::frustum(float l, float r, float b, float t, float n, float f) {
+	assert(l < r);
+	assert(b < t);
+	assert(n < f);
+
+	return matrix4x4(
+				((2*n)/(r-l)),	0.0f,			((r+l)/(r-l)),		0.0f,
+				0.0f,			((2*n)/(t-b)),	((t+b)/(t-b)),		0.0f,
+				0.0f,			0.0f,			((-(f+n))/(f-n)),	((-(2*f*n))/(f-n)),
+				0.0f,			0.0f,			-1.0f,				0.0f
+	);
+
+}
+
+
 
 
 float matrix4x4::det() const {

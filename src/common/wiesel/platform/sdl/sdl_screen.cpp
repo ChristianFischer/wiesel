@@ -70,15 +70,15 @@ bool SdlScreen::init() {
 		return false;
 	}
 
-	// store the screen size
-	this->size = dimension(w, h);
-
 	// Initialize GL state.
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
 	// setup viewport
 	glViewport(0, 0, w, h);
+
+	// update screen size and projection
+	updateScreenSize(w, h);
 
 	// log OpenGL information
 	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));
