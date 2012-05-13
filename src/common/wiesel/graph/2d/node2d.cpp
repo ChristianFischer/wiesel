@@ -29,6 +29,8 @@ using namespace wiesel;
 
 Node2D::Node2D()
  :
+	bounds(0, 0, 0, 0),
+	pivot(.5f, .5f),
 	position(vector2d::zero),
 	rotation(0.0f),
 	scale_x(1.0f),
@@ -40,6 +42,48 @@ Node2D::Node2D()
 
 Node2D::~Node2D() {
 }
+
+
+
+
+void Node2D::setContentSize(const dimension &size) {
+	this->bounds.size = size;
+	updateBounds();
+	return;
+}
+
+
+void Node2D::setContentSize(float width, float height) {
+	this->bounds.size.width  = width;
+	this->bounds.size.height = height;
+	updateBounds();
+	return;
+}
+
+
+void Node2D::setPivot(const vector2d &pivot) {
+	this->pivot = pivot;
+	updateBounds();
+	return;
+}
+
+
+void Node2D::setPivot(float x, float y) {
+	this->pivot.x = x;
+	this->pivot.y = y;
+	updateBounds();
+	setTransformDirty();
+	return;
+}
+
+
+void Node2D::updateBounds() {
+	bounds.position.x = -(bounds.size.width  * pivot.x);
+	bounds.position.y = -(bounds.size.height * pivot.y);
+	return;
+}
+
+
 
 
 void Node2D::setPosition(const vector2d &v) {
@@ -78,6 +122,7 @@ void Node2D::setScaleY(float sy) {
 void Node2D::updateTransform() {
 	local_transform = matrix4x4::identity;
 
+	local_transform.translate(+bounds.position.x, +bounds.position.y);
 	local_transform.scale(scale_x, scale_y, 0.0f);
 	local_transform.rotateZ(rotation * M_PI / 180.0f);
 	local_transform.translate(position.x, position.y);

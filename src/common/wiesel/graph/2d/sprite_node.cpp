@@ -107,6 +107,10 @@ void SpriteNode::setShader(ShaderProgram* shader) {
 void SpriteNode::setTextureRect(const rect& texture_rect) {
 	this->texture_rect = texture_rect;
 	this->vbo_dirty    = true;
+
+	setContentSize(texture_rect.size);
+	setTransformDirty();
+
 	return;
 }
 
