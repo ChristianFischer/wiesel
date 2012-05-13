@@ -24,6 +24,7 @@
 
 #include "wiesel/graph/node.h"
 #include "wiesel/math/vector2d.h"
+#include "wiesel/geometry.h"
 
 
 namespace wiesel {
@@ -33,6 +34,42 @@ namespace wiesel {
 	public:
 		Node2D();
 		virtual ~Node2D();
+
+	// getter/setter
+	public:
+		/// set the content size of this node
+		void setContentSize(const dimension &size);
+
+		/// set the content size of this node
+		void setContentSize(float width, float height);
+
+		/// set the pivot point of this node.
+		/// usually this value would be between 0,0 (bottom left) and 1,1 (top right).
+		void setPivot(const vector2d &pivot);
+
+		/// set the pivot point of this node.
+		/// usually this value would be between 0,0 (bottom left) and 1,1 (top right).
+		void setPivot(float x, float y);
+
+		/// get the content size of this node.
+		inline const dimension& getContentSize() const {
+			return bounds.size;
+		}
+
+		/// get the pivot point of this node.
+		/// usually this value would be between 0,0 (bottom left) and 1,1 (top right).
+		inline const vector2d& getPivot() const {
+			return pivot;
+		}
+
+		/// get the bounding rect of this node.
+		inline const rect& getBounds() const {
+			return bounds;
+		}
+
+	protected:
+		/// update the bounding rect after content size or pivot point has changed.
+		void updateBounds();
 
 	// transformation setter/getter
 	public:
@@ -90,6 +127,9 @@ namespace wiesel {
 
 
 	private:
+		rect		bounds;
+		vector2d	pivot;
+
 		vector2d	position;
 		float		rotation;
 		float		scale_x;

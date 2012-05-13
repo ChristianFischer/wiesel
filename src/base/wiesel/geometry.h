@@ -43,6 +43,18 @@ namespace wiesel {
 		
 	// operations
 	public:
+		/// get the smallest dimension, either width or height.
+		float getMin() const;
+
+		/// get the largest dimension, either width or height.
+		float getMax() const;
+
+		/// get the average of width and height.
+		float getAverage() const;
+
+		/// get the ratio between width and height.
+		float getRatio() const;
+
 		/// scale width and height with factor \c s
 		void scale(float s);
 		

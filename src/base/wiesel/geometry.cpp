@@ -21,6 +21,8 @@
  */
 #include "geometry.h"
 
+#include <algorithm>
+
 using namespace wiesel;
 
 
@@ -37,6 +39,25 @@ dimension::dimension(float width, float height)
 dimension::dimension(const dimension &other) 
 : width(other.width), height(other.height) {
 	return;
+}
+
+
+
+
+float dimension::getMin() const {
+	return std::min(width, height);
+}
+
+float dimension::getMax() const {
+	return std::max(width, height);
+}
+
+float dimension::getAverage() const {
+	return (width + height) / 2;
+}
+
+float dimension::getRatio() const {
+	return width / height;
 }
 
 

@@ -47,7 +47,7 @@ public:
 		const dimension &screen = Engine::getCurrent()->getScreen()->getSize();
 		float center_x = screen.width  / 2;
 		float center_y = screen.height / 2;
-		float size     = min(screen.width, screen.height) / 2;
+		float size     = min(screen.width, screen.height);
 
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
 		File *tex_file = Engine::getCurrent()->getAssetFileSystem()->findFile("/images/wiesel.png");
@@ -63,6 +63,7 @@ public:
 
 		sprite = new SpriteNode(texture);
 		sprite->setPosition(center_x, center_y);
+		sprite->setScale(size / sprite->getContentSize().getMin());
 		sprite->retain();
 
 		Scene *scene = new Scene();
