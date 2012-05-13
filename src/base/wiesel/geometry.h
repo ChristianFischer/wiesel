@@ -23,6 +23,9 @@
 #define __WIESEL_GEOMETRY_H__
 
 
+#include "math/vector2d.h"
+
+
 namespace wiesel {
 
 	struct dimension
@@ -62,6 +65,37 @@ namespace wiesel {
 		dim.height *= s;
 		return dim;
 	}
+
+
+
+	/**
+	 * @brief A basic class covering the boundings of a rectangle.
+	 */
+	class rect
+	{
+	public:
+		/// creates a new rectangle with zero position and size.
+		rect();
+
+		/// creates a new rectangle with single values for position and size.
+		rect(float x, float y, float w, float h);
+
+		/// creates a new rectangle with a given position and size.
+		rect(const vector2d &position, const dimension &size);
+
+		/// creates a new rectangle with width and height and zero position.
+		rect(float with, float height);
+
+		/// creates a new rectangle with a given size and zero position.
+		rect(const dimension &size);
+
+		/// deconstructor
+		~rect();
+
+	public:
+		vector2d		position;		//!< Position of the rect.
+		dimension		size;			//!< Size of the rect.
+	};
 
 }
 

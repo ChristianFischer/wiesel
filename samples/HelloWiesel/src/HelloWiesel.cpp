@@ -25,6 +25,7 @@
 #include <wiesel/gl/textures.h>
 #include <wiesel/gl/vbo.h>
 #include <wiesel/io/filesystem.h>
+#include <wiesel/graph/2d/sprite_node.h>
 #include <wiesel.h>
 
 using namespace wiesel;
@@ -35,7 +36,7 @@ class HelloWiesel
 : public wiesel::Application
 {
 public:
-	HelloWiesel() : m(matrix4x4::identity) {}
+	HelloWiesel() {}
 	virtual ~HelloWiesel() {}
 
 public:
@@ -60,72 +61,39 @@ public:
 			texture = NULL;
 		}
 
-		vbo = new VertexBuffer();
-		vbo->retain();
-		vbo->setupVertexPositions(2);
-	//	vbo->setupVertexColors(4);
-		vbo->setupTextureLayer(0);
-		vbo->addVertex(center_x - size, center_y + size);
-		vbo->addVertex(center_x - size, center_y - size);
-		vbo->addVertex(center_x + size, center_y + size);
-		vbo->addVertex(center_x + size, center_y - size);
+		sprite = new SpriteNode(texture);
+		sprite->setPosition(center_x, center_y);
+		sprite->retain();
 
-		vbo->setVertexColor(0, 1.0f, 0.0f, 0.0f, 1.0f);
-		vbo->setVertexColor(1, 0.0f, 1.0f, 0.0f, 1.0f);
-		vbo->setVertexColor(2, 1.0f, 1.0f, 0.0f, 1.0f);
-		vbo->setVertexColor(3, 0.0f, 0.0f, 1.0f, 1.0f);
-
-		vbo->setVertexTextureCoordinate(0, 0, 0.0f, 0.0f);
-		vbo->setVertexTextureCoordinate(1, 0, 0.0f, 1.0f);
-		vbo->setVertexTextureCoordinate(2, 0, 1.0f, 0.0f);
-		vbo->setVertexTextureCoordinate(3, 0, 1.0f, 1.0f);
-		
-		Shader *vertex_shader = Shaders::instance()->getVertexShaderFor(vbo);
-		Shader *fragment_shader = Shaders::instance()->getFragmentShaderFor(vbo);
-		assert(vertex_shader);
-		assert(fragment_shader);
-
-		program = new ShaderProgram();
-		program->attach(vertex_shader);
-		program->attach(fragment_shader);
-		program->link();
-		program->retain();
+		Scene *scene = new Scene();
+		scene->addChild(sprite);
+		pushScene(scene);
 
 		return true;
 	}
 
 
 	virtual void onRun() {
+		Application::onRun();
 		return;
 	}
 
 
 	virtual void onRender() {
-		program->bind();
-		program->setProjectionMatrix(Engine::getCurrent()->getScreen()->getProjectionMatrix());
-		program->setModelviewMatrix(matrix4x4::identity);
-
-		vbo->bind(program, texture);
-		vbo->render();
-		vbo->unbind(program);
-
+		Application::onRender();
 		return;
 	}
 
 
 	virtual void onShutdown() {
-		safe_release(program);
 		safe_release(texture);
-		safe_release(vbo);
-
+		safe_release(sprite);
 		return;
 	}
 
 private:
-	ShaderProgram*	program;
 	Texture*		texture;
-	VertexBuffer*	vbo;
-	matrix4x4		m;
+	SpriteNode*		sprite;
 };
 
 
