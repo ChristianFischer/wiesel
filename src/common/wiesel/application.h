@@ -22,6 +22,10 @@
 #ifndef __WIESEL_APPLICATION_H__
 #define __WIESEL_APPLICATION_H__
 
+#include "graph/scene.h"
+#include <vector>
+
+
 namespace wiesel {
 
 
@@ -68,13 +72,48 @@ namespace wiesel {
 		 * @brief called each frame to process application data.
 		 * DUMMY - will be replaced by scene graph later.
 		 */
-		virtual void onRun() = 0;
+		virtual void onRun();
 
 		/**
 		 * @brief called each frame to render graphics.
 		 * DUMMY - will be replaced by scene graph later.
 		 */
-		virtual void onRender() = 0;
+		virtual void onRender();
+
+	// scene stack
+	public:
+		/**
+		 * @brief Push a new scene to the scene stack.
+		 * @return \c true, when the scene was added, \c false otherwise.
+		 */
+		bool pushScene(Scene *scene);
+
+		/**
+		 * @brief Removes a scene from the scene stack.
+		 */
+		void removeScene(Scene *scene);
+
+		/**
+		 * @brief removes all scenes from the scene stack.
+		 */
+		void clearSceneStack();
+
+		/**
+		 * @brief Get the topmost scene in the scene stack.
+		 * @return the topmost scene, or \c NULL, when the scene stack is empty.
+		 */
+		inline Scene *getTopScene();
+
+		/**
+		 * @brief Provides access to the scene stack.
+		 * @return A const-list of all scenes in the stack, which cannot be manipulated.
+		 */
+		inline const SceneList *getSceneStack() const {
+			return &scene_stack;
+		}
+
+	private:
+		SceneList		scene_stack;
 	};
 
 }

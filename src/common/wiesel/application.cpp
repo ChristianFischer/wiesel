@@ -21,6 +21,9 @@
  */
 #include "application.h"
 
+#include <algorithm>
+
+
 using namespace wiesel;
 
 
@@ -29,6 +32,73 @@ Application::Application() {
 }
 
 Application::~Application() {
+	clearSceneStack();
 	return;
+}
+
+
+
+
+void Application::onRun() {
+	return;
+}
+
+
+void Application::onRender() {
+	// draw all scenes
+	for(SceneList::iterator it=scene_stack.begin(); it!=scene_stack.end(); it++) {
+		(*it)->render();
+	}
+
+	return;
+}
+
+
+
+
+bool Application::pushScene(Scene *scene) {
+	SceneList::iterator it = std::find(scene_stack.begin(), scene_stack.end(), scene);
+	assert(it == scene_stack.end());
+	assert(scene);
+
+	if (scene && it == scene_stack.end()) {
+		scene_stack.push_back(scene);
+		scene->retain();
+
+		return true;
+	}
+
+	return false;
+}
+
+
+void Application::removeScene(Scene *scene) {
+	SceneList::iterator it = std::find(scene_stack.begin(), scene_stack.end(), scene);
+	if (it != scene_stack.end()) {
+		scene_stack.erase(it);
+		scene->release();
+	}
+
+	return;
+}
+
+
+void Application::clearSceneStack() {
+	for(SceneList::reverse_iterator it=scene_stack.rbegin(); it!=scene_stack.rend(); it++) {
+		(*it)->release();
+	}
+
+	scene_stack.clear();
+
+	return;
+}
+
+
+Scene *Application::getTopScene() {
+	if (scene_stack.empty()) {
+		return NULL;
+	}
+
+	return scene_stack.back();
 }
 

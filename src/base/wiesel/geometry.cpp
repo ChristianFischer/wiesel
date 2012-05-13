@@ -49,3 +49,47 @@ void dimension::scale(float sx, float sy) {
 	this->width  *= sx;
 	this->height *= sy;
 }
+
+
+
+
+
+rect::rect()
+: position(vector2d::zero), size(0, 0)
+{
+	return;
+}
+
+
+rect::rect(float x, float y, float w, float h)
+: position(x, y), size(w, h)
+{
+	return;
+}
+
+
+rect::rect(const vector2d &position, const dimension &size)
+: position(position), size(size)
+{
+	return;
+}
+
+
+rect::rect(float width, float height)
+: position(vector2d::zero), size(width, height)
+{
+	return;
+}
+
+
+rect::rect(const dimension &size)
+: position(vector2d::zero), size(size)
+{
+	return;
+}
+
+
+rect::~rect() {
+	return;
+}
+
