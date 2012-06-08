@@ -169,7 +169,7 @@ void SpriteNode::rebuildVertexBuffer() {
 	}
 
 	if (shader == NULL) {
-		shader = Shaders::instance()->getShaderFor(vbo);
+		setShader(Shaders::instance()->getShaderFor(vbo));
 	}
 
 	return;
