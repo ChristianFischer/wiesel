@@ -51,7 +51,7 @@ namespace wiesel {
 	 * for your custom objects.
 	 * Instead, you should be consider Node2D or Node3D.
 	 */
-	class Node : public SharedObject
+	class Node : public virtual SharedObject
 	{
 	public:
 		Node();

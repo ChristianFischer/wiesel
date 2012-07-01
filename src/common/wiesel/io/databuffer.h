@@ -31,7 +31,7 @@ namespace wiesel {
 	/**
 	 * @brief Wrapper object for any kind of data buffers.
 	 */
-	class DataBuffer : public SharedObject
+	class DataBuffer : public virtual SharedObject
 	{
 	protected:
 		DataBuffer();

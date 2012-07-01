@@ -31,7 +31,7 @@ namespace wiesel {
 	/**
 	 * @brief Wrapper object for any kind of data source, like files or buffers.
 	 */
-	class DataSource : public SharedObject
+	class DataSource : public virtual SharedObject
 	{
 	protected:
 		DataSource();

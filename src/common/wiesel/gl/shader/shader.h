@@ -49,7 +49,7 @@ namespace wiesel {
 	/**
 	 * @brief A class handling a single shader object.
 	 */
-	class Shader : public SharedObject
+	class Shader : public virtual SharedObject
 	{
 	private:
 		Shader();
@@ -149,7 +149,7 @@ namespace wiesel {
 	/**
 	 * @brief Handles a shader program with mulitple shaders linked.
 	 */
-	class ShaderProgram : public SharedObject
+	class ShaderProgram : public virtual SharedObject
 	{
 	public:
 		/**

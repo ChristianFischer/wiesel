@@ -32,7 +32,7 @@
 
 namespace wiesel {
 
-	class Texture : public SharedObject
+	class Texture : public virtual SharedObject
 	{
 	private:
 		Texture();

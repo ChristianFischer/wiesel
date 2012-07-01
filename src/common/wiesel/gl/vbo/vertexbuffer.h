@@ -38,7 +38,7 @@ namespace wiesel {
 	 * A vertex can contain 2D or 3D coordinates, normal, color,
 	 * and multiple texture coordinates.
 	 */
-	class VertexBuffer : public SharedObject
+	class VertexBuffer : public virtual SharedObject
 	{
 	public:
 		/// alias type for the index of each vertex.

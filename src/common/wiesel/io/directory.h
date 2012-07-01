@@ -43,7 +43,7 @@ namespace wiesel {
 	/**
 	 * @brief A class representing a directory within a \ref FileSystem.
 	 */
-	class Directory : public SharedObject
+	class Directory : public virtual SharedObject
 	{
 	private:
 		Directory() {}
