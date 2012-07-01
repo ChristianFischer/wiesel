@@ -54,6 +54,8 @@ namespace wiesel {
 		virtual FileSystem *getRootFileSystem();
 		virtual FileSystem *getAssetFileSystem();
 
+		virtual TouchHandler *getTouchHandler();
+
 	public:
 		virtual bool decodeImage(
 				DataSource *data,
@@ -67,6 +69,8 @@ namespace wiesel {
 	protected:
 		FileSystem*		root_fs;
 		FileSystem*		asset_fs;
+
+		TouchHandler*	touch_handler;
 	};
 
 }

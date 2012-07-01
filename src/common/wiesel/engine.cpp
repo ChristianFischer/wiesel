@@ -23,8 +23,14 @@
 
 #include <wiesel/util/shared_object.h>
 
+#include <wiesel/ui/touchhandler.h>
+
 #include <assert.h>
 #include <stddef.h>
+#include <time.h>
+
+#include <algorithm>
+
 
 using namespace wiesel;
 
@@ -103,11 +109,23 @@ void Engine::run(Application *application) {
 	// first onRun before entering the main loop
 	current_instance->onRunFirst();
 
+	// timers
+	clock_t last_t = clock();
+	clock_t now_t;
+
 	bool done = false;
 	do {
 		done = current_instance->onRun();
 
-		Screen *screen = current_instance->getScreen();
+		// measure time of this frame
+		last_t = now_t;
+		now_t  = clock();
+		float dt = (float(now_t - last_t) / CLOCKS_PER_SEC);
+
+		// run all updateable objects
+		for(int i=current_instance->updateables.size(); --i>=0;) {
+			current_instance->updateables.at(i)->update(dt);
+		}
 
 		switch(current_app_state) {
 			case Application_Uninitialized: {
@@ -123,6 +141,8 @@ void Engine::run(Application *application) {
 			case Application_Running: {
 				// application onRun
 				current_app->onRun();
+
+				Screen *screen = current_instance->getScreen();
 
 				if (screen) {
 					screen->preRender();
@@ -156,6 +176,31 @@ void Engine::requestExit() {
 	exit_requested = true;
 	return;
 }
+
+
+void Engine::registerUpdateable(IUpdateable* updateable) {
+	std::vector<IUpdateable*>::iterator it = std::find(updateables.begin(), updateables.end(), updateable);
+	if (it == updateables.end()) {
+		updateables.push_back(updateable);
+		updateable->retain();
+	}
+
+	return;
+}
+
+
+void Engine::unregisterUpdateable(IUpdateable* updateable) {
+	std::vector<IUpdateable*>::iterator it = std::find(updateables.begin(), updateables.end(), updateable);
+	if (it != updateables.end()) {
+		updateables.erase(it);
+		updateable->release();
+	}
+
+	return;
+}
+
+
+
 
 
 void Engine::startApp() {
