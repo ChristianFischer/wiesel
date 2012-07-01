@@ -44,7 +44,7 @@ namespace wiesel {
 	/**
 	 * @brief A class representing a file within a \ref FileSystem.
 	 */
-	class File : public SharedObject
+	class File : public virtual SharedObject
 	{
 	private:
 		File() {}

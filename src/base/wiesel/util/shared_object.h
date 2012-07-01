@@ -38,6 +38,8 @@ namespace wiesel {
 	 * the reference counter. When the reference counter hits zero, the object will be deleted.
 	 * Objects which are never retained will be deleted next time,
 	 * when \ref SharedObject::purgeDeadObjects() is called.
+	 *
+	 * By design, this class should be used as a virtual base class only.
 	 */
 	class SharedObject
 	{
