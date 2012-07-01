@@ -24,6 +24,7 @@
 
 #include "screen.h"
 #include "application.h"
+#include "engine_interfaces.h"
 
 #include <string>
 
@@ -34,6 +35,7 @@ namespace wiesel {
 
 	class DataSource;
 	class FileSystem;
+	class TouchHandler;
 
 
 
@@ -82,6 +84,18 @@ namespace wiesel {
 		 * @brief requests to stop the main loop after the current frame.
 		 */
 		static void requestExit();
+
+	// register/remove objects
+	public:
+		/**
+		 * @brief Registers an IUpdateable object to receive periodically updates.
+		 */
+		void registerUpdateable(IUpdateable *updateable);
+
+		/**
+		 * @brief Removes an IUpdateable object, so it will no longer receive updates.
+		 */
+		void unregisterUpdateable(IUpdateable *updateable);
 
 	// public methods
 	public:
@@ -160,6 +174,10 @@ namespace wiesel {
 		 */
 		virtual FileSystem *getAssetFileSystem() = 0;
 
+	// additional objects
+	public:
+		virtual TouchHandler *getTouchHandler() = 0;
+
 	// stuff
 	public:
 		/**
@@ -195,6 +213,9 @@ namespace wiesel {
 	// instance members
 	protected:
 		Screen*		screen;
+
+	private:
+		std::vector<IUpdateable*>		updateables;
 	};
 
 }

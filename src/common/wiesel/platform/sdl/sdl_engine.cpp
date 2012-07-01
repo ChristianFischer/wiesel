@@ -29,6 +29,7 @@
 #include "wiesel/io/datasource.h"
 #include "wiesel/io/directory_filesystem.h"
 #include "wiesel/util/log.h"
+#include "wiesel/ui/touchhandler.h"
 
 #include <SDL/SDL_image.h>
 
@@ -79,12 +80,21 @@ SdlEngine::SdlEngine() {
 		asset_fs = new GenericFileSystem();
 	}
 
+	// create touch handler object and register as updateable
+	touch_handler = new TouchHandler();
+	touch_handler->retain();
+	registerUpdateable(touch_handler);
+
 	return;
 }
 
 SdlEngine::~SdlEngine() {
+	unregisterUpdateable(touch_handler);
+	safe_release(touch_handler);
+
 	delete asset_fs;
 	delete root_fs;
+
 	return;
 }
 
@@ -140,6 +150,24 @@ bool SdlEngine::onRun() {
 
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
+			case SDL_MOUSEBUTTONDOWN: {
+				getTouchHandler()->startTouch(event.button.button, event.button.x, event.button.y);
+				break;
+			}
+
+			case SDL_MOUSEMOTION: {
+				for(int button=0; button<5; button++) {
+					getTouchHandler()->updateTouchLocation(button, event.motion.x, event.motion.y);
+				}
+
+				break;
+			}
+
+			case SDL_MOUSEBUTTONUP: {
+				getTouchHandler()->releaseTouch(event.button.button);
+				break;
+			}
+
 			case SDL_QUIT: {
 				return true;
 			}
@@ -161,6 +189,11 @@ FileSystem *SdlEngine::getRootFileSystem() {
 
 FileSystem *SdlEngine::getAssetFileSystem() {
 	return asset_fs;
+}
+
+
+TouchHandler *SdlEngine::getTouchHandler() {
+	return touch_handler;
 }
 
 
