@@ -29,6 +29,7 @@
 
 #include "wiesel/io/datasource.h"
 #include "wiesel/io/file.h"
+#include "wiesel/ui/touchhandler.h"
 #include "wiesel/util/log.h"
 
 #include <assert.h>
@@ -47,12 +48,21 @@ AndroidEngine::AndroidEngine(struct android_app *app) {
 	root_fs		= new GenericFileSystem();
 	asset_fs	= new AndroidAssetFileSystem(app->activity->assetManager);
 
+	// create touch handler object and register as updateable
+	touch_handler = new TouchHandler();
+	touch_handler->retain();
+	registerUpdateable(touch_handler);
+
 	return;
 }
 
 AndroidEngine::~AndroidEngine() {
+	unregisterUpdateable(touch_handler);
+	safe_release(touch_handler);
+
 	delete root_fs;
 	delete asset_fs;
+
 	return;
 }
 
@@ -68,13 +78,50 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
     AndroidEngine *engine = (AndroidEngine*)app->userData;
     assert(engine->isActive());
 
-    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-        int x = AMotionEvent_getX(event, 0);
-        int y = AMotionEvent_getY(event, 0);
+    if (
+			AInputEvent_getType(event)   == AINPUT_EVENT_TYPE_MOTION
+		&&	AInputEvent_getSource(event) == AINPUT_SOURCE_TOUCHSCREEN
+	) {
+		int action = AMotionEvent_getAction(event);
 
-        // TODO: Handle Pointer Event
+		switch(action & AMOTION_EVENT_ACTION_MASK) {
+			case AMOTION_EVENT_ACTION_DOWN:
+			case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+				int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+				int id    = AMotionEvent_getPointerId(event, index);
+				int x     = AMotionEvent_getX(event, index);
+				int y     = AMotionEvent_getY(event, index);
 
-        return 1;
+				engine->getTouchHandler()->startTouch(id, x, y);
+
+				break;
+			}
+
+			case AMOTION_EVENT_ACTION_MOVE: {
+				for(int index=AMotionEvent_getPointerCount(event); --index>=0;) {
+					int id    = AMotionEvent_getPointerId(event, index);
+					int x     = AMotionEvent_getX(event, index);
+					int y     = AMotionEvent_getY(event, index);
+
+					engine->getTouchHandler()->updateTouchLocation(id, x, y);
+				}
+
+				break;
+			}
+
+			case AMOTION_EVENT_ACTION_UP:
+			case AMOTION_EVENT_ACTION_CANCEL:
+			case AMOTION_EVENT_ACTION_POINTER_UP: {
+				int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+				int id    = AMotionEvent_getPointerId(event, index);
+
+				engine->getTouchHandler()->releaseTouch(id);
+
+				break;
+			}
+		}
+
+		return 1;
     }
 
     return 0;
@@ -199,6 +246,11 @@ FileSystem *AndroidEngine::getRootFileSystem() {
 
 FileSystem *AndroidEngine::getAssetFileSystem() {
 	return asset_fs;
+}
+
+
+TouchHandler *AndroidEngine::getTouchHandler() {
+	return touch_handler;
 }
 
 

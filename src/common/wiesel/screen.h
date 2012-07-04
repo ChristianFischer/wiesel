@@ -46,7 +46,7 @@ namespace wiesel {
 		}
 
 		/// get the renderer's projection matrix
-		inline const matrix4x4 getProjectionMatrix() const {
+		inline const matrix4x4& getProjectionMatrix() const {
 			return projection;
 		}
 
