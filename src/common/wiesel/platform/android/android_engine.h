@@ -61,6 +61,8 @@ namespace wiesel {
 		virtual FileSystem *getRootFileSystem();
 		virtual FileSystem *getAssetFileSystem();
 
+		virtual TouchHandler *getTouchHandler();
+
 	public:
 		virtual bool decodeImage(
 				DataSource *data,
@@ -85,6 +87,7 @@ namespace wiesel {
 		struct android_app*			app;
 		GenericFileSystem*			root_fs;
 		AndroidAssetFileSystem*		asset_fs;
+		TouchHandler*				touch_handler;
 	};
 
 }

@@ -82,11 +82,6 @@ namespace wiesel {
 			return owner;
 		}
 
-		/// get the current location of the touch event, relative to it's owner.
-		inline const vector2d& getLocation() const {
-			return transformed_location;
-		}
-
 		/// get the untransformed screen location of this event.
 		inline const vector2d& getScreenLocation() const {
 			return current_screen_location;
@@ -141,7 +136,6 @@ namespace wiesel {
 		vector2d		original_screen_location;
 		vector2d		previous_screen_location;
 		vector2d		current_screen_location;
-		vector2d		transformed_location;
 
 		TouchReceiver*	owner;
 		Node*			node;
