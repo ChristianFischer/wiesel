@@ -30,17 +30,6 @@ namespace wiesel {
 
 
 	/**
-	 * @brief manages the current state of the application.
-	 */
-	enum ApplicationState
-	{
-		Application_Uninitialized,		//<! The initial state of the application before initialization.
-		Application_Running,			//<! The application was initialized and is running.
-		Application_Suspended,			//<! The application was suspended - no update or render calls will be invoked.
-	};
-
-
-	/**
 	 * @brief An abstract class implementing the application logic.
 	 */
 	class Application {
@@ -59,6 +48,16 @@ namespace wiesel {
 		virtual void onShutdown() = 0;
 
 		/**
+		 * @brief notification when the application has lost focus and is no longer in the foreground.
+		 */
+		virtual void onEnterBackground() {}
+
+		/**
+		 * @brief notification when the application will enter the foreground and is active.
+		 */
+		virtual void onEnterForeground() {}
+
+		/**
 		 * @brief suspends the application, for example when the user switches to another task.
 		 */
 		virtual void onSuspend() {}
@@ -72,7 +71,7 @@ namespace wiesel {
 		 * @brief called each frame to process application data.
 		 * DUMMY - will be replaced by scene graph later.
 		 */
-		virtual void onRun();
+		virtual void onRun(float dt);
 
 		/**
 		 * @brief called each frame to render graphics.

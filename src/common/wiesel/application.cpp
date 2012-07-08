@@ -39,7 +39,7 @@ Application::~Application() {
 
 
 
-void Application::onRun() {
+void Application::onRun(float) {
 	return;
 }
 

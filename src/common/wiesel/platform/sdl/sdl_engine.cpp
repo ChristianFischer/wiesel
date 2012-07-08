@@ -133,6 +133,7 @@ void SdlEngine::onRunFirst() {
 		if (screen->init()) {
 			this->screen = screen;
 			this->startApp();
+			this->enterForeground();
 		}
 		else {
 			screen->release();

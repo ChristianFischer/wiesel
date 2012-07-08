@@ -132,35 +132,8 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
  */
 static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 	AndroidEngine* engine = static_cast<AndroidEngine*>(app->userData);
-
-	switch (cmd) {
-		case APP_CMD_SAVE_STATE: {
-			// The system has asked us to save our current state.  Do so.
-			break;
-		}
-
-		case APP_CMD_INIT_WINDOW: {
-			// The window is being shown, get it ready.
-			engine->__cmd_init_window();
-			break;
-		}
-
-		case APP_CMD_TERM_WINDOW: {
-			// The window is being hidden or closed, clean it up.
-			if (engine->isActive()) {
-				Engine::requestExit();
-			}
-
-			break;
-		}
-
-		case APP_CMD_GAINED_FOCUS: {
-			break;
-		}
-
-		case APP_CMD_LOST_FOCUS: {
-			break;
-		}
+	if (engine) {
+		engine->__handle_cmd(app, cmd);
 	}
 
 	return;
@@ -178,6 +151,73 @@ bool AndroidEngine::onInit() {
     app->onAppCmd     = engine_handle_cmd;
     app->onInputEvent = engine_handle_input;
 	return true;
+}
+
+
+void AndroidEngine::__handle_cmd(android_app* app, int32_t cmd) {
+	switch (cmd) {
+		case APP_CMD_SAVE_STATE: {
+			// The system has asked us to save our current state.  Do so.
+			break;
+		}
+
+		case APP_CMD_INIT_WINDOW: {
+			// The window is being shown, get it ready.
+			__cmd_init_window();
+			break;
+		}
+
+		case APP_CMD_CONFIG_CHANGED: {
+			AndroidScreen *screen = dynamic_cast<AndroidScreen*>(getScreen());
+			if (screen) {
+				screen->resize();
+			}
+
+			break;
+		}
+
+		case APP_CMD_WINDOW_RESIZED: {
+			AndroidScreen *screen = dynamic_cast<AndroidScreen*>(getScreen());
+			if (screen) {
+				screen->resize();
+			}
+
+			break;
+		}
+
+		case APP_CMD_TERM_WINDOW: {
+			// The window is being hidden or closed, clean it up.
+			if (isActive()) {
+				Engine::requestExit();
+			}
+
+			break;
+		}
+
+		case APP_CMD_GAINED_FOCUS: {
+			getTouchHandler()->releaseAllTouches();
+			enterForeground();
+			break;
+		}
+
+		case APP_CMD_LOST_FOCUS: {
+			getTouchHandler()->releaseAllTouches();
+			enterBackground();
+			break;
+		}
+
+		case APP_CMD_PAUSE: {
+			suspendApp();
+			break;
+		}
+
+		case APP_CMD_RESUME: {
+			resumeSuspendedApp();
+			break;
+		}
+	}
+
+	return;
 }
 
 

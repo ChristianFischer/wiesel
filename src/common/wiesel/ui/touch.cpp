@@ -34,6 +34,7 @@ Touch::Touch() {
 Touch::Touch(TouchID id, float x, float y) {
 	this->id	= id;
 	this->age	= 0.0f;
+	this->state	= TouchState_Started;
 	this->owner	= NULL;
 	this->node	= NULL;
 	
