@@ -22,6 +22,7 @@
 #include "engine.h"
 
 #include <wiesel/util/shared_object.h>
+#include <wiesel/util/log.h>
 
 #include <wiesel/ui/touchhandler.h>
 
@@ -37,13 +38,13 @@ using namespace wiesel;
 
 Engine*				Engine::current_instance		= NULL;
 Application*		Engine::current_app				= NULL;
-ApplicationState	Engine::current_app_state		= Application_Uninitialized;
 bool				Engine::exit_requested			= false;
 
 
 Engine::Engine()
 : screen(NULL)
 {
+	state		= Engine_Uninitialized;
 	return;
 }
 
@@ -127,20 +128,35 @@ void Engine::run(Application *application) {
 			current_instance->updateables.at(i)->update(dt);
 		}
 
-		switch(current_app_state) {
-			case Application_Uninitialized: {
+		switch(current_instance->getState()) {
+			case Engine_Uninitialized: {
 				// do nothing
 				break;
 			}
 
-			case Application_Suspended: {
+			case Engine_Suspended: {
 				// do nothing
 				break;
 			}
 
-			case Application_Running: {
+			case Engine_Background: {
 				// application onRun
-				current_app->onRun();
+				current_app->onRun(dt);
+
+				Screen *screen = current_instance->getScreen();
+
+				if (screen) {
+					screen->preRender();
+					current_app->onRender();
+					screen->postRender();
+				}
+
+				break;
+			}
+
+			case Engine_Running: {
+				// application onRun
+				current_app->onRun(dt);
 
 				Screen *screen = current_instance->getScreen();
 
@@ -204,14 +220,64 @@ void Engine::unregisterUpdateable(IUpdateable* updateable) {
 
 
 void Engine::startApp() {
+	assert(current_instance != NULL);
 	assert(current_app != NULL);
 
-	switch(current_app_state) {
-		case Application_Uninitialized: {
+	switch(current_instance->getState()) {
+		case Engine_Uninitialized: {
 			if (current_app) {
 				current_app->onInit();
-				current_app_state = Application_Running;
 			}
+
+			current_instance->state = Engine_Background;
+
+			break;
+		}
+
+		default: {
+			break;
+		}
+	}
+
+	return;
+}
+
+
+void Engine::enterBackground() {
+	assert(current_instance != NULL);
+	assert(current_app != NULL);
+
+	switch(current_instance->getState()) {
+		case Engine_Running: {
+			if (current_app != NULL) {
+				current_app->onEnterBackground();
+			}
+
+			current_instance->state = Engine_Background;
+
+			break;
+		}
+
+		default: {
+			break;
+		}
+	}
+
+	return;
+}
+
+
+void Engine::enterForeground() {
+	assert(current_instance != NULL);
+	assert(current_app != NULL);
+
+	switch(current_instance->getState()) {
+		case Engine_Background: {
+			if (current_app != NULL) {
+				current_app->onEnterForeground();
+			}
+
+			current_instance->state = Engine_Running;
 
 			break;
 		}
@@ -226,14 +292,22 @@ void Engine::startApp() {
 
 
 void Engine::suspendApp() {
+	assert(current_instance != NULL);
 	assert(current_app != NULL);
 
-	switch(current_app_state) {
-		case Application_Running: {
+	switch(current_instance->getState()) {
+		case Engine_Running: {
+			enterBackground();
+
+			// NOBR
+		}
+
+		case Engine_Background: {
 			if (current_app) {
 				current_app->onSuspend();
-				current_app_state = Application_Suspended;
 			}
+
+			current_instance->state = Engine_Suspended;
 
 			break;
 		}
@@ -248,14 +322,16 @@ void Engine::suspendApp() {
 
 
 void Engine::resumeSuspendedApp() {
+	assert(current_instance != NULL);
 	assert(current_app != NULL);
 
-	switch(current_app_state) {
-		case Application_Suspended: {
+	switch(current_instance->getState()) {
+		case Engine_Suspended: {
 			if (current_app) {
 				current_app->onResumeSuspended();
-				current_app_state = Application_Running;
 			}
+
+			current_instance->state = Engine_Background;
 
 			break;
 		}

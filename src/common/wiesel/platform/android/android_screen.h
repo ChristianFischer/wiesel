@@ -51,6 +51,7 @@ namespace wiesel {
 		virtual ~AndroidScreen();
 
 		bool init();
+		bool resize();
 		bool release();
 
 		virtual void preRender();

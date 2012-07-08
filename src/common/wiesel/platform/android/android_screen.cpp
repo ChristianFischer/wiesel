@@ -90,7 +90,7 @@ bool AndroidScreen::init() {
 			EGL_NONE
 	};
 
-	EGLint w, h, dummy, format;
+	EGLint dummy, format;
 	EGLint numConfigs;
 	EGLConfig  config;
 	EGLSurface surface;
@@ -121,11 +121,6 @@ bool AndroidScreen::init() {
 		return false;
 	}
 
-	// get the display size
-	eglQuerySurface(display, surface, EGL_WIDTH,  &w);
-	eglQuerySurface(display, surface, EGL_HEIGHT, &h);
-	CHECK_GL_ERROR;
-
 	// store the created values
 	this->display = display;
 	this->context = context;
@@ -135,11 +130,8 @@ bool AndroidScreen::init() {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
-	// setup viewport
-	glViewport(0, 0, w, h);
-
-	// update screen size and projection
-	updateScreenSize(w, h);
+	// initialize the window's size
+	resize();
 
 	// log OpenGL information
 	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));
@@ -149,6 +141,24 @@ bool AndroidScreen::init() {
 	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Extensions: %s", ((const char*)glGetString(GL_EXTENSIONS)));
 
 	CHECK_GL_ERROR;
+
+	return true;
+}
+
+
+bool AndroidScreen::resize() {
+	EGLint w, h;
+
+	// get the display size
+	eglQuerySurface(display, surface, EGL_WIDTH,  &w);
+	eglQuerySurface(display, surface, EGL_HEIGHT, &h);
+	CHECK_GL_ERROR;
+
+	// setup viewport
+	glViewport(0, 0, w, h);
+
+	// update screen size and projection
+	updateScreenSize(w, h);
 
 	return true;
 }

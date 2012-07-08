@@ -74,8 +74,8 @@ public:
 	}
 
 
-	virtual void onRun() {
-		Application::onRun();
+	virtual void onRun(float dt) {
+		Application::onRun(dt);
 		return;
 	}
 
