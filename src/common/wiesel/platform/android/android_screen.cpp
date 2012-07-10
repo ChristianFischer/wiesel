@@ -48,6 +48,7 @@ AndroidScreen::AndroidScreen(AndroidEngine *engine, struct android_app *app)
 , display(EGL_NO_DISPLAY)
 , surface(EGL_NO_SURFACE)
 , context(EGL_NO_CONTEXT)
+, config (NULL)
 {
 	return;
 }
@@ -58,6 +59,7 @@ AndroidScreen::~AndroidScreen() {
 	assert(display == EGL_NO_DISPLAY);
 	assert(surface == EGL_NO_SURFACE);
 	assert(context == EGL_NO_CONTEXT);
+	assert(config  == NULL);
 	return;
 }
 
@@ -67,71 +69,11 @@ bool AndroidScreen::init() {
 	assert(display == EGL_NO_DISPLAY);
 	assert(surface == EGL_NO_SURFACE);
 	assert(context == EGL_NO_CONTEXT);
+	assert(config  == NULL);
 
-	// initialize OpenGL ES and EGL
-
-	/*
-	 * Here specify the attributes of the desired configuration.
-	 * Below, we select an EGLConfig with at least 8 bits per color
-	 * component compatible with on-screen windows
-	 */
-	const EGLint config_attribs[] = {
-			EGL_SURFACE_TYPE,		EGL_WINDOW_BIT,
-			EGL_RENDERABLE_TYPE,	EGL_OPENGL_ES2_BIT,
-			EGL_BLUE_SIZE,			8,
-			EGL_GREEN_SIZE,			8,
-			EGL_RED_SIZE,			8,
-			EGL_DEPTH_SIZE,			16,
-			EGL_NONE
-	};
-
-	const EGLint context_attribs[] = {
-			EGL_CONTEXT_CLIENT_VERSION,		2,
-			EGL_NONE
-	};
-
-	EGLint dummy, format;
-	EGLint numConfigs;
-	EGLConfig  config;
-	EGLSurface surface;
-	EGLContext context;
-
-	EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-	eglInitialize(display, 0, 0);
-
-	/* Here, the application chooses the configuration it desires. In this
-	 * sample, we have a very simplified selection process, where we pick
-	 * the first EGLConfig that matches our criteria */
-	eglChooseConfig(display, config_attribs, &config, 1, &numConfigs);
-
-	/* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
-	 * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
-	 * As soon as we picked a EGLConfig, we can safely reconfigure the
-	 * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-	eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-
-	ANativeWindow_setBuffersGeometry(app->window, 0, 0, format);
-
-	surface = eglCreateWindowSurface(display, config, app->window, NULL);
-	context = eglCreateContext(display, config, NULL, context_attribs);
-	CHECK_GL_ERROR;
-
-	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-		logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "eglMakeCurrent failed!");
+	if (!initContext()) {
 		return false;
 	}
-
-	// store the created values
-	this->display = display;
-	this->context = context;
-	this->surface = surface;
-
-	// Initialize GL state.
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-
-	// initialize the window's size
-	resize();
 
 	// log OpenGL information
 	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));
@@ -141,6 +83,82 @@ bool AndroidScreen::init() {
 	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Extensions: %s", ((const char*)glGetString(GL_EXTENSIONS)));
 
 	CHECK_GL_ERROR;
+
+	return true;
+}
+
+bool AndroidScreen::initContext() {
+	// initialize OpenGL ES and EGL
+
+	EGLDisplay default_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+	if (this->display != EGL_NO_DISPLAY && this->display != default_display) {
+		releaseContext();
+	}
+
+	if (display == EGL_NO_DISPLAY) {
+		display =  default_display;
+		eglInitialize(display, 0, 0);
+	}
+
+	if (config == NULL) {
+		/*
+		 * Here specify the attributes of the desired configuration.
+		 * Below, we select an EGLConfig with at least 8 bits per color
+		 * component compatible with on-screen windows
+		 */
+		const EGLint config_attribs[] = {
+				EGL_SURFACE_TYPE,		EGL_WINDOW_BIT,
+				EGL_RENDERABLE_TYPE,	EGL_OPENGL_ES2_BIT,
+				EGL_BLUE_SIZE,			8,
+				EGL_GREEN_SIZE,			8,
+				EGL_RED_SIZE,			8,
+				EGL_DEPTH_SIZE,			16,
+				EGL_NONE
+		};
+
+		EGLint numConfigs;
+
+		/* Here, the application chooses the configuration it desires. In this
+		 * sample, we have a very simplified selection process, where we pick
+		 * the first EGLConfig that matches our criteria
+		 */
+		eglChooseConfig(display, config_attribs, &config, 1, &numConfigs);
+
+		/* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
+		 * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
+		 * As soon as we picked a EGLConfig, we can safely reconfigure the
+		 * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID.
+		 */
+		eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+	}
+
+	if (surface == EGL_NO_SURFACE) {
+		ANativeWindow_setBuffersGeometry(app->window, 0, 0, format);
+		
+		surface = eglCreateWindowSurface(display, config, app->window, NULL);
+	}
+
+	if (context == EGL_NO_CONTEXT) {
+		const EGLint context_attribs[] = {
+				EGL_CONTEXT_CLIENT_VERSION,		2,
+				EGL_NONE
+		};
+
+		context = eglCreateContext(display, config, NULL, context_attribs);
+		CHECK_GL_ERROR;
+	}
+
+	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+		logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "eglMakeCurrent failed!");
+		return false;
+	}
+
+	// Initialize GL state.
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	// initialize the window's size
+	resize();
 
 	return true;
 }
@@ -164,7 +182,7 @@ bool AndroidScreen::resize() {
 }
 
 
-bool AndroidScreen::release() {
+bool AndroidScreen::releaseContext() {
 	if (display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
@@ -182,10 +200,32 @@ bool AndroidScreen::release() {
 	display = EGL_NO_DISPLAY;
 	context = EGL_NO_CONTEXT;
 	surface = EGL_NO_SURFACE;
+	config  = NULL;
 
 	CHECK_GL_ERROR;
 
 	return true;
+}
+
+
+bool AndroidScreen::detachContext() {
+	// detach the gl context
+	if (display != EGL_NO_DISPLAY) {
+		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+	}
+
+	// release surface
+	if (surface != EGL_NO_SURFACE) {
+		eglDestroySurface(display, surface);
+		surface = EGL_NO_SURFACE;
+	}
+	
+	return true;
+}
+
+
+bool AndroidScreen::reattachContext() {
+	return initContext();
 }
 
 
