@@ -57,6 +57,8 @@ AndroidEngine::AndroidEngine(struct android_app *app) {
 }
 
 AndroidEngine::~AndroidEngine() {
+	assert(screen == NULL);
+
 	unregisterUpdateable(touch_handler);
 	safe_release(touch_handler);
 
@@ -155,6 +157,30 @@ bool AndroidEngine::onInit() {
 
 
 void AndroidEngine::__handle_cmd(android_app* app, int32_t cmd) {
+	/*
+	string cmd_name = "<unknown>";
+	switch(cmd) {
+		case APP_CMD_INPUT_CHANGED:				cmd_name = "APP_CMD_INPUT_CHANGED";				break;
+		case APP_CMD_INIT_WINDOW:				cmd_name = "APP_CMD_INIT_WINDOW";				break;
+		case APP_CMD_TERM_WINDOW:				cmd_name = "APP_CMD_TERM_WINDOW";				break;
+		case APP_CMD_WINDOW_RESIZED:			cmd_name = "APP_CMD_WINDOW_RESIZED";			break;
+		case APP_CMD_WINDOW_REDRAW_NEEDED:		cmd_name = "APP_CMD_WINDOW_REDRAW_NEEDED";		break;
+		case APP_CMD_CONTENT_RECT_CHANGED:		cmd_name = "APP_CMD_CONTENT_RECT_CHANGED";		break;
+		case APP_CMD_GAINED_FOCUS:				cmd_name = "APP_CMD_GAINED_FOCUS";				break;
+		case APP_CMD_LOST_FOCUS:				cmd_name = "APP_CMD_LOST_FOCUS";				break;
+		case APP_CMD_CONFIG_CHANGED:			cmd_name = "APP_CMD_CONFIG_CHANGED";			break;
+		case APP_CMD_LOW_MEMORY:				cmd_name = "APP_CMD_LOW_MEMORY";				break;
+		case APP_CMD_START:						cmd_name = "APP_CMD_START";						break;
+		case APP_CMD_RESUME:					cmd_name = "APP_CMD_RESUME";					break;
+		case APP_CMD_SAVE_STATE:				cmd_name = "APP_CMD_SAVE_STATE";				break;
+		case APP_CMD_PAUSE:						cmd_name = "APP_CMD_PAUSE";						break;
+		case APP_CMD_STOP:						cmd_name = "APP_CMD_STOP";						break;
+		case APP_CMD_DESTROY:					cmd_name = "APP_CMD_DESTROY";					break;
+	}
+
+	Log::info << endl << cmd_name << endl;
+	*/
+
 	switch (cmd) {
 		case APP_CMD_SAVE_STATE: {
 			// The system has asked us to save our current state.  Do so.
@@ -163,7 +189,10 @@ void AndroidEngine::__handle_cmd(android_app* app, int32_t cmd) {
 
 		case APP_CMD_INIT_WINDOW: {
 			// The window is being shown, get it ready.
-			__cmd_init_window();
+			if (initWindow() == false) {
+				requestExit();
+			}
+
 			break;
 		}
 
@@ -187,8 +216,9 @@ void AndroidEngine::__handle_cmd(android_app* app, int32_t cmd) {
 
 		case APP_CMD_TERM_WINDOW: {
 			// The window is being hidden or closed, clean it up.
-			if (isActive()) {
-				Engine::requestExit();
+			AndroidScreen *android_screen = dynamic_cast<AndroidScreen*>(screen);
+			if (android_screen) {
+				android_screen->detachContext();
 			}
 
 			break;
@@ -206,13 +236,25 @@ void AndroidEngine::__handle_cmd(android_app* app, int32_t cmd) {
 			break;
 		}
 
-		case APP_CMD_PAUSE: {
+		case APP_CMD_PAUSE:
+		case APP_CMD_STOP: {
 			suspendApp();
 			break;
 		}
 
+		case APP_CMD_START:
 		case APP_CMD_RESUME: {
 			resumeSuspendedApp();
+			break;
+		}
+
+		case APP_CMD_DESTROY: {
+			closeWindow();
+
+			if (isActive()) {
+				Engine::requestExit();
+			}
+
 			break;
 		}
 	}
@@ -221,18 +263,50 @@ void AndroidEngine::__handle_cmd(android_app* app, int32_t cmd) {
 }
 
 
-void AndroidEngine::__cmd_init_window() {
+bool AndroidEngine::initWindow() {
 	if (app->window != NULL) {
-		AndroidScreen *screen = new AndroidScreen(this, app);
-		if (screen->init()) {
-			this->screen = screen;
-			this->startApp();
+		// when there's still an existing screen, try to re-attach to it's EGL context
+		if (screen != NULL) {
+			AndroidScreen *android_screen = dynamic_cast<AndroidScreen*>(screen);
+			bool success = false;
+
+			if (android_screen && android_screen->reattachContext()) {
+				success = true;
+			}
+
+			if (!success) {
+				closeWindow();
+				assert(screen == NULL);
+			}
 		}
-		else {
-			screen->release();
-			delete screen;
-			this->requestExit();
+
+		if (screen == NULL) {
+			AndroidScreen *screen = new AndroidScreen(this, app);
+			if (screen->init()) {
+				this->screen = screen;
+				this->startApp();
+			}
+			else {
+				screen->releaseContext();
+				delete screen;
+				this->requestExit();
+			}
 		}
+	}
+
+	return true;
+}
+
+
+void AndroidEngine::closeWindow() {
+	AndroidScreen *android_screen = dynamic_cast<AndroidScreen*>(screen);
+	if (android_screen) {
+		android_screen->releaseContext();
+	}
+
+	if (screen) {
+		delete screen;
+		screen = NULL;
 	}
 
 	return;
@@ -240,11 +314,10 @@ void AndroidEngine::__cmd_init_window() {
 
 
 void AndroidEngine::onShutdown() {
-	if (screen) {
-		static_cast<AndroidScreen*>(screen)->release();
-		delete screen;
-		screen = NULL;
-	}
+	closeWindow();
+
+	// close the java activity
+	ANativeActivity_finish(app->activity);
 
 	return;
 }
@@ -272,6 +345,19 @@ bool AndroidEngine::onRun() {
 		if (app->destroyRequested != 0) {
 			Engine::requestExit();
 			return true;
+		}
+	}
+
+	switch(getState()) {
+		case Engine_Background:
+		case Engine_Suspended: {
+			// no need to waste CPU time while in suspend state...
+			sleep(1);
+			break;
+		}
+
+		default: {
+			break;
 		}
 	}
 

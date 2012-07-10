@@ -48,7 +48,10 @@ namespace wiesel {
 	// to be called by callback functions
 	public:
 		void __handle_cmd(struct android_app* app, int32_t cmd);
-		void __cmd_init_window();
+
+	protected:
+		bool initWindow();
+		void closeWindow();
 
 	// overridables
 	protected:

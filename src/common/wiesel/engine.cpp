@@ -140,17 +140,7 @@ void Engine::run(Application *application) {
 			}
 
 			case Engine_Background: {
-				// application onRun
-				current_app->onRun(dt);
-
-				Screen *screen = current_instance->getScreen();
-
-				if (screen) {
-					screen->preRender();
-					current_app->onRender();
-					screen->postRender();
-				}
-
+				// do nothing
 				break;
 			}
 

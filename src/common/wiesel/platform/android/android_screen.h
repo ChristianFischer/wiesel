@@ -51,8 +51,11 @@ namespace wiesel {
 		virtual ~AndroidScreen();
 
 		bool init();
+		bool initContext();
 		bool resize();
-		bool release();
+		bool detachContext();
+		bool reattachContext();
+		bool releaseContext();
 
 		virtual void preRender();
 		virtual void postRender();
@@ -61,6 +64,8 @@ namespace wiesel {
 		struct android_app*	app;
 		AndroidEngine*		engine;
 
+		EGLint     format;
+		EGLConfig  config;
 	    EGLDisplay display;
 	    EGLSurface surface;
 	    EGLContext context;
