@@ -75,3 +75,88 @@ bool vector2d::operator !=(const vector2d &other) const {
 }
 
 
+
+
+
+vector2d wiesel::operator +(const vector2d &a, const vector2d &b) {
+	return vector2d(a.x+b.x, a.y+b.y);
+}
+
+vector2d wiesel::operator -(const vector2d &a, const vector2d &b) {
+	return vector2d(a.x-b.x, a.y-b.y);
+}
+
+vector2d wiesel::operator *(const vector2d &a, float s) {
+	return vector2d(a.x*s, a.y*s);
+}
+
+vector2d wiesel::operator /(const vector2d &a, float s) {
+	return vector2d(a.x/s, a.y/s);
+}
+
+
+
+const vector2d& wiesel::operator +=(vector2d &a, const vector2d &b) {
+	a.x += b.x;
+	a.y += b.y;
+	return a;
+}
+
+const vector2d& wiesel::operator -=(vector2d &a, const vector2d &b) {
+	a.x -= b.x;
+	a.y -= b.y;
+	return a;
+}
+
+const vector2d& wiesel::operator *=(vector2d &a, float s) {
+	a.x *= s;
+	a.y *= s;
+	return a;
+}
+
+const vector2d& wiesel::operator /=(vector2d &a, float s) {
+	a.x /= s;
+	a.y /= s;
+	return a;
+}
+
+
+
+
+
+vector2d wiesel::operator *(const vector2d &v, const matrix4x4 &m) {
+	const float z = 0.0f;
+	const float w = 1.0f;
+
+	return vector2d(
+			(v.x * m.m11) + (v.y * m.m21) + (z * m.m31) + (w * m.m41),
+			(v.x * m.m12) + (v.y * m.m22) + (z * m.m32) + (w * m.m42)
+	);
+}
+
+vector2d wiesel::operator /(const vector2d &v, const matrix4x4 &m) {
+	return v * m.inverted();
+}
+
+
+const vector2d& wiesel::operator *=(vector2d &v, const matrix4x4 &m) {
+	const float z = 0.0f;
+	const float w = 1.0f;
+
+	v = vector2d(
+			(v.x * m.m11) + (v.y * m.m21) + (z * m.m31) + (w * m.m41),
+			(v.x * m.m12) + (v.y * m.m22) + (z * m.m32) + (w * m.m42)
+	);
+
+	return v;
+}
+
+const vector2d& wiesel::operator /=(vector2d &v, const matrix4x4 &m) {
+	return (v *= m.inverted());
+}
+
+
+std::ostream& wiesel::operator <<(std::ostream &o, const vector2d &v) {
+	o << '[' << v.x << ',' << v.y << ']';
+	return o;
+}

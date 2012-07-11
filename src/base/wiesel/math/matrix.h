@@ -22,6 +22,8 @@
 #ifndef __WIESEL_MATH_MATRIX_H__
 #define	__WIESEL_MATH_MATRIX_H__
 
+#include <ostream>
+
 
 namespace wiesel {
 
@@ -77,6 +79,11 @@ namespace wiesel {
 		static matrix4x4 frustum(float left, float right, float bottom, float top, float near, float far);
 
 	public:
+		/// get any cell from the matrix
+		inline float get(unsigned int c, unsigned int r) const {
+			return m[c + r*4];
+		}
+
 		/// compute the determinant
 		float det() const;
 
@@ -169,6 +176,9 @@ namespace wiesel {
 
 	matrix4x4 operator *(const matrix4x4 &a, const matrix4x4 &b);
 	matrix4x4 operator /(const matrix4x4 &a, const matrix4x4 &b);
+
+
+	std::ostream& operator <<(std::ostream &o, const matrix4x4 &m);
 
 }
 #endif	/* __WIESEL_MATH_MATRIX_H__ */

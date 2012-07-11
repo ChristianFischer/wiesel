@@ -128,38 +128,51 @@ float matrix4x4::det() const {
 
 
 matrix4x4 matrix4x4::inverted() const {
-	float inv_det = det();
+	matrix4x4 result;
 
-	if (inv_det != 0.0f) {
-		matrix4x4 result;
+	float s0 = m11 * m22 - m21 * m12;
+	float s1 = m11 * m23 - m21 * m13;
+	float s2 = m11 * m24 - m21 * m14;
+	float s3 = m12 * m23 - m22 * m13;
+	float s4 = m12 * m24 - m22 * m14;
+	float s5 = m13 * m24 - m23 * m14;
 
-		// invert determinant
-		inv_det = 1.0f / inv_det;
+	float c5 = m33 * m44 - m43 * m34;
+	float c4 = m32 * m44 - m42 * m34;
+	float c3 = m32 * m43 - m42 * m33;
+	float c2 = m31 * m44 - m41 * m34;
+	float c1 = m31 * m43 - m41 * m33;
+	float c0 = m31 * m42 - m41 * m32;
 
-		result.m11 =  inv_det * ((m22 * m33) - (m23 * m32));
-		result.m12 = -inv_det * ((m12 * m33) - (m13 * m32));
-		result.m13 =  inv_det * ((m13 * m23) - (m13 * m22));
-		result.m14 = 0.0f;
+	float det = (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0);
+	if (det == 0.0f) {
+		result = identity;
+	}
+	else {
+		float invdet = 1.0f / det;
 
-		result.m21 = -inv_det * ((m21 * m33) - (m23 * m31));
-		result.m22 =  inv_det * ((m11 * m33) - (m13 * m31));
-		result.m23 = -inv_det * ((m11 * m23) - (m13 * m21));
-		result.m24 = 0.0f;
+		result.m11 = ( m22 * c5 - m23 * c4 + m24 * c3) * invdet;
+		result.m12 = (-m12 * c5 + m13 * c4 - m14 * c3) * invdet;
+		result.m13 = ( m42 * s5 - m43 * s4 + m44 * s3) * invdet;
+		result.m14 = (-m32 * s5 + m33 * s4 - m34 * s3) * invdet;
 
-		result.m31 =  inv_det * ((m21 * m32) - (m22 * m31));
-		result.m32 = -inv_det * ((m11 * m32) - (m12 * m31));
-		result.m33 =  inv_det * ((m11 * m22) - (m12 * m21));
-		result.m34 = 0.0f;
+		result.m21 = (-m21 * c5 + m23 * c2 - m24 * c1) * invdet;
+		result.m22 = ( m11 * c5 - m13 * c2 + m14 * c1) * invdet;
+		result.m23 = (-m41 * s5 + m43 * s2 - m44 * s1) * invdet;
+		result.m24 = ( m31 * s5 - m33 * s2 + m34 * s1) * invdet;
 
-		result.m41 = -((m41 * result.m11) + (m42 * result.m21) + (m43 * result.m31));
-		result.m42 = -((m41 * result.m12) + (m42 * result.m22) + (m43 * result.m32));
-		result.m43 = -((m41 * result.m13) + (m42 * result.m23) + (m43 * result.m33));
-		result.m44 = 1.0f;
+		result.m31 = ( m21 * c4 - m22 * c2 + m24 * c0) * invdet;
+		result.m32 = (-m11 * c4 + m12 * c2 - m14 * c0) * invdet;
+		result.m33 = ( m41 * s4 - m42 * s2 + m44 * s0) * invdet;
+		result.m34 = (-m31 * s4 + m32 * s2 - m34 * s0) * invdet;
 
-		return result;
+		result.m41 = (-m21 * c3 + m22 * c1 - m23 * c0) * invdet;
+		result.m42 = ( m11 * c3 - m12 * c1 + m13 * c0) * invdet;
+		result.m43 = (-m41 * s3 + m42 * s1 - m43 * s0) * invdet;
+		result.m44 = ( m31 * s3 - m32 * s1 + m33 * s0) * invdet;
 	}
 
-	return identity;
+	return result;
 }
 
 
@@ -367,4 +380,16 @@ matrix4x4 wiesel::operator *(const matrix4x4 &a, const matrix4x4 &b) {
 
 matrix4x4 wiesel::operator /(const matrix4x4 &a, const matrix4x4 &b) {
 	return a * b.inverted();
+}
+
+
+std::ostream& wiesel::operator <<(std::ostream &o, const matrix4x4 &m) {
+	o
+		<<	"{ " << m.m11 << ',' << m.m12 << ',' << m.m13 << ',' << m.m14 << ',' << std::endl
+		<<	"  " << m.m21 << ',' << m.m22 << ',' << m.m23 << ',' << m.m24 << ',' << std::endl
+		<<	"  " << m.m31 << ',' << m.m32 << ',' << m.m33 << ',' << m.m34 << ',' << std::endl
+		<<	"  " << m.m41 << ',' << m.m42 << ',' << m.m43 << ',' << m.m44 << " }"
+	;
+
+	return o;
 }

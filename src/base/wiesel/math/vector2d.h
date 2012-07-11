@@ -22,6 +22,10 @@
 #ifndef __WIESEL_MATH_VECTOR2D_H__
 #define	__WIESEL_MATH_VECTOR2D_H__
 
+#include "matrix.h"
+
+#include <ostream>
+
 
 namespace wiesel {
 
@@ -47,7 +51,7 @@ namespace wiesel {
 		~vector2d();
 
 
-	// operators
+	// comparison operators
 	public:
 		const vector2d& operator=(const vector2d &other);
 
@@ -64,7 +68,7 @@ namespace wiesel {
 	public:
 		union {
 			/// an array containing all three coordinates of this vector
-			float	vec[3];
+			float	vec[2];
 
 			/// a struct containing each single coordinate of this vector
 			struct {
@@ -83,6 +87,28 @@ namespace wiesel {
 		/// a null-vector
 		static vector2d zero;
 	};
+
+
+
+	vector2d operator +(const vector2d &a, const vector2d &b);
+	vector2d operator -(const vector2d &a, const vector2d &b);
+	vector2d operator *(const vector2d &a, float s);
+	vector2d operator /(const vector2d &a, float s);
+
+	const vector2d& operator +=(vector2d &a, const vector2d &b);
+	const vector2d& operator -=(vector2d &a, const vector2d &b);
+	const vector2d& operator *=(vector2d &a, float s);
+	const vector2d& operator /=(vector2d &a, float s);
+
+
+	vector2d operator *(const vector2d &v, const matrix4x4 &m);
+	vector2d operator /(const vector2d &v, const matrix4x4 &m);
+
+	const vector2d& operator *=(vector2d &v, const matrix4x4 &m);
+	const vector2d& operator /=(vector2d &v, const matrix4x4 &m);
+
+
+	std::ostream& operator <<(std::ostream &o, const vector2d &v);
 
 }
 #endif	/* __WIESEL_MATH_VECTOR2D_H__ */

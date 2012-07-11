@@ -25,6 +25,8 @@
 
 #include "math/vector2d.h"
 
+#include <ostream>
+
 
 namespace wiesel {
 
@@ -109,6 +111,11 @@ namespace wiesel {
 		dimension		size;			//!< Size of the rect.
 	};
 
+
+
+	std::ostream& operator <<(std::ostream &o, const dimension &dim);
+	std::ostream& operator <<(std::ostream &o, const rect &r);
+	
 }
 
 #endif

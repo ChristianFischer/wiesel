@@ -23,6 +23,9 @@
 #define	__WIESEL_MATH_VECTOR3D_H__
 
 #include "vector2d.h"
+#include "matrix.h"
+
+#include <ostream>
 
 
 namespace wiesel {
@@ -83,6 +86,40 @@ namespace wiesel {
 		/// a null-vector
 		static vector3d zero;
 	};
+
+
+
+	/**
+	 * @brief Compute the dot-product or scalar-product of two vectors.
+	 */
+	float dot(const vector3d &a, const vector3d &b);
+
+	/**
+	 * @brief Compute the cross-product of two vectors.
+	 */
+	vector3d cross(const vector3d &a, const vector3d &b);
+
+
+
+	vector3d operator +(const vector3d &a, const vector3d &b);
+	vector3d operator -(const vector3d &a, const vector3d &b);
+	vector3d operator *(const vector3d &a, float s);
+	vector3d operator /(const vector3d &a, float s);
+
+	const vector3d& operator +=(vector3d &a, const vector3d &b);
+	const vector3d& operator -=(vector3d &a, const vector3d &b);
+	const vector3d& operator *=(vector3d &a, float s);
+	const vector3d& operator /=(vector3d &a, float s);
+
+
+	vector3d operator *(const vector3d &v, const matrix4x4 &m);
+	vector3d operator /(const vector3d &v, const matrix4x4 &m);
+
+	const vector3d& operator *=(vector3d &v, const matrix4x4 &m);
+	const vector3d& operator /=(vector3d &v, const matrix4x4 &m);
+
+
+	std::ostream& operator <<(std::ostream &o, const vector3d &v);
 
 }
 #endif	/* __WIESEL_MATH_VECTOR3D_H__ */

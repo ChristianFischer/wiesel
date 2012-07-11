@@ -114,3 +114,15 @@ rect::~rect() {
 	return;
 }
 
+
+
+std::ostream& wiesel::operator <<(std::ostream &o, const dimension &dim) {
+	o << '[' << dim.width << 'x' << dim.height << ']';
+	return o;
+}
+
+std::ostream& wiesel::operator <<(std::ostream &o, const rect &r) {
+	o << '[' << r.position << ',' << r.size << ']';
+	return o;
+}
+
