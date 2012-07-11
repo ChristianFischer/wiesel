@@ -79,3 +79,106 @@ bool vector3d::operator !=(const vector3d &other) const {
 }
 
 
+
+
+float wiesel::dot(const vector3d &a, const vector3d &b) {
+	return ((a.x*b.x) + (a.y*b.y) + (a.z*b.z));
+}
+
+
+vector3d wiesel::cross(const vector3d &a, const vector3d &b) {
+	return vector3d(
+			((a.y * b.z) - (a.z * b.y)),
+			((a.z * b.x) - (a.x * b.z)),
+			((a.x * b.y) - (a.y * b.x))
+	);
+}
+
+
+
+vector3d wiesel::operator +(const vector3d &a, const vector3d &b) {
+	return vector3d(a.x+b.x, a.y+b.y, a.z+b.z);
+}
+
+vector3d wiesel::operator -(const vector3d &a, const vector3d &b) {
+	return vector3d(a.x-b.x, a.y-b.y, a.z-b.z);
+}
+
+vector3d wiesel::operator *(const vector3d &a, float s) {
+	return vector3d(a.x*s, a.y*s, a.z*s);
+}
+
+vector3d wiesel::operator /(const vector3d &a, float s) {
+	return vector3d(a.x/s, a.y/s, a.z/s);
+}
+
+
+
+const vector3d& wiesel::operator +=(vector3d &a, const vector3d &b) {
+	a.x += b.x;
+	a.y += b.y;
+	a.z += b.z;
+	return a;
+}
+
+const vector3d& wiesel::operator -=(vector3d &a, const vector3d &b) {
+	a.x -= b.x;
+	a.y -= b.y;
+	a.z -= b.z;
+	return a;
+}
+
+const vector3d& wiesel::operator *=(vector3d &a, float s) {
+	a.x *= s;
+	a.y *= s;
+	a.z *= s;
+	return a;
+}
+
+const vector3d& wiesel::operator /=(vector3d &a, float s) {
+	a.x /= s;
+	a.y /= s;
+	a.z /= s;
+	return a;
+}
+
+
+
+
+
+vector3d wiesel::operator *(const vector3d &v, const matrix4x4 &m) {
+	const float w = 1.0f;
+
+	return vector3d(
+			(v.x * m.m11) + (v.y * m.m21) + (v.z * m.m31) + (w * m.m41),
+			(v.x * m.m12) + (v.y * m.m22) + (v.z * m.m32) + (w * m.m42),
+			(v.x * m.m13) + (v.y * m.m23) + (v.z * m.m33) + (w * m.m43)
+	);
+}
+
+vector3d wiesel::operator /(const vector3d &v, const matrix4x4 &m) {
+	return v * m.inverted();
+}
+
+
+const vector3d& wiesel::operator *=(vector3d &v, const matrix4x4 &m) {
+	const float w = 1.0f;
+
+	v = vector3d(
+			(v.x * m.m11) + (v.y * m.m21) + (v.z * m.m31) + (w * m.m41),
+			(v.x * m.m12) + (v.y * m.m22) + (v.z * m.m32) + (w * m.m42),
+			(v.x * m.m13) + (v.y * m.m23) + (v.z * m.m33) + (w * m.m43)
+	);
+
+	return v;
+}
+
+const vector3d& wiesel::operator /=(vector3d &v, const matrix4x4 &m) {
+	return (v *= m.inverted());
+}
+
+
+std::ostream& wiesel::operator <<(std::ostream &o, const vector3d &v) {
+	o << '[' << v.x << ',' << v.y << ',' << v.z << ']';
+	return o;
+}
