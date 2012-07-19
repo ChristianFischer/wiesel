@@ -115,6 +115,53 @@ rect::~rect() {
 }
 
 
+void rect::normalize() {
+	if (size.width < 0) {
+		position.x +=  size.width;
+		size.width  = -size.width;
+	}
+
+	if (size.height < 0) {
+		position.y  +=  size.height;
+		size.height  = -size.height;
+	}
+
+	return;
+}
+
+
+rect rect::normalized() const {
+	rect norm(*this);
+	norm.normalize();
+	return norm;
+}
+
+
+float rect::getMinX() const {
+	return position.x;
+}
+
+float rect::getMaxX() const {
+	return position.x + size.width;
+}
+
+float rect::getCenterX() const {
+	return position.x + size.width/2;
+}
+
+float rect::getMinY() const {
+	return position.y;
+}
+
+float rect::getMaxY() const {
+	return position.y + size.height;
+}
+
+float rect::getCenterY() const {
+	return position.y + size.height/2;
+}
+
+
 
 std::ostream& wiesel::operator <<(std::ostream &o, const dimension &dim) {
 	o << '[' << dim.width << 'x' << dim.height << ']';

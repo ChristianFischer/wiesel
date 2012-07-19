@@ -22,11 +22,13 @@
 #include "sprite_node.h"
 #include "wiesel/engine.h"
 #include "wiesel/gl/shader/shaders.h"
+#include "wiesel/gl/texture/spriteframe.h"
 
 using namespace wiesel;
 
 
 SpriteNode::SpriteNode() {
+	this->sprite		= NULL;
 	this->texture		= NULL;
 	this->shader		= NULL;
 	this->vbo			= NULL;
@@ -37,6 +39,7 @@ SpriteNode::SpriteNode() {
 
 
 SpriteNode::SpriteNode(Texture *texture) {
+	this->sprite		= NULL;
 	this->texture		= NULL;
 	this->shader		= NULL;
 	this->vbo			= NULL;
@@ -50,6 +53,7 @@ SpriteNode::SpriteNode(Texture *texture) {
 
 
 SpriteNode::SpriteNode(Texture *texture, const rect &texture_rect) {
+	this->sprite		= NULL;
 	this->texture		= NULL;
 	this->shader		= NULL;
 	this->vbo			= NULL;
@@ -57,6 +61,19 @@ SpriteNode::SpriteNode(Texture *texture, const rect &texture_rect) {
 
 	setTexture(texture);
 	setTextureRect(texture_rect);
+
+	return;
+}
+
+
+SpriteNode::SpriteNode(SpriteFrame *sprite) {
+	this->sprite		= NULL;
+	this->texture		= NULL;
+	this->shader		= NULL;
+	this->vbo			= NULL;
+	this->vbo_dirty		= true;
+
+	setSpriteFrame(sprite);
 
 	return;
 }
@@ -85,6 +102,12 @@ void SpriteNode::setTexture(Texture* texture) {
 		this->texture->retain();
 	}
 
+	// reset current sprite, when texture was set manually
+	if (this->sprite) {
+		this->sprite->release();
+		this->sprite = NULL;
+	}
+
 	return;
 }
 
@@ -98,6 +121,27 @@ void SpriteNode::setShader(ShaderProgram* shader) {
 	if (shader) {
 		this->shader = shader;
 		this->shader->retain();
+	}
+
+	return;
+}
+
+
+void SpriteNode::setSpriteFrame(SpriteFrame* sprite) {
+	if (this->sprite != sprite) {
+		if (this->sprite) {
+			this->sprite->release();
+			this->sprite = NULL;
+			this->setTexture(NULL);
+		}
+
+		if (sprite) {
+			setTexture(sprite->getTexture());
+			setTextureRect(sprite->getTextureRect());
+
+			this->sprite = sprite;
+			this->sprite->retain();
+		}
 	}
 
 	return;
@@ -147,12 +191,12 @@ void SpriteNode::rebuildVertexBuffer() {
 		float sprite_y   = 0.0f;
 		float sprite_w   = texture_rect.size.width;
 		float sprite_h   = texture_rect.size.height;
-		float texture_w  = texture->getOriginalSize().width;
-		float texture_h  = texture->getOriginalSize().height;
-		float texcoord_l = (sprite_x) / texture_w;
-		float texcoord_t = (sprite_y) / texture_h;
-		float texcoord_r = (sprite_x + sprite_w) / texture_w;
-		float texcoord_b = (sprite_y + sprite_h) / texture_h;
+		float texture_w  = texture->getSize().width;
+		float texture_h  = texture->getSize().height;
+		float texcoord_l = texture_rect.getMinX() / texture_w;
+		float texcoord_t = texture_rect.getMinY() / texture_h;
+		float texcoord_r = texture_rect.getMaxX() / texture_w;
+		float texcoord_b = texture_rect.getMaxY() / texture_h;
 
 		vbo->clear();
 		vbo->setupVertexPositions(2);

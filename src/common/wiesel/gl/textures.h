@@ -23,5 +23,7 @@
 #define __WIESEL_GL_TEXTURES_H__
 
 #include "texture/texture.h"
+#include "texture/spritesheet.h"
+#include "texture/spriteframe.h"
 
 #endif

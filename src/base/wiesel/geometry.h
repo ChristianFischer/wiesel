@@ -106,6 +106,34 @@ namespace wiesel {
 		/// deconstructor
 		~rect();
 
+	// normalization
+	public:
+		/// normalize this rectangle, so with and height are always positive
+		void normalize();
+
+		/// get the normalized version of this rectangle. Keeps the original rectangle unchanged.
+		rect normalized() const;
+
+	// getters
+	public:
+		/// get the smallest x-position
+		float getMinX() const;
+
+		/// get the greatest x-position
+		float getMaxX() const;
+
+		/// get the centre x-position
+		float getCenterX() const;
+
+		/// get the smallest y-position
+		float getMinY() const;
+
+		/// get the greatest y-position
+		float getMaxY() const;
+
+		/// get the centre y-position
+		float getCenterY() const;
+
 	public:
 		vector2d		position;		//!< Position of the rect.
 		dimension		size;			//!< Size of the rect.

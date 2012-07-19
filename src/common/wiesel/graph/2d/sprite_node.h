@@ -30,6 +30,10 @@
 
 namespace wiesel {
 
+	// predeclaration
+
+	class SpriteFrame;
+
 
 	/**
 	 * @brief A Node for displaying a single sprite.
@@ -57,6 +61,13 @@ namespace wiesel {
 		 */
 		SpriteNode(Texture *texture, const rect &texture_rect);
 
+		/**
+		 * @brief Constructs a new SpriteNode containing the full image
+		 * of a given texture and a default shader.
+		 * @param sprite		A SpriteFrame containing a texture and texture rectangle.
+		 */
+		SpriteNode(SpriteFrame *sprite);
+
 		virtual ~SpriteNode();
 
 	// getter / setter
@@ -65,6 +76,11 @@ namespace wiesel {
 		 * @brief Set the Shader to be used for rendering.
 		 */
 		void setShader(ShaderProgram *shader);
+
+		/**
+		 * @brief Set a new sprite frame for this node.
+		 */
+		void setSpriteFrame(SpriteFrame *sprite);
 
 		/**
 		 * @brief Set the texture to be rendered.
@@ -81,6 +97,13 @@ namespace wiesel {
 		 */
 		inline ShaderProgram *getShader() {
 			return shader;
+		}
+
+		/**
+		 * @brief Get the current sprite frame (if any)
+		 */
+		inline SpriteFrame *getSpriteFrame() {
+			return sprite;
 		}
 
 		/**
@@ -104,6 +127,7 @@ namespace wiesel {
 		virtual void rebuildVertexBuffer();
 
 	protected:
+		SpriteFrame*		sprite;
 		Texture*			texture;
 		rect				texture_rect;
 
