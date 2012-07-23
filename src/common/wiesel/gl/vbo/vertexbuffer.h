@@ -26,6 +26,8 @@
 #include <wiesel/util/shared_object.h>
 #include <wiesel/gl/shader/shader.h>
 #include <wiesel/gl/texture/texture.h>
+#include <wiesel/math/vector2d.h>
+#include <wiesel/math/vector3d.h>
 
 #include <vector>
 #include <string>
@@ -156,6 +158,18 @@ namespace wiesel {
 		 * @brief adds a vertex with two coordinates.
 		 * @return The index of the new vertex.
 		 */
+		index_t addVertex(const vector2d &v);
+
+		/**
+		 * @brief adds a vertex with three coordinates.
+		 * @return The index of the new vertex.
+		 */
+		index_t addVertex(const vector3d &v);
+
+		/**
+		 * @brief adds a vertex with three coordinates.
+		 * @return The index of the new vertex.
+		 */
 		index_t addVertex(float x, float y, float z=0.0f);
 
 		/**
@@ -180,7 +194,20 @@ namespace wiesel {
 		 * @brief set the first texture layer's coordinate of a vertex.
 		 * @param index		The index of the vertex to change.
 		 */
+		void setVertexTextureCoordinate(index_t index, const vector2d &coord);
+
+		/**
+		 * @brief set the first texture layer's coordinate of a vertex.
+		 * @param index		The index of the vertex to change.
+		 */
 		void setVertexTextureCoordinate(index_t index, float u, float v);
+
+		/**
+		 * @brief set the texture coordinate of a vertex.
+		 * @param index		The index of the vertex to change.
+		 * @param layer		The texture layer which coordinate should be set.
+		 */
+		void setVertexTextureCoordinate(index_t index, int layer, const vector2d &coord);
 
 		/**
 		 * @brief set the texture coordinate of a vertex.
