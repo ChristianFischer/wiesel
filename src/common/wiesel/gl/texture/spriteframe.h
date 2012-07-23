@@ -44,6 +44,14 @@ namespace wiesel {
 		SpriteFrame();
 
 	public:
+		struct TextureCoords {
+			vector2d	tl;
+			vector2d	tr;
+			vector2d	bl;
+			vector2d	br;
+		};
+
+	public:
 		/**
 		 * @brief Creates a new SpriteFrame, which covers the full area of a texture.
 		 * @param name			The name of the new SpriteFrame.
@@ -55,9 +63,25 @@ namespace wiesel {
 		 * @brief Creates a new SpriteFrame.
 		 * @param name			The name of the new SpriteFrame.
 		 * @param texture		The SpriteFrame's texture.
-		 * @param texture_rect	The area within this recture, which belongs to this SpriteFrame.
+		 * @param texture_rect	The area within this texture, which belongs to this SpriteFrame.
 		 */
 		SpriteFrame(const std::string &name, Texture *texture, const rect &texture_rect);
+
+		/**
+		 * @brief Creates a new SpriteFrame.
+		 * @param name			The name of the new SpriteFrame.
+		 * @param texture		The SpriteFrame's texture.
+		 * @param size			The SpriteFrame's total size, including any trimmed transparency area.
+		 * @param inner_rect	The area within the sprite, which contains the texture image.
+		 * @param texcoords		The texture coordinates of the sprite's vertices.
+		 */
+		SpriteFrame(
+				const std::string &name,
+				Texture *texture,
+				const dimension &size,
+				const rect &inner_rect,
+				const TextureCoords &texcoords
+		);
 
 		virtual ~SpriteFrame();
 
@@ -77,15 +101,27 @@ namespace wiesel {
 			return texture;
 		}
 
+		/// get this frame's total size
+		inline const dimension& getSize() const {
+			return sprite_size;
+		}
+
 		/// get the area within the texture, which belongs to this SpriteFrame.
-		inline const rect& getTextureRect() const {
-			return texture_rect;
+		inline const rect& getInnerRect() const {
+			return inner_rect;
+		}
+
+		/// get the texture coordinates of this sprite
+		inline const TextureCoords& getTextureCoordinates() const {
+			return texture_coordinates;
 		}
 
 	private:
 		std::string		name;
 		Texture*		texture;
-		rect			texture_rect;
+		TextureCoords	texture_coordinates;
+		rect			inner_rect;
+		dimension		sprite_size;
 	};
 
 

@@ -150,10 +150,22 @@ public:
 
 	SpriteFrame *parseSimpleXml_Sprite(const Attributes &attributes) {
 		string	sprite_name			= "";
+
+		// the actual coordinates within the texture which will result in texture coordinates
 		int		sprite_texture_x	= 0;
 		int		sprite_texture_y	= 0;
 		int		sprite_texture_w	= 0;
 		int		sprite_texture_h	= 0;
+
+		// the sprite's outer size
+		int		sprite_outer_w		= 0;
+		int		sprite_outer_h		= 0;
+
+		// position within the sprite, where the image begins
+		int		sprite_offset_x		= 0;
+		int		sprite_offset_y		= 0;
+
+		int		rotation			= 0;
 
 		for(Attributes::const_iterator it=attributes.begin(); it!=attributes.end(); it++) {
 			if (it->first == "n") {
@@ -185,6 +197,35 @@ public:
 				continue;
 			}
 
+			if (it->first == "oX") {
+				stringstream ss(it->second);
+				ss >> sprite_offset_x;
+				continue;
+			}
+
+			if (it->first == "oY") {
+				stringstream ss(it->second);
+				ss >> sprite_offset_y;
+				continue;
+			}
+
+			if (it->first == "oW") {
+				stringstream ss(it->second);
+				ss >> sprite_outer_w;
+				continue;
+			}
+
+			if (it->first == "oH") {
+				stringstream ss(it->second);
+				ss >> sprite_outer_h;
+				continue;
+			}
+
+			if (it->first == "r" && it->second == "y") {
+				rotation = 90;
+				continue;
+			}
+
 			// unknown attribute...
 		}
 
@@ -196,7 +237,19 @@ public:
 			&&	sprite_texture_h >  0
 		) {
 			Texture *texture = spritesheet->getTexture();
+			SpriteFrame::TextureCoords texcoords;
 			assert(texture);
+
+			if (sprite_outer_w < sprite_texture_w) {
+				sprite_outer_w = sprite_texture_w;
+			}
+
+			if (sprite_outer_h < sprite_texture_h) {
+				sprite_outer_h = sprite_texture_h;
+			}
+
+			float texture_w = texture->getSize().width;
+			float texture_h = texture->getSize().height;
 
 			rect texture_rect(
 						sprite_texture_x,
@@ -205,7 +258,69 @@ public:
 						sprite_texture_h
 			);
 
-			return new SpriteFrame(sprite_name, texture, texture_rect);
+			rect inner_rect(
+						sprite_offset_x,
+						sprite_offset_y,
+						sprite_texture_w,
+						sprite_texture_h
+			);
+			
+			float texcoord_l = texture_rect.getMinX() / texture_w;
+			float texcoord_r = texture_rect.getMaxX() / texture_w;
+			float texcoord_t = texture_rect.getMinY() / texture_h;
+			float texcoord_b = texture_rect.getMaxY() / texture_h;
+
+			switch(rotation) {
+				case 90: {
+					inner_rect.size.width  = sprite_texture_h;
+					inner_rect.size.height = sprite_texture_w;
+
+					texcoords.tl = vector2d(texcoord_r, texcoord_t);
+					texcoords.tr = vector2d(texcoord_r, texcoord_b);
+					texcoords.br = vector2d(texcoord_l, texcoord_b);
+					texcoords.bl = vector2d(texcoord_l, texcoord_t);
+
+					break;
+				}
+
+				case 180: {
+					texcoords.tl = vector2d(texcoord_r, texcoord_b);
+					texcoords.tr = vector2d(texcoord_l, texcoord_b);
+					texcoords.bl = vector2d(texcoord_r, texcoord_t);
+					texcoords.br = vector2d(texcoord_l, texcoord_t);
+
+					break;
+				}
+
+				case 270: {
+					inner_rect.size.width  = sprite_texture_h;
+					inner_rect.size.height = sprite_texture_w;
+
+					texcoords.tl = vector2d(texcoord_l, texcoord_b);
+					texcoords.tr = vector2d(texcoord_l, texcoord_t);
+					texcoords.br = vector2d(texcoord_r, texcoord_t);
+					texcoords.bl = vector2d(texcoord_r, texcoord_b);
+
+					break;
+				}
+
+				case 0:
+				default: {
+					texcoords.tl = vector2d(texcoord_l, texcoord_t);
+					texcoords.tr = vector2d(texcoord_r, texcoord_t);
+					texcoords.bl = vector2d(texcoord_l, texcoord_b);
+					texcoords.br = vector2d(texcoord_r, texcoord_b);
+					break;
+				}
+			}
+
+			return new SpriteFrame(
+						sprite_name,
+						texture,
+						dimension(sprite_outer_w, sprite_outer_h),
+						inner_rect,
+						texcoords
+			);
 		}
 
 		return NULL;

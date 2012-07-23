@@ -345,6 +345,16 @@ void VertexBuffer::clear() {
 
 
 
+VertexBuffer::index_t VertexBuffer::addVertex(const vector2d& v) {
+	return addVertex(v.x, v.y);
+}
+
+
+VertexBuffer::index_t VertexBuffer::addVertex(const vector3d& v) {
+	return addVertex(v.x, v.y, v.z);
+}
+
+
 VertexBuffer::index_t VertexBuffer::addVertex(float x, float y, float z) {
 	index_t index = num_vertices;
 	index_t new_capacity = ensureCapacity(index + 1);
@@ -431,8 +441,18 @@ void VertexBuffer::setVertexColor(index_t index, float r, float g, float b, floa
 }
 
 
+void VertexBuffer::setVertexTextureCoordinate(index_t index, const vector2d &coord) {
+	setVertexTextureCoordinate(index, 0, coord.u, coord.v);
+}
+
+
 void VertexBuffer::setVertexTextureCoordinate(index_t index, float u, float v) {
 	setVertexTextureCoordinate(index, 0, u, v);
+}
+
+
+void VertexBuffer::setVertexTextureCoordinate(index_t index, int layer, const vector2d &coord) {
+	setVertexTextureCoordinate(index, layer, coord.u, coord.v);
 }
 
 

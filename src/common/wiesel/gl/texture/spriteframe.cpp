@@ -28,7 +28,7 @@ using namespace std;
 
 
 SpriteFrame::SpriteFrame()
-: name(""), texture(NULL), texture_rect()
+: name(""), texture(NULL), inner_rect()
 {
 	return;
 }
@@ -41,7 +41,21 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture)
 	if (texture) {
 		this->texture = texture;
 		this->texture->retain();
-		this->texture_rect = rect(texture->getOriginalSize());
+		this->inner_rect  = rect(texture->getOriginalSize());
+		this->sprite_size = texture->getOriginalSize();
+		
+		float texture_w  = texture->getSize().width;
+		float texture_h  = texture->getSize().height;
+		
+		float texcoord_l = inner_rect.getMinX() / texture_w;
+		float texcoord_t = inner_rect.getMinY() / texture_h;
+		float texcoord_r = inner_rect.getMaxX() / texture_w;
+		float texcoord_b = inner_rect.getMaxY() / texture_h;
+		
+		texture_coordinates.tl = vector2d(texcoord_l, texcoord_t);
+		texture_coordinates.tr = vector2d(texcoord_r, texcoord_t);
+		texture_coordinates.bl = vector2d(texcoord_l, texcoord_b);
+		texture_coordinates.br = vector2d(texcoord_r, texcoord_b);
 	}
 	else {
 		texture = NULL;
@@ -49,7 +63,7 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture)
 }
 
 SpriteFrame::SpriteFrame(const std::string& name, Texture* texture, const rect& texture_rect)
-: name(name), texture(texture), texture_rect(texture_rect)
+: name(name), texture(texture), inner_rect(texture_rect)
 {
 	assert(texture);
 	assert(texture_rect.position.x + texture_rect.size.width  <= texture->getOriginalSize().width);
@@ -57,7 +71,40 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture, const rect& 
 
 	if (texture) {
 		texture->retain();
+
+		sprite_size = texture->getOriginalSize();
+
+		float texture_w  = texture->getSize().width;
+		float texture_h  = texture->getSize().height;
+
+		float texcoord_l = texture_rect.getMinX() / texture_w;
+		float texcoord_t = texture_rect.getMinY() / texture_h;
+		float texcoord_r = texture_rect.getMaxX() / texture_w;
+		float texcoord_b = texture_rect.getMaxY() / texture_h;
+
+		texture_coordinates.tl = vector2d(texcoord_l, texcoord_t);
+		texture_coordinates.tr = vector2d(texcoord_r, texcoord_t);
+		texture_coordinates.bl = vector2d(texcoord_l, texcoord_b);
+		texture_coordinates.br = vector2d(texcoord_r, texcoord_b);
 	}
+
+	return;
+}
+
+SpriteFrame::SpriteFrame(const string& name, Texture* texture,
+		const dimension& size, const rect& inner_rect, const TextureCoords& texcoords
+)
+: name(name), texture(texture), sprite_size(size), inner_rect(inner_rect), texture_coordinates(texcoords)
+{
+	assert(texture);
+	assert(inner_rect.getMaxX() <= size.width);
+	assert(inner_rect.getMaxY() <= size.height);
+
+	if (texture) {
+		texture->retain();
+	}
+
+	return;
 }
 
 SpriteFrame::~SpriteFrame() {
@@ -73,7 +120,7 @@ std::ostream& wiesel::operator <<(std::ostream &o, const SpriteFrame *sprite_fra
 	o
 			<< "SpriteFrame(\""
 			<< sprite_frame->getName() << "\": "
-			<< sprite_frame->getTextureRect()
+			<< sprite_frame->getSize()
 			<< ')'
 	;
 

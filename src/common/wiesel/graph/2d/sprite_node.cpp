@@ -53,6 +53,8 @@ SpriteNode::SpriteNode(Texture *texture) {
 
 
 SpriteNode::SpriteNode(Texture *texture, const rect &texture_rect) {
+	assert(texture);
+
 	this->sprite		= NULL;
 	this->texture		= NULL;
 	this->shader		= NULL;
@@ -67,6 +69,8 @@ SpriteNode::SpriteNode(Texture *texture, const rect &texture_rect) {
 
 
 SpriteNode::SpriteNode(SpriteFrame *sprite) {
+	assert(sprite);
+
 	this->sprite		= NULL;
 	this->texture		= NULL;
 	this->shader		= NULL;
@@ -137,10 +141,12 @@ void SpriteNode::setSpriteFrame(SpriteFrame* sprite) {
 
 		if (sprite) {
 			setTexture(sprite->getTexture());
-			setTextureRect(sprite->getTextureRect());
 
 			this->sprite = sprite;
 			this->sprite->retain();
+
+			setContentSize(sprite->getSize());
+			setTransformDirty();
 		}
 	}
 
@@ -187,29 +193,50 @@ void SpriteNode::rebuildVertexBuffer() {
 	if (vbo_dirty) {
 		vbo_dirty = false;
 
-		float sprite_x   = 0.0f;
-		float sprite_y   = 0.0f;
-		float sprite_w   = texture_rect.size.width;
-		float sprite_h   = texture_rect.size.height;
-		float texture_w  = texture->getSize().width;
-		float texture_h  = texture->getSize().height;
-		float texcoord_l = texture_rect.getMinX() / texture_w;
-		float texcoord_t = texture_rect.getMinY() / texture_h;
-		float texcoord_r = texture_rect.getMaxX() / texture_w;
-		float texcoord_b = texture_rect.getMaxY() / texture_h;
+		if (getSpriteFrame()) {
+			float sprite_x = getSpriteFrame()->getInnerRect().position.x;
+			float sprite_y = getSpriteFrame()->getInnerRect().position.y;
+			float sprite_w = getSpriteFrame()->getInnerRect().size.width;
+			float sprite_h = getSpriteFrame()->getInnerRect().size.height;
 
-		vbo->clear();
-		vbo->setupVertexPositions(2);
-		vbo->setupTextureLayer(0);
-		vbo->addVertex(sprite_x, sprite_h);
-		vbo->addVertex(sprite_x, sprite_y);
-		vbo->addVertex(sprite_w, sprite_h);
-		vbo->addVertex(sprite_w, sprite_y);
+			vbo->clear();
+			vbo->setupVertexPositions(2);
+			vbo->setupTextureLayer(0);
+			vbo->addVertex(sprite_x,            sprite_y + sprite_h);
+			vbo->addVertex(sprite_x,            sprite_y           );
+			vbo->addVertex(sprite_x + sprite_w, sprite_y + sprite_h);
+			vbo->addVertex(sprite_x + sprite_w, sprite_y           );
 
-		vbo->setVertexTextureCoordinate(0, 0, texcoord_l, texcoord_t);
-		vbo->setVertexTextureCoordinate(1, 0, texcoord_l, texcoord_b);
-		vbo->setVertexTextureCoordinate(2, 0, texcoord_r, texcoord_t);
-		vbo->setVertexTextureCoordinate(3, 0, texcoord_r, texcoord_b);
+			vbo->setVertexTextureCoordinate(0, getSpriteFrame()->getTextureCoordinates().tl);
+			vbo->setVertexTextureCoordinate(1, getSpriteFrame()->getTextureCoordinates().bl);
+			vbo->setVertexTextureCoordinate(2, getSpriteFrame()->getTextureCoordinates().tr);
+			vbo->setVertexTextureCoordinate(3, getSpriteFrame()->getTextureCoordinates().br);
+		}
+		else {
+			float sprite_x   = 0.0f;
+			float sprite_y   = 0.0f;
+			float sprite_w   = texture_rect.size.width;
+			float sprite_h   = texture_rect.size.height;
+			float texture_w  = texture->getSize().width;
+			float texture_h  = texture->getSize().height;
+			float texcoord_l = texture_rect.getMinX() / texture_w;
+			float texcoord_t = texture_rect.getMinY() / texture_h;
+			float texcoord_r = texture_rect.getMaxX() / texture_w;
+			float texcoord_b = texture_rect.getMaxY() / texture_h;
+
+			vbo->clear();
+			vbo->setupVertexPositions(2);
+			vbo->setupTextureLayer(0);
+			vbo->addVertex(sprite_x, sprite_h);
+			vbo->addVertex(sprite_x, sprite_y);
+			vbo->addVertex(sprite_w, sprite_h);
+			vbo->addVertex(sprite_w, sprite_y);
+
+			vbo->setVertexTextureCoordinate(0, 0, texcoord_l, texcoord_t);
+			vbo->setVertexTextureCoordinate(1, 0, texcoord_l, texcoord_b);
+			vbo->setVertexTextureCoordinate(2, 0, texcoord_r, texcoord_t);
+			vbo->setVertexTextureCoordinate(3, 0, texcoord_r, texcoord_b);
+		}
 	}
 
 	if (shader == NULL) {
