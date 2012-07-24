@@ -74,6 +74,9 @@ bool SdlScreen::init() {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// setup viewport
 	glViewport(0, 0, w, h);
 
