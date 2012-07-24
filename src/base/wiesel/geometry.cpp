@@ -162,6 +162,24 @@ float rect::getCenterY() const {
 }
 
 
+bool rect::contains(float x, float y) const {
+	if (
+			x >= getMinX()
+		&&	x <= getMaxX()
+		&&	y >= getMinY()
+		&&	y <= getMaxY()
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+bool rect::contains(const vector2d& v) const {
+	return contains(v.x, v.y);
+}
+
+
 
 std::ostream& wiesel::operator <<(std::ostream &o, const dimension &dim) {
 	o << '[' << dim.width << 'x' << dim.height << ']';

@@ -122,6 +122,12 @@ namespace wiesel {
 		void updateTransform();
 
 
+	public:
+		/// Tests, if a point is within this node.
+		/// The point should already be transformed into the node's coordinate system.
+		virtual bool hitBy(const vector2d &local) const;
+
+
 	// overridables
 	protected:
 

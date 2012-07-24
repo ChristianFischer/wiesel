@@ -21,6 +21,8 @@
  */
 #include "node.h"
 
+#include "wiesel/engine.h"
+
 #include <assert.h>
 #include <algorithm>
 
@@ -138,6 +140,22 @@ void Node::updateTransform() {
 	transform_dirty = false;
 
 	return;
+}
+
+
+vector2d Node::convertScreenToLocal(const vector2d& screen) {
+	// at first, convert into OpenGL coordinate space
+	vector2d transformed = vector2d(
+			+(screen.x / Engine::getCurrent()->getScreen()->getSize().width  - 0.5f) * 2,
+			-(screen.y / Engine::getCurrent()->getScreen()->getSize().height - 0.5f) * 2
+	);
+
+	// then use the projection- and modelview matrix to get the actual coordinate system
+	return
+			transformed
+		/	Engine::getCurrent()->getScreen()->getProjectionMatrix()
+		/	this->getWorldTransform()
+	;
 }
 
 

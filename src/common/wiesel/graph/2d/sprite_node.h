@@ -35,6 +35,24 @@ namespace wiesel {
 	class SpriteFrame;
 
 
+
+	enum SpriteHitDetection {
+		/**
+		 * Checks the collision against the outer bounds of the node.
+		 * This includes the sprite's image with any transparent border.
+		 */
+		SpriteHitDetection_OuterBounds,
+
+		/**
+		 * Checks the collision against the inner bounds of the node.
+		 * This only contains the image area of the sprite.
+		 * Only available when using SpriteFrames.
+		 */
+		SpriteHitDetection_InnerBounds,
+	};
+
+
+
 	/**
 	 * @brief A Node for displaying a single sprite.
 	 */
@@ -73,6 +91,11 @@ namespace wiesel {
 	// getter / setter
 	public:
 		/**
+		 * @brief Set the hit detection method for this sprite.
+		 */
+		void setSpriteHitDetection(SpriteHitDetection hit);
+
+		/**
 		 * @brief Set the Shader to be used for rendering.
 		 */
 		void setShader(ShaderProgram *shader);
@@ -91,6 +114,13 @@ namespace wiesel {
 		 * @brief Set the area within the texture, which will be drawn.
 		 */
 		void setTextureRect(const rect &texture_rect);
+
+		/**
+		 * @brief Get the hit detection method, currently used by this sprite.
+		 */
+		inline SpriteHitDetection getSpriteHitDetection() const {
+			return hit_detection;
+		}
 
 		/**
 		 * @brief Get the currently used shader.
@@ -120,6 +150,10 @@ namespace wiesel {
 			return texture_rect;
 		}
 
+	// node2s stuff
+	public:
+		virtual bool hitBy(const vector2d &local) const;
+
 	// overridables
 	protected:
 		virtual void onDraw();
@@ -127,6 +161,8 @@ namespace wiesel {
 		virtual void rebuildVertexBuffer();
 
 	protected:
+		SpriteHitDetection	hit_detection;
+
 		SpriteFrame*		sprite;
 		Texture*			texture;
 		rect				texture_rect;

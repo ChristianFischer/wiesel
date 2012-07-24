@@ -129,8 +129,8 @@ vector2d wiesel::operator *(const vector2d &v, const matrix4x4 &m) {
 	const float w = 1.0f;
 
 	return vector2d(
-			(v.x * m.m11) + (v.y * m.m21) + (z * m.m31) + (w * m.m41),
-			(v.x * m.m12) + (v.y * m.m22) + (z * m.m32) + (w * m.m42)
+			(v.x * m.m11) + (v.y * m.m12) + (z * m.m13) + (w * m.m14),
+			(v.x * m.m21) + (v.y * m.m22) + (z * m.m23) + (w * m.m24)
 	);
 }
 
@@ -144,8 +144,8 @@ const vector2d& wiesel::operator *=(vector2d &v, const matrix4x4 &m) {
 	const float w = 1.0f;
 
 	v = vector2d(
-			(v.x * m.m11) + (v.y * m.m21) + (z * m.m31) + (w * m.m41),
-			(v.x * m.m12) + (v.y * m.m22) + (z * m.m32) + (w * m.m42)
+			(v.x * m.m11) + (v.y * m.m12) + (z * m.m13) + (w * m.m14),
+			(v.x * m.m21) + (v.y * m.m22) + (z * m.m23) + (w * m.m24)
 	);
 
 	return v;

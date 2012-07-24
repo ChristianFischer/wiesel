@@ -123,12 +123,28 @@ void Node2D::updateTransform() {
 	local_transform = matrix4x4::identity;
 
 	local_transform.translate(+bounds.position.x, +bounds.position.y);
-	local_transform.scale(scale_x, scale_y, 0.0f);
+	local_transform.scale(scale_x, scale_y, 1.0f);
 	local_transform.rotateZ(rotation * M_PI / 180.0f);
 	local_transform.translate(position.x, position.y);
 
 	Node::updateTransform();
 
 	return;
+}
+
+
+bool Node2D::hitBy(const vector2d& local) const {
+	// when 'local' is already in local coordinate space,
+	// the pivot offset is already included in the 'local' coordinate
+	if (
+			local.x >= 0
+		&&	local.y >= 0
+		&&	local.x <= getContentSize().width
+		&&	local.y <= getContentSize().height
+	) {
+		return true;
+	}
+
+	return false;
 }
 

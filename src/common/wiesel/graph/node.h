@@ -24,6 +24,7 @@
 
 #include <wiesel/util/shared_object.h>
 #include <wiesel/math/matrix.h>
+#include <wiesel/math/vector2d.h>
 
 #include <vector>
 
@@ -146,6 +147,14 @@ namespace wiesel {
 		bool isTransformDirty() const {
 			return transform_dirty;
 		}
+
+	// coordinate conversion
+	public:
+		/**
+		 * @brief Converts a screen-location (for example the location of a touch event) into
+		 * the local coordinate system of this node.
+		 */
+		vector2d convertScreenToLocal(const vector2d &screen);
 
 	// public functions
 	public:
