@@ -1,0 +1,4 @@
+[submodule "src/third-party/libxml2"]
+	path = src/third-party/libxml2
+	url = git://git.gnome.org/libxml2.git
+
