@@ -134,6 +134,14 @@ namespace wiesel {
 		/// get the centre y-position
 		float getCenterY() const;
 
+	// tests
+	public:
+		/// tests, if this rectangle contains a specific point.
+		bool contains(float x, float y) const;
+
+		/// tests, if this rectangle contains a specific point.
+		bool contains(const vector2d &v) const;
+
 	public:
 		vector2d		position;		//!< Position of the rect.
 		dimension		size;			//!< Size of the rect.

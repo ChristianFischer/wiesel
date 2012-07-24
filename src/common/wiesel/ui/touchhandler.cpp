@@ -29,11 +29,15 @@ using namespace wiesel;
 
 
 static Node* recursive_findNode(Touch *touch, Node *node) {
-	NodeList::const_iterator it = node->getChildren()->begin();
+	NodeList::const_reverse_iterator it = node->getChildren()->rbegin();
 
 	// ask all children in front
-	for(; it!=node->getChildren()->end() && (*it)->getOrderKey() >= 0; it++) {
-		recursive_findNode(touch, *it);
+	for(; (it!=node->getChildren()->rend()) && ((*it)->getOrderKey() >= 0); it++) {
+		Node *node = recursive_findNode(touch, *it);
+
+		if (node) {
+			return node;
+		}
 	}
 
 	// check, if the current node is hit by the touch
@@ -47,9 +51,18 @@ static Node* recursive_findNode(Touch *touch, Node *node) {
 		}
 	}
 
+	// start from beginning (the list may have been modified!)
+	it = node->getChildren()->rbegin();
+	for(; (it!=node->getChildren()->rend()) && ((*it)->getOrderKey() >= 0); it++) {
+	}
+
 	// ask all children below the current node
-	for(; it!=node->getChildren()->end() && (*it)->getOrderKey() >= 0; it++) {
-		recursive_findNode(touch, *it);
+	for(; it!=node->getChildren()->rend(); it++) {
+		Node *node = recursive_findNode(touch, *it);
+
+		if (node) {
+			return node;
+		}
 	}
 
 	return NULL;

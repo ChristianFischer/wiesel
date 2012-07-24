@@ -150,9 +150,9 @@ vector3d wiesel::operator *(const vector3d &v, const matrix4x4 &m) {
 	const float w = 1.0f;
 
 	return vector3d(
-			(v.x * m.m11) + (v.y * m.m21) + (v.z * m.m31) + (w * m.m41),
-			(v.x * m.m12) + (v.y * m.m22) + (v.z * m.m32) + (w * m.m42),
-			(v.x * m.m13) + (v.y * m.m23) + (v.z * m.m33) + (w * m.m43)
+			(v.x * m.m11) + (v.y * m.m12) + (v.z * m.m13) + (w * m.m14),
+			(v.x * m.m21) + (v.y * m.m22) + (v.z * m.m23) + (w * m.m24),
+			(v.x * m.m31) + (v.y * m.m32) + (v.z * m.m33) + (w * m.m34)
 	);
 }
 
@@ -165,9 +165,9 @@ const vector3d& wiesel::operator *=(vector3d &v, const matrix4x4 &m) {
 	const float w = 1.0f;
 
 	v = vector3d(
-			(v.x * m.m11) + (v.y * m.m21) + (v.z * m.m31) + (w * m.m41),
-			(v.x * m.m12) + (v.y * m.m22) + (v.z * m.m32) + (w * m.m42),
-			(v.x * m.m13) + (v.y * m.m23) + (v.z * m.m33) + (w * m.m43)
+			(v.x * m.m11) + (v.y * m.m12) + (v.z * m.m13) + (w * m.m14),
+			(v.x * m.m21) + (v.y * m.m22) + (v.z * m.m23) + (w * m.m24),
+			(v.x * m.m31) + (v.y * m.m32) + (v.z * m.m33) + (w * m.m34)
 	);
 
 	return v;
