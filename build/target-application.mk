@@ -65,6 +65,10 @@ $(BUILD_OBJ_DIR):
 
 $(BUILD_BIN_DIR):
 	@mkdir -p $(BUILD_BIN_DIR)
+	
+	@for file in $(strip $(CP_LIBRARY_PATHS))/*$(SHARED_LIBRARY_EXTENSION); do \
+		$(COPY) $$file $(BUILD_BIN_DIR); \
+	done;
 
 
 
