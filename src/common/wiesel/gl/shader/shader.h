@@ -188,31 +188,31 @@ namespace wiesel {
 
 	// attribute access
 	public:
-		inline GLuint getVertexPositionAttribute() const {
+		inline GLint getVertexPositionAttribute() const {
 			return attrib_handle_vertex_position;
 		}
 
-		inline GLuint getVertexNormalAttribute() const {
+		inline GLint getVertexNormalAttribute() const {
 			return attrib_handle_vertex_normal;
 		}
 
-		inline GLuint getVertexColorAttribute() const {
+		inline GLint getVertexColorAttribute() const {
 			return attrib_handle_vertex_color;
 		}
 
-		inline GLuint getVertexTextureCoordAttribute(unsigned int layer) const {
+		inline GLint getVertexTextureCoordAttribute(unsigned int layer) const {
 			return (attrib_handle_vertex_texcoords.size() > layer) ? attrib_handle_vertex_texcoords.at(layer) : -1;
 		}
 
-		inline GLuint getVertexTextureAttribute(unsigned int layer) const {
+		inline GLint getVertexTextureAttribute(unsigned int layer) const {
 			return (attrib_handle_vertex_textures.size() > layer) ? attrib_handle_vertex_textures.at(layer) : -1;
 		}
 
-		inline GLuint getProjectionMatrixHandle() const {
+		inline GLint getProjectionMatrixHandle() const {
 			return uniform_handle_projection_matrix;
 		}
 
-		inline GLuint getModelviewMatrixHandle() const {
+		inline GLint getModelviewMatrixHandle() const {
 			return uniform_handle_modelview_matrix;
 		}
 
@@ -241,7 +241,7 @@ namespace wiesel {
 		/**
 		 * @brief get the OpenGL handle to a specific uniform parameter.
 		 */
-		GLuint getUniformHandle(const std::string &name) const;
+		GLint getUniformHandle(const std::string &name) const;
 
 		/**
 		 * @brief release the shader.
@@ -254,15 +254,15 @@ namespace wiesel {
 		GLuint					program;
 		bool					need_link;
 
-		GLuint					uniform_handle_projection_matrix;
-		GLuint					uniform_handle_modelview_matrix;
-		GLuint					attrib_handle_vertex_position;
-		GLuint					attrib_handle_vertex_normal;
-		GLuint					attrib_handle_vertex_color;
-		std::vector<GLuint>		attrib_handle_vertex_texcoords;
-		std::vector<GLuint>		attrib_handle_vertex_textures;
+		GLint					uniform_handle_projection_matrix;
+		GLint					uniform_handle_modelview_matrix;
+		GLint					attrib_handle_vertex_position;
+		GLint					attrib_handle_vertex_normal;
+		GLint					attrib_handle_vertex_color;
+		std::vector<GLint>		attrib_handle_vertex_texcoords;
+		std::vector<GLint>		attrib_handle_vertex_textures;
 
-		std::map<std::string,GLuint>	uniform_attributes;
+		std::map<std::string,GLint>	uniform_attributes;
 	};
 
 }

@@ -72,7 +72,7 @@ namespace wiesel {
 		 * @brief configure a texture layer of the vertices.
 		 * @param layer		The layer to be configured.
 		 */
-		bool setupTextureLayer(int layer);
+		bool setupTextureLayer(unsigned int layer);
 
 		/**
 		 * @brief disables vertex normals.
@@ -87,7 +87,7 @@ namespace wiesel {
 		/**
 		 * @brief disables a texture layer.
 		 */
-		void disableTextureLayer(int layer);
+		void disableTextureLayer(unsigned int layer);
 
 
 
@@ -207,14 +207,14 @@ namespace wiesel {
 		 * @param index		The index of the vertex to change.
 		 * @param layer		The texture layer which coordinate should be set.
 		 */
-		void setVertexTextureCoordinate(index_t index, int layer, const vector2d &coord);
+		void setVertexTextureCoordinate(index_t index, unsigned int layer, const vector2d &coord);
 
 		/**
 		 * @brief set the texture coordinate of a vertex.
 		 * @param index		The index of the vertex to change.
 		 * @param layer		The texture layer which coordinate should be set.
 		 */
-		void setVertexTextureCoordinate(index_t index, int layer, float u, float v);
+		void setVertexTextureCoordinate(index_t index, unsigned int layer, float u, float v);
 
 		/**
 		 * @brief clears the content of this vertex buffer.

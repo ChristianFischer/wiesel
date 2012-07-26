@@ -366,8 +366,8 @@ void ShaderProgram::setDefaultValues() {
 }
 
 
-GLuint ShaderProgram::getUniformHandle(const std::string& name) const {
-	std::map<string,GLuint>::const_iterator it = uniform_attributes.find(name);
+GLint ShaderProgram::getUniformHandle(const std::string& name) const {
+	std::map<string,GLint>::const_iterator it = uniform_attributes.find(name);
 	if (it != uniform_attributes.end()) {
 		return it->second;
 	}
@@ -377,7 +377,7 @@ GLuint ShaderProgram::getUniformHandle(const std::string& name) const {
 
 
 void ShaderProgram::set(const std::string& name, int value) {
-	GLuint handle = getUniformHandle(name);
+	GLint handle = getUniformHandle(name);
 	if (handle != -1) {
 		glUniform1i(handle, value);
 	}
@@ -385,7 +385,7 @@ void ShaderProgram::set(const std::string& name, int value) {
 
 
 void ShaderProgram::set(const std::string& name, float value) {
-	GLuint handle = getUniformHandle(name);
+	GLint handle = getUniformHandle(name);
 	if (handle != -1) {
 		glUniform1f(handle, value);
 	}
@@ -394,7 +394,7 @@ void ShaderProgram::set(const std::string& name, float value) {
 
 void ShaderProgram::setProjectionMatrix(const matrix4x4& matrix) {
 	// bind the projection matrix
-	GLuint uniform_projection_matrix = getProjectionMatrixHandle();
+	GLint uniform_projection_matrix = getProjectionMatrixHandle();
 	assert(uniform_projection_matrix != -1);
 
 	if (uniform_projection_matrix != -1) {
@@ -407,7 +407,7 @@ void ShaderProgram::setProjectionMatrix(const matrix4x4& matrix) {
 
 void ShaderProgram::setModelviewMatrix(const matrix4x4& matrix) {
 	// bind the modelview matrix
-	GLuint uniform_modelview_matrix = getModelviewMatrixHandle();
+	GLint uniform_modelview_matrix = getModelviewMatrixHandle();
 	assert(uniform_modelview_matrix != -1);
 
 	if (uniform_modelview_matrix != -1) {
@@ -446,5 +446,5 @@ void ShaderProgram::unbind() const {
 bool ShaderProgram::isBound() const {
 	GLint current_program;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
-	return current_program == program;
+	return static_cast<GLuint>(current_program) == program;
 }

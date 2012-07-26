@@ -116,7 +116,6 @@ DirectoryList DirectoryFileSystemDirectory::getSubDirectories() {
 
 FileList DirectoryFileSystemDirectory::getFiles() {
 	FileList files = getEnclosedDirectory()->getFiles();
-	FileList::size_type n = files.size();
 
 	for(FileList::iterator it=files.begin(); it!=files.end(); it++) {
 		// create a new wrapper object

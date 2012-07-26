@@ -117,7 +117,7 @@ bool VertexBuffer::setupVertexColors(int fields) {
 }
 
 
-bool VertexBuffer::setupTextureLayer(int layer) {
+bool VertexBuffer::setupTextureLayer(unsigned int layer) {
 	if (checkIfSetupPossible()) {
 		assert(layer <= textures.size());
 		assert(layer >= 0);
@@ -170,7 +170,7 @@ void VertexBuffer::disableVertexColors() {
 }
 
 
-void VertexBuffer::disableTextureLayer(int layer) {
+void VertexBuffer::disableTextureLayer(unsigned int layer) {
 	if (checkIfSetupPossible()) {
 		// it's only possible to delete the last texture layer
 		assert(layer == textures.size() - 1);
@@ -274,10 +274,10 @@ VertexBuffer::data_t VertexBuffer::getVertexPtr(index_t index, const component &
 VertexBuffer::index_t VertexBuffer::setCapacity(index_t capacity) {
 	if (this->data == NULL) {
 		this->data = reinterpret_cast<data_t>(malloc(vertex_size * capacity));
+		assert(this->data);
 
 		// clear the allocated memory
-		memset(this->data, NULL, vertex_size * capacity);
-		assert(this->data);
+		memset(this->data, '\0', vertex_size * capacity);
 
 		if (this->data) {
 			this->capacity = capacity;
@@ -451,12 +451,12 @@ void VertexBuffer::setVertexTextureCoordinate(index_t index, float u, float v) {
 }
 
 
-void VertexBuffer::setVertexTextureCoordinate(index_t index, int layer, const vector2d &coord) {
+void VertexBuffer::setVertexTextureCoordinate(index_t index, unsigned int layer, const vector2d &coord) {
 	setVertexTextureCoordinate(index, layer, coord.u, coord.v);
 }
 
 
-void VertexBuffer::setVertexTextureCoordinate(index_t index, int layer, float u, float v) {
+void VertexBuffer::setVertexTextureCoordinate(index_t index, unsigned int layer, float u, float v) {
 	assert(layer < textures.size());
 	if (layer < textures.size()) {
 		data_t ptr = getVertexPtr(index, textures[layer]);
@@ -519,7 +519,7 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 	assert(program->isBound());
 
 	if (positions.size) {
-		GLuint attr_vertex_position = program->getVertexPositionAttribute();
+		GLint  attr_vertex_position = program->getVertexPositionAttribute();
 		assert(attr_vertex_position != -1);
 		if (attr_vertex_position != -1) {
 			glVertexAttribPointer(attr_vertex_position, positions.fields, GL_FLOAT, GL_FALSE, vertex_size, data + positions.offset);
@@ -532,7 +532,7 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 	}
 
 	if (normals.size) {
-		GLuint attr_vertex_normals = program->getVertexNormalAttribute();
+		GLint  attr_vertex_normals = program->getVertexNormalAttribute();
 		assert(attr_vertex_normals != -1);
 		if (attr_vertex_normals != -1) {
 			glVertexAttribPointer(attr_vertex_normals, normals.fields, GL_FLOAT, GL_FALSE, vertex_size, data + normals.offset);
@@ -542,7 +542,7 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 	}
 
 	if (colors.size) {
-		GLuint attr_vertex_colors = program->getVertexColorAttribute();
+		GLint  attr_vertex_colors = program->getVertexColorAttribute();
 		assert(attr_vertex_colors != -1);
 		if (attr_vertex_colors != -1) {
 			glVertexAttribPointer(attr_vertex_colors, colors.fields, GL_FLOAT, GL_FALSE, vertex_size, data + colors.offset);
@@ -553,8 +553,8 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 
 	int num_textures = textures.size();
 	for(int i=0; i<num_textures; i++) {
-		GLuint attr_vertex_texcoord = program->getVertexTextureCoordAttribute(i);
-		GLuint attr_vertex_texture  = program->getVertexTextureAttribute(i);
+		GLint  attr_vertex_texcoord = program->getVertexTextureCoordAttribute(i);
+		GLint  attr_vertex_texture  = program->getVertexTextureAttribute(i);
 		assert(attr_vertex_texcoord != -1);
 		assert(pTextures != NULL);
 
