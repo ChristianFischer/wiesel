@@ -119,9 +119,9 @@ namespace wiesel {
 	private:
 		std::string		name;
 		Texture*		texture;
-		TextureCoords	texture_coordinates;
-		rect			inner_rect;
 		dimension		sprite_size;
+		rect			inner_rect;
+		TextureCoords	texture_coordinates;
 	};
 
 

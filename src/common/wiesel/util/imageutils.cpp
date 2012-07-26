@@ -69,7 +69,7 @@ unsigned char* imageutils::resizeImage(
 	if ((new_width >= old_width) && (new_height >= old_height)) {
 		size_t old_line_length	= old_width * bytesPerPixel;
 		size_t new_line_length	= new_width * bytesPerPixel;
-		size_t old_size			= old_line_length * old_height;
+	//	size_t old_size			= old_line_length * old_height;
 		size_t new_size			= new_line_length * new_height;
 		size_t gap				= new_line_length - old_line_length;
 
@@ -107,7 +107,7 @@ unsigned char* imageutils::resizeImage(
 	if ((new_width <= old_width) && (new_height <= old_height)) {
 		size_t old_line_length	= old_width * bytesPerPixel;
 		size_t new_line_length	= new_width * bytesPerPixel;
-		size_t old_size			= old_line_length * old_height;
+	//	size_t old_size			= old_line_length * old_height;
 		size_t new_size			= new_line_length * new_height;
 		size_t gap				= old_line_length - new_line_length;
 
