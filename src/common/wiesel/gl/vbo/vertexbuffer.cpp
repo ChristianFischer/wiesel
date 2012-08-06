@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "vertexbuffer.h"
+#include "indexbuffer.h"
 #include <assert.h>
 #include <malloc.h>
 #include <string.h>
@@ -31,6 +32,7 @@ using namespace std;
 
 
 VertexBuffer::VertexBuffer() {
+	this->handle		= 0;
 	this->num_vertices	= 0;
 	this->capacity		= 0;
 	this->data			= NULL;
@@ -47,6 +49,10 @@ VertexBuffer::~VertexBuffer() {
 
 	if (data) {
 		free(data);
+	}
+
+	if (handle) {
+		glDeleteBuffers(1, &handle);
 	}
 
 	return;
@@ -306,6 +312,9 @@ VertexBuffer::index_t VertexBuffer::setCapacity(index_t capacity) {
 		}
 	}
 
+	// hardware buffer needs to be re-created
+	invalidateHardwareData();
+
 	return this->capacity;
 }
 
@@ -337,6 +346,9 @@ void VertexBuffer::clear() {
 
 	capacity     = 0;
 	num_vertices = 0;
+
+	// hardware data is now invalid
+	invalidateHardwareData();
 
 	return;
 }
@@ -517,12 +529,36 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 
 	// check, the program is currently active
 	assert(program->isBound());
+	
+	// data pointer when using no GL buffer, NULL with buffer
+	const unsigned char* buffer_offset = NULL;
+
+	// bind the vertex buffer
+	if (handle == 0) {
+		// create the buffer first
+		glGenBuffers(1, &handle);
+		CHECK_GL_ERROR;
+
+		// bind the buffer and put the data into it
+		glBindBuffer(GL_ARRAY_BUFFER, handle);
+		glBufferData(GL_ARRAY_BUFFER, vertex_size * capacity, data, GL_STATIC_DRAW);
+		CHECK_GL_ERROR;
+
+		// requesting the buffer failed?
+		if (handle == 0) {
+			buffer_offset = data;
+		}
+	}
+	else {
+		// just bind the buffer
+		glBindBuffer(GL_ARRAY_BUFFER, handle);
+	}
 
 	if (positions.size) {
 		GLint  attr_vertex_position = program->getVertexPositionAttribute();
 		assert(attr_vertex_position != -1);
 		if (attr_vertex_position != -1) {
-			glVertexAttribPointer(attr_vertex_position, positions.fields, GL_FLOAT, GL_FALSE, vertex_size, data + positions.offset);
+			glVertexAttribPointer(attr_vertex_position, positions.fields, GL_FLOAT, GL_FALSE, vertex_size, buffer_offset + positions.offset);
 			glEnableVertexAttribArray(attr_vertex_position);
 			CHECK_GL_ERROR;
 		}
@@ -535,7 +571,7 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 		GLint  attr_vertex_normals = program->getVertexNormalAttribute();
 		assert(attr_vertex_normals != -1);
 		if (attr_vertex_normals != -1) {
-			glVertexAttribPointer(attr_vertex_normals, normals.fields, GL_FLOAT, GL_FALSE, vertex_size, data + normals.offset);
+			glVertexAttribPointer(attr_vertex_normals, normals.fields, GL_FLOAT, GL_FALSE, vertex_size, buffer_offset + normals.offset);
 			glEnableVertexAttribArray(attr_vertex_normals);
 			CHECK_GL_ERROR;
 		}
@@ -545,7 +581,7 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 		GLint  attr_vertex_colors = program->getVertexColorAttribute();
 		assert(attr_vertex_colors != -1);
 		if (attr_vertex_colors != -1) {
-			glVertexAttribPointer(attr_vertex_colors, colors.fields, GL_FLOAT, GL_FALSE, vertex_size, data + colors.offset);
+			glVertexAttribPointer(attr_vertex_colors, colors.fields, GL_FLOAT, GL_FALSE, vertex_size, buffer_offset + colors.offset);
 			glEnableVertexAttribArray(attr_vertex_colors);
 			CHECK_GL_ERROR;
 		}
@@ -559,7 +595,7 @@ bool VertexBuffer::private_bind(const ShaderProgram *program, const Texture * co
 		assert(pTextures != NULL);
 
 		if (attr_vertex_texcoord != -1) {
-			glVertexAttribPointer(attr_vertex_texcoord, textures[i].fields, GL_FLOAT, GL_FALSE, vertex_size, data + textures[i].offset);
+			glVertexAttribPointer(attr_vertex_texcoord, textures[i].fields, GL_FLOAT, GL_FALSE, vertex_size, buffer_offset + textures[i].offset);
 			glEnableVertexAttribArray(attr_vertex_texcoord);
 			CHECK_GL_ERROR;
 
@@ -600,14 +636,91 @@ void VertexBuffer::unbind(const ShaderProgram *program) const {
 		glDisableVertexAttribArray(attr_vertex_texcoord);
 	}
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	program->unbind();
 
 	return;
 }
 
 
-void VertexBuffer::render() const {
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, num_vertices);
+static inline GLenum __getGlRenderMode(VertexBuffer_RenderMode mode) {
+	switch(mode) {
+		case VertexBuffer_RenderTriangles: {
+			return GL_TRIANGLES;
+		}
+
+		case VertexBuffer_RenderTriangleStrip: {
+			return GL_TRIANGLE_STRIP;
+		}
+
+		case VertexBuffer_RenderTriangleFan: {
+			return GL_TRIANGLE_FAN;
+		}
+	}
+
+	return 0;
+}
+
+
+static inline GLenum __getGlBufferSizeType(int bytes) {
+	switch(bytes) {
+		case 1: {
+			return GL_UNSIGNED_BYTE;
+		}
+
+		case 2: {
+			return GL_UNSIGNED_SHORT;
+		}
+
+		case 4: {
+			return GL_UNSIGNED_INT;
+		}
+	}
+
+	return 0;
+}
+
+
+void VertexBuffer::render(VertexBuffer_RenderMode mode) const {
+	glDrawArrays(
+			__getGlRenderMode(mode),
+			0,
+			num_vertices
+	);
+
 	CHECK_GL_ERROR;
+
+	return;
+}
+
+
+void VertexBuffer::render(VertexBuffer_RenderMode mode, IndexBuffer *indices) const {
+	assert(indices);
+
+	bool bound_indices = indices->bind();
+	assert(bound_indices);
+	
+	glDrawElements(
+			__getGlRenderMode(mode),
+			indices->getSize(),
+			__getGlBufferSizeType(indices->getBytesPerElement()),
+			NULL
+	);
+
+	indices->unbind();
+
+	CHECK_GL_ERROR;
+
+	return;
+}
+
+
+void VertexBuffer::invalidateHardwareData() const {
+	if (handle) {
+		glDeleteBuffers(1, &handle);
+		handle = 0;
+	}
+
 	return;
 }
