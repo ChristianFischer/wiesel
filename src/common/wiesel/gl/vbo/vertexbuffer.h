@@ -35,6 +35,30 @@
 
 namespace wiesel {
 
+
+
+	// predeclarations
+
+	class IndexBuffer;
+
+
+
+	/**
+	 * @brief An enumeration for different render modis.
+	 */
+	enum VertexBuffer_RenderMode {
+		/// Renders the vertex buffer as a sequence of multiple, independent triangles.
+		VertexBuffer_RenderTriangles,
+
+		/// Renders the vertex buffer as a sequence of concatinated triangles.
+		VertexBuffer_RenderTriangleStrip,
+
+		/// Renders the vertex buffer as a sequence of triangles, attached to a common center.
+		VertexBuffer_RenderTriangleFan
+	};
+
+
+
 	/**
 	 * @brief A class holding configurable data of vertices.
 	 * A vertex can contain 2D or 3D coordinates, normal, color,
@@ -257,7 +281,12 @@ namespace wiesel {
 		/**
 		 * @brief renders this vertex buffer.
 		 */
-		void render() const;
+		void render(VertexBuffer_RenderMode mode) const;
+
+		/**
+		 * @brief renders this vertex buffer, using values of an index buffer.
+		 */
+		void render(VertexBuffer_RenderMode mode, IndexBuffer *indices) const;
 
 	protected:
 		/// checks, if the setup of this vertex buffer can be changed.
@@ -287,6 +316,12 @@ namespace wiesel {
 
 		/// private bind function - because it's not allowed to pass a pointer-to-textures directly to the bind-code
 		bool private_bind(const ShaderProgram *program, const Texture* const* pTextures) const;
+
+		/// Invalidates the hardware buffer, so the buffer needs to be re-created next time.
+		void invalidateHardwareData() const;
+
+	private:
+		mutable GLuint			handle;
 
 		component				positions;
 		component				normals;

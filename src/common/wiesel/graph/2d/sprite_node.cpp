@@ -200,7 +200,7 @@ void SpriteNode::onDraw() {
 		shader->setModelviewMatrix(getWorldTransform());
 
 		vbo->bind(shader, texture);
-		vbo->render();
+		vbo->render(VertexBuffer_RenderTriangleStrip);
 		vbo->unbind(shader);
 	}
 
