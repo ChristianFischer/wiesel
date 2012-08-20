@@ -75,47 +75,47 @@ void dimension::scale(float sx, float sy) {
 
 
 
-rect::rect()
+rectangle::rectangle()
 : position(vector2d::zero), size(0, 0)
 {
 	return;
 }
 
 
-rect::rect(float x, float y, float w, float h)
+rectangle::rectangle(float x, float y, float w, float h)
 : position(x, y), size(w, h)
 {
 	return;
 }
 
 
-rect::rect(const vector2d &position, const dimension &size)
+rectangle::rectangle(const vector2d &position, const dimension &size)
 : position(position), size(size)
 {
 	return;
 }
 
 
-rect::rect(float width, float height)
+rectangle::rectangle(float width, float height)
 : position(vector2d::zero), size(width, height)
 {
 	return;
 }
 
 
-rect::rect(const dimension &size)
+rectangle::rectangle(const dimension &size)
 : position(vector2d::zero), size(size)
 {
 	return;
 }
 
 
-rect::~rect() {
+rectangle::~rectangle() {
 	return;
 }
 
 
-void rect::normalize() {
+void rectangle::normalize() {
 	if (size.width < 0) {
 		position.x +=  size.width;
 		size.width  = -size.width;
@@ -130,39 +130,39 @@ void rect::normalize() {
 }
 
 
-rect rect::normalized() const {
-	rect norm(*this);
+rectangle rectangle::normalized() const {
+	rectangle norm(*this);
 	norm.normalize();
 	return norm;
 }
 
 
-float rect::getMinX() const {
+float rectangle::getMinX() const {
 	return position.x;
 }
 
-float rect::getMaxX() const {
+float rectangle::getMaxX() const {
 	return position.x + size.width;
 }
 
-float rect::getCenterX() const {
+float rectangle::getCenterX() const {
 	return position.x + size.width/2;
 }
 
-float rect::getMinY() const {
+float rectangle::getMinY() const {
 	return position.y;
 }
 
-float rect::getMaxY() const {
+float rectangle::getMaxY() const {
 	return position.y + size.height;
 }
 
-float rect::getCenterY() const {
+float rectangle::getCenterY() const {
 	return position.y + size.height/2;
 }
 
 
-bool rect::contains(float x, float y) const {
+bool rectangle::contains(float x, float y) const {
 	if (
 			x >= getMinX()
 		&&	x <= getMaxX()
@@ -175,12 +175,12 @@ bool rect::contains(float x, float y) const {
 	return false;
 }
 
-bool rect::contains(const vector2d& v) const {
+bool rectangle::contains(const vector2d& v) const {
 	return contains(v.x, v.y);
 }
 
 
-bool rect::contains(const rect& r) const {
+bool rectangle::contains(const rectangle& r) const {
 	if (
 			r.getMinX() < this->getMaxX()
 		&&	r.getMinY() < this->getMaxY()
@@ -194,7 +194,7 @@ bool rect::contains(const rect& r) const {
 }
 
 
-bool rect::intersects(const rect& r) const {
+bool rectangle::intersects(const rectangle& r) const {
 	if (
 			r.getMinX() > this->getMaxX()
 		||	r.getMinY() > this->getMaxY()
@@ -211,13 +211,13 @@ bool rect::intersects(const rect& r) const {
 
 
 
-rect wiesel::createUnion(const rect &a, const rect &b) {
+rectangle wiesel::createUnion(const rectangle &a, const rectangle &b) {
 	float min_x = std::min(a.getMinX(), b.getMinX());
 	float max_x = std::max(a.getMaxX(), b.getMaxX());
 	float min_y = std::min(a.getMinY(), b.getMinY());
 	float max_y = std::max(a.getMaxY(), b.getMaxY());
 
-	return rect(
+	return rectangle(
 			(min_x),
 			(min_y),
 			(max_x - min_x),
@@ -226,14 +226,14 @@ rect wiesel::createUnion(const rect &a, const rect &b) {
 }
 
 
-rect wiesel::createIntersection(const rect &a, const rect &b) {
+rectangle wiesel::createIntersection(const rectangle &a, const rectangle &b) {
 	if (a.intersects(b)) {
 		float min_x = std::max(a.getMinX(), b.getMinX());
 		float max_x = std::min(a.getMaxX(), b.getMaxX());
 		float min_y = std::max(a.getMinY(), b.getMinY());
 		float max_y = std::min(a.getMaxY(), b.getMaxY());
 
-		return rect(
+		return rectangle(
 				(min_x),
 				(min_y),
 				(max_x - min_x),
@@ -241,7 +241,7 @@ rect wiesel::createIntersection(const rect &a, const rect &b) {
 		);
 	}
 
-	return rect();
+	return rectangle();
 }
 
 
@@ -251,7 +251,7 @@ std::ostream& wiesel::operator <<(std::ostream &o, const dimension &dim) {
 	return o;
 }
 
-std::ostream& wiesel::operator <<(std::ostream &o, const rect &r) {
+std::ostream& wiesel::operator <<(std::ostream &o, const rectangle &r) {
 	o << '[' << r.position << ',' << r.size << ']';
 	return o;
 }

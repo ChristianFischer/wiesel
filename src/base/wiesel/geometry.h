@@ -85,26 +85,26 @@ namespace wiesel {
 	/**
 	 * @brief A basic class covering the boundings of a rectangle.
 	 */
-	class rect
+	class rectangle
 	{
 	public:
 		/// creates a new rectangle with zero position and size.
-		rect();
+		rectangle();
 
 		/// creates a new rectangle with single values for position and size.
-		rect(float x, float y, float w, float h);
+		rectangle(float x, float y, float w, float h);
 
 		/// creates a new rectangle with a given position and size.
-		rect(const vector2d &position, const dimension &size);
+		rectangle(const vector2d &position, const dimension &size);
 
 		/// creates a new rectangle with width and height and zero position.
-		rect(float with, float height);
+		rectangle(float with, float height);
 
 		/// creates a new rectangle with a given size and zero position.
-		rect(const dimension &size);
+		rectangle(const dimension &size);
 
 		/// deconstructor
-		~rect();
+		~rectangle();
 
 	// normalization
 	public:
@@ -112,7 +112,7 @@ namespace wiesel {
 		void normalize();
 
 		/// get the normalized version of this rectangle. Keeps the original rectangle unchanged.
-		rect normalized() const;
+		rectangle normalized() const;
 
 	// getters
 	public:
@@ -143,10 +143,10 @@ namespace wiesel {
 		bool contains(const vector2d &v) const;
 
 		/// tests, if this rectangle fully contains an other rectangle.
-		bool contains(const rect &r) const;
+		bool contains(const rectangle &r) const;
 
 		/// tests, if this rectangle intersects another rectangle
-		bool intersects(const rect &r) const;
+		bool intersects(const rectangle &r) const;
 
 	public:
 		vector2d		position;		//!< Position of the rect.
@@ -158,18 +158,18 @@ namespace wiesel {
 	/**
 	 * @brief Create a new rectangle, which contains both parameter rectangles.
 	 */
-	rect createUnion(const rect &a, const rect &b);
+	rectangle createUnion(const rectangle &a, const rectangle &b);
 
 
 	/**
 	 * @brief Create the intersection of two rectangles.
 	 */
-	rect createIntersection(const rect &a, const rect &b);
+	rectangle createIntersection(const rectangle &a, const rectangle &b);
 
 
 
 	std::ostream& operator <<(std::ostream &o, const dimension &dim);
-	std::ostream& operator <<(std::ostream &o, const rect &r);
+	std::ostream& operator <<(std::ostream &o, const rectangle &r);
 	
 }
 

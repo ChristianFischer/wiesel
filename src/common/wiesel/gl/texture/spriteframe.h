@@ -65,7 +65,7 @@ namespace wiesel {
 		 * @param texture		The SpriteFrame's texture.
 		 * @param texture_rect	The area within this texture, which belongs to this SpriteFrame.
 		 */
-		SpriteFrame(const std::string &name, Texture *texture, const rect &texture_rect);
+		SpriteFrame(const std::string &name, Texture *texture, const rectangle &texture_rect);
 
 		/**
 		 * @brief Creates a new SpriteFrame.
@@ -79,7 +79,7 @@ namespace wiesel {
 				const std::string &name,
 				Texture *texture,
 				const dimension &size,
-				const rect &inner_rect,
+				const rectangle &inner_rect,
 				const TextureCoords &texcoords
 		);
 
@@ -107,7 +107,7 @@ namespace wiesel {
 		}
 
 		/// get the area within the texture, which belongs to this SpriteFrame.
-		inline const rect& getInnerRect() const {
+		inline const rectangle& getInnerRect() const {
 			return inner_rect;
 		}
 
@@ -120,7 +120,7 @@ namespace wiesel {
 		std::string		name;
 		Texture*		texture;
 		dimension		sprite_size;
-		rect			inner_rect;
+		rectangle		inner_rect;
 		TextureCoords	texture_coordinates;
 	};
 
