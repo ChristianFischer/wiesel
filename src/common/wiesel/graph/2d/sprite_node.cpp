@@ -48,13 +48,13 @@ SpriteNode::SpriteNode(Texture *texture) {
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
 
 	setTexture(texture);
-	setTextureRect(rect(texture->getOriginalSize()));
+	setTextureRect(rectangle(texture->getOriginalSize()));
 
 	return;
 }
 
 
-SpriteNode::SpriteNode(Texture *texture, const rect &texture_rect) {
+SpriteNode::SpriteNode(Texture *texture, const rectangle &texture_rect) {
 	assert(texture);
 
 	this->sprite		= NULL;
@@ -158,7 +158,7 @@ void SpriteNode::setSpriteFrame(SpriteFrame* sprite) {
 }
 
 
-void SpriteNode::setTextureRect(const rect& texture_rect) {
+void SpriteNode::setTextureRect(const rectangle& texture_rect) {
 	this->texture_rect = texture_rect;
 	this->vbo_dirty    = true;
 

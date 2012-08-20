@@ -251,14 +251,14 @@ public:
 			float texture_w = texture->getSize().width;
 			float texture_h = texture->getSize().height;
 
-			rect texture_rect(
+			rectangle texture_rect(
 						sprite_texture_x,
 						sprite_texture_y,
 						sprite_texture_w,
 						sprite_texture_h
 			);
 
-			rect inner_rect(
+			rectangle inner_rect(
 						sprite_offset_x,
 						sprite_offset_y,
 						sprite_texture_w,

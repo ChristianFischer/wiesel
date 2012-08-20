@@ -77,7 +77,7 @@ namespace wiesel {
 		 * @param texture		A valid texture.
 		 * @param texture_rect	The area in the texture, which will be drawn.
 		 */
-		SpriteNode(Texture *texture, const rect &texture_rect);
+		SpriteNode(Texture *texture, const rectangle &texture_rect);
 
 		/**
 		 * @brief Constructs a new SpriteNode containing the full image
@@ -113,7 +113,7 @@ namespace wiesel {
 		/**
 		 * @brief Set the area within the texture, which will be drawn.
 		 */
-		void setTextureRect(const rect &texture_rect);
+		void setTextureRect(const rectangle &texture_rect);
 
 		/**
 		 * @brief Get the hit detection method, currently used by this sprite.
@@ -146,7 +146,7 @@ namespace wiesel {
 		/**
 		 * @brief Get the area within the texture, which will be drawn.
 		 */
-		inline const rect& getTextureRect() const {
+		inline const rectangle& getTextureRect() const {
 			return texture_rect;
 		}
 
@@ -165,7 +165,7 @@ namespace wiesel {
 
 		SpriteFrame*		sprite;
 		Texture*			texture;
-		rect				texture_rect;
+		rectangle			texture_rect;
 
 		ShaderProgram*		shader;
 		VertexBuffer*		vbo;

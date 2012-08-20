@@ -73,7 +73,7 @@ void Node2D::setPivot(float x, float y) {
 }
 
 
-void Node2D::setBounds(const rect& bounds) {
+void Node2D::setBounds(const rectangle& bounds) {
 	this->bounds = bounds;
 }
 
