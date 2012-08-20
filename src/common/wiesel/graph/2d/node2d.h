@@ -51,6 +51,9 @@ namespace wiesel {
 		/// usually this value would be between 0,0 (bottom left) and 1,1 (top right).
 		void setPivot(float x, float y);
 
+		/// set the 2D bounding rectangle of this node.
+		void setBounds(const rect &bounds);
+
 		/// get the content size of this node.
 		inline const dimension& getContentSize() const {
 			return bounds.size;
@@ -62,14 +65,15 @@ namespace wiesel {
 			return pivot;
 		}
 
+		/// get the pivot offset in units, relative to the node's boundings
+		vector2d getPivotInUnits() const;
+
 		/// get the bounding rect of this node.
+		/// boundings will be stored in local coordinates, which means, a point,
+		/// which should be compared to the boundings, needs to be transformed first.
 		inline const rect& getBounds() const {
 			return bounds;
 		}
-
-	protected:
-		/// update the bounding rect after content size or pivot point has changed.
-		void updateBounds();
 
 	// transformation setter/getter
 	public:

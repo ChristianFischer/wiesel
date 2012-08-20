@@ -134,7 +134,7 @@ void Node::updateTransform() {
 		world_transform = local_transform;
 	}
 	else {
-		world_transform = getParent()->getWorldTransform() * local_transform;
+		world_transform = local_transform * getParent()->getWorldTransform();
 	}
 
 	transform_dirty = false;

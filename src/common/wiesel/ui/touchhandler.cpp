@@ -33,10 +33,10 @@ static Node* recursive_findNode(Touch *touch, Node *node) {
 
 	// ask all children in front
 	for(; (it!=node->getChildren()->rend()) && ((*it)->getOrderKey() >= 0); it++) {
-		Node *node = recursive_findNode(touch, *it);
+		Node *found = recursive_findNode(touch, *it);
 
-		if (node) {
-			return node;
+		if (found) {
+			return found;
 		}
 	}
 
@@ -58,10 +58,10 @@ static Node* recursive_findNode(Touch *touch, Node *node) {
 
 	// ask all children below the current node
 	for(; it!=node->getChildren()->rend(); it++) {
-		Node *node = recursive_findNode(touch, *it);
+		Node *found = recursive_findNode(touch, *it);
 
-		if (node) {
-			return node;
+		if (found) {
+			return found;
 		}
 	}
 

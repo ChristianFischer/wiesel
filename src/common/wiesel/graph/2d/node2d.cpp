@@ -21,7 +21,7 @@
  */
 #include "node2d.h"
 
-#include <math.h>
+#include <cmath>
 
 
 using namespace wiesel;
@@ -48,7 +48,6 @@ Node2D::~Node2D() {
 
 void Node2D::setContentSize(const dimension &size) {
 	this->bounds.size = size;
-	updateBounds();
 	return;
 }
 
@@ -56,14 +55,12 @@ void Node2D::setContentSize(const dimension &size) {
 void Node2D::setContentSize(float width, float height) {
 	this->bounds.size.width  = width;
 	this->bounds.size.height = height;
-	updateBounds();
 	return;
 }
 
 
 void Node2D::setPivot(const vector2d &pivot) {
 	this->pivot = pivot;
-	updateBounds();
 	return;
 }
 
@@ -71,16 +68,21 @@ void Node2D::setPivot(const vector2d &pivot) {
 void Node2D::setPivot(float x, float y) {
 	this->pivot.x = x;
 	this->pivot.y = y;
-	updateBounds();
 	setTransformDirty();
 	return;
 }
 
 
-void Node2D::updateBounds() {
-	bounds.position.x = -(bounds.size.width  * pivot.x);
-	bounds.position.y = -(bounds.size.height * pivot.y);
-	return;
+void Node2D::setBounds(const rect& bounds) {
+	this->bounds = bounds;
+}
+
+
+vector2d Node2D::getPivotInUnits() const {
+	return vector2d(
+			pivot.x * std::max(std::abs(getBounds().getMinX()), std::abs(getBounds().getMaxX())),
+			pivot.y * std::max(std::abs(getBounds().getMinY()), std::abs(getBounds().getMaxY()))
+	);
 }
 
 
@@ -122,7 +124,9 @@ void Node2D::setScaleY(float sy) {
 void Node2D::updateTransform() {
 	local_transform = matrix4x4::identity;
 
-	local_transform.translate(+bounds.position.x, +bounds.position.y);
+	vector2d pivot_in_units = getPivotInUnits();
+
+	local_transform.translate(-pivot_in_units.x, -pivot_in_units.y);
 	local_transform.scale(scale_x, scale_y, 1.0f);
 	local_transform.rotateZ(rotation * M_PI / 180.0f);
 	local_transform.translate(position.x, position.y);
@@ -137,10 +141,10 @@ bool Node2D::hitBy(const vector2d& local) const {
 	// when 'local' is already in local coordinate space,
 	// the pivot offset is already included in the 'local' coordinate
 	if (
-			local.x >= 0
-		&&	local.y >= 0
-		&&	local.x <= getContentSize().width
-		&&	local.y <= getContentSize().height
+			local.x >= getBounds().getMinX()
+		&&	local.y >= getBounds().getMinY()
+		&&	local.x <= getBounds().getMaxX()
+		&&	local.y <= getBounds().getMaxY()
 	) {
 		return true;
 	}
