@@ -104,6 +104,14 @@ vector3d wiesel::operator -(const vector3d &a, const vector3d &b) {
 	return vector3d(a.x-b.x, a.y-b.y, a.z-b.z);
 }
 
+vector3d wiesel::operator *(const vector3d &a, const vector3d &b) {
+	return vector3d(a.x*b.x, a.y*b.y, a.z*b.z);
+}
+
+vector3d wiesel::operator /(const vector3d &a, const vector3d &b) {
+	return vector3d(a.x/b.x, a.y/b.y, a.z/b.z);
+}
+
 vector3d wiesel::operator *(const vector3d &a, float s) {
 	return vector3d(a.x*s, a.y*s, a.z*s);
 }
@@ -125,6 +133,20 @@ const vector3d& wiesel::operator -=(vector3d &a, const vector3d &b) {
 	a.x -= b.x;
 	a.y -= b.y;
 	a.z -= b.z;
+	return a;
+}
+
+const vector3d& wiesel::operator *=(vector3d &a, const vector3d &b) {
+	a.x *= b.x;
+	a.y *= b.y;
+	a.z *= b.z;
+	return a;
+}
+
+const vector3d& wiesel::operator /=(vector3d &a, const vector3d &b) {
+	a.x /= b.x;
+	a.y /= b.y;
+	a.z /= b.z;
 	return a;
 }
 

@@ -92,11 +92,15 @@ namespace wiesel {
 
 	vector2d operator +(const vector2d &a, const vector2d &b);
 	vector2d operator -(const vector2d &a, const vector2d &b);
+	vector2d operator *(const vector2d &a, const vector2d &b);
+	vector2d operator /(const vector2d &a, const vector2d &b);
 	vector2d operator *(const vector2d &a, float s);
 	vector2d operator /(const vector2d &a, float s);
 
 	const vector2d& operator +=(vector2d &a, const vector2d &b);
 	const vector2d& operator -=(vector2d &a, const vector2d &b);
+	const vector2d& operator *=(vector2d &a, const vector2d &b);
+	const vector2d& operator /=(vector2d &a, const vector2d &b);
 	const vector2d& operator *=(vector2d &a, float s);
 	const vector2d& operator /=(vector2d &a, float s);
 

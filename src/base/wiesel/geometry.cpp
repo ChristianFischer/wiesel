@@ -180,6 +180,71 @@ bool rect::contains(const vector2d& v) const {
 }
 
 
+bool rect::contains(const rect& r) const {
+	if (
+			r.getMinX() < this->getMaxX()
+		&&	r.getMinY() < this->getMaxY()
+		&&	r.getMaxX() > this->getMinX()
+		&&	r.getMaxY() > this->getMinY()
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+
+bool rect::intersects(const rect& r) const {
+	if (
+			r.getMinX() > this->getMaxX()
+		||	r.getMinY() > this->getMaxY()
+		||	r.getMaxX() < this->getMinX()
+		||	r.getMaxY() < this->getMinY()
+	) {
+		// 'r' is completely outside of 'this'
+		return false;
+	}
+
+	// intersection
+	return true;
+}
+
+
+
+rect wiesel::createUnion(const rect &a, const rect &b) {
+	float min_x = std::min(a.getMinX(), b.getMinX());
+	float max_x = std::max(a.getMaxX(), b.getMaxX());
+	float min_y = std::min(a.getMinY(), b.getMinY());
+	float max_y = std::max(a.getMaxY(), b.getMaxY());
+
+	return rect(
+			(min_x),
+			(min_y),
+			(max_x - min_x),
+			(max_y - min_y)
+	);
+}
+
+
+rect wiesel::createIntersection(const rect &a, const rect &b) {
+	if (a.intersects(b)) {
+		float min_x = std::max(a.getMinX(), b.getMinX());
+		float max_x = std::min(a.getMaxX(), b.getMaxX());
+		float min_y = std::max(a.getMinY(), b.getMinY());
+		float max_y = std::min(a.getMaxY(), b.getMaxY());
+
+		return rect(
+				(min_x),
+				(min_y),
+				(max_x - min_x),
+				(max_y - min_y)
+		);
+	}
+
+	return rect();
+}
+
+
 
 std::ostream& wiesel::operator <<(std::ostream &o, const dimension &dim) {
 	o << '[' << dim.width << 'x' << dim.height << ']';

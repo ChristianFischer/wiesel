@@ -142,10 +142,29 @@ namespace wiesel {
 		/// tests, if this rectangle contains a specific point.
 		bool contains(const vector2d &v) const;
 
+		/// tests, if this rectangle fully contains an other rectangle.
+		bool contains(const rect &r) const;
+
+		/// tests, if this rectangle intersects another rectangle
+		bool intersects(const rect &r) const;
+
 	public:
 		vector2d		position;		//!< Position of the rect.
 		dimension		size;			//!< Size of the rect.
 	};
+
+
+
+	/**
+	 * @brief Create a new rectangle, which contains both parameter rectangles.
+	 */
+	rect createUnion(const rect &a, const rect &b);
+
+
+	/**
+	 * @brief Create the intersection of two rectangles.
+	 */
+	rect createIntersection(const rect &a, const rect &b);
 
 
 

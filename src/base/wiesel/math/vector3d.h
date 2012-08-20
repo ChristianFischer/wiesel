@@ -103,11 +103,15 @@ namespace wiesel {
 
 	vector3d operator +(const vector3d &a, const vector3d &b);
 	vector3d operator -(const vector3d &a, const vector3d &b);
+	vector3d operator *(const vector3d &a, const vector3d &b);
+	vector3d operator /(const vector3d &a, const vector3d &b);
 	vector3d operator *(const vector3d &a, float s);
 	vector3d operator /(const vector3d &a, float s);
 
 	const vector3d& operator +=(vector3d &a, const vector3d &b);
 	const vector3d& operator -=(vector3d &a, const vector3d &b);
+	const vector3d& operator *=(vector3d &a, const vector3d &b);
+	const vector3d& operator /=(vector3d &a, const vector3d &b);
 	const vector3d& operator *=(vector3d &a, float s);
 	const vector3d& operator /=(vector3d &a, float s);
 
