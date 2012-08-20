@@ -160,7 +160,7 @@ namespace wiesel {
 
 		virtual void rebuildVertexBuffer();
 
-	protected:
+	private:
 		SpriteHitDetection	hit_detection;
 
 		SpriteFrame*		sprite;
