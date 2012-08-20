@@ -86,6 +86,14 @@ vector2d wiesel::operator -(const vector2d &a, const vector2d &b) {
 	return vector2d(a.x-b.x, a.y-b.y);
 }
 
+vector2d wiesel::operator *(const vector2d &a, const vector2d &b) {
+	return vector2d(a.x*b.x, a.y*b.y);
+}
+
+vector2d wiesel::operator /(const vector2d &a, const vector2d &b) {
+	return vector2d(a.x/b.x, a.y/b.y);
+}
+
 vector2d wiesel::operator *(const vector2d &a, float s) {
 	return vector2d(a.x*s, a.y*s);
 }
@@ -105,6 +113,18 @@ const vector2d& wiesel::operator +=(vector2d &a, const vector2d &b) {
 const vector2d& wiesel::operator -=(vector2d &a, const vector2d &b) {
 	a.x -= b.x;
 	a.y -= b.y;
+	return a;
+}
+
+const vector2d& wiesel::operator *=(vector2d &a, const vector2d &b) {
+	a.x *= b.x;
+	a.y *= b.y;
+	return a;
+}
+
+const vector2d& wiesel::operator /=(vector2d &a, const vector2d &b) {
+	a.x /= b.x;
+	a.y /= b.y;
 	return a;
 }
 
