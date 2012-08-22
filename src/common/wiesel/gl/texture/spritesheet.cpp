@@ -382,6 +382,80 @@ void SpriteSheet::add(SpriteFrame *sprite) {
 }
 
 
+void SpriteSheet::createRasterFrames(
+						unsigned int frames_x,
+						unsigned int frames_y,
+						unsigned int start_at,
+						unsigned int num_frames,
+						char start_with
+) {
+	float frame_w = texture->getOriginalSize().width  / frames_x;
+	float frame_h = texture->getOriginalSize().height / frames_y;
+
+	for(unsigned int i=0; i<num_frames; i++) {
+		string frame_name(1, static_cast<char>(start_with + i));
+
+		if (get(frame_name) == NULL) {
+			unsigned int frame_idx = start_at + i;
+			unsigned int frame_x = frame_idx % frames_x;
+			unsigned int frame_y = frame_idx / frames_x;
+
+			rectangle texture_rect;
+			texture_rect.position.x  = frame_x * frame_w;
+			texture_rect.position.y  = frame_y * frame_h;
+			texture_rect.size.width  = frame_w;
+			texture_rect.size.height = frame_h;
+
+			add(new SpriteFrame(
+						frame_name,
+						texture,
+						texture_rect
+			));
+		}
+	}
+
+	return;
+}
+
+
+void SpriteSheet::createRasterFrames(
+						unsigned int frames_x,
+						unsigned int frames_y,
+						unsigned int start_at,
+						const char* mapping
+) {
+	float frame_w = texture->getOriginalSize().width  / frames_x;
+	float frame_h = texture->getOriginalSize().height / frames_y;
+	unsigned int frame_idx = start_at;
+
+	while((*mapping) != '\0') {
+		string frame_name(1, *mapping);
+
+		if (get(frame_name) == NULL) {
+			unsigned int frame_x = frame_idx % frames_x;
+			unsigned int frame_y = frame_idx / frames_x;
+
+			rectangle texture_rect;
+			texture_rect.position.x  = frame_x * frame_w;
+			texture_rect.position.y  = frame_y * frame_h;
+			texture_rect.size.width  = frame_w;
+			texture_rect.size.height = frame_h;
+
+			add(new SpriteFrame(
+						frame_name,
+						texture,
+						texture_rect
+			));
+		}
+
+		++frame_idx;
+		++mapping;
+	}
+
+	return;
+}
+
+
 void SpriteSheet::addAlias(const std::string& alias, const std::string& original) {
 	// does this sprite already exist?
 	assert(sprites_by_name.find(alias) == sprites_by_name.end());
