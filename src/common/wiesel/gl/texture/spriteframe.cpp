@@ -63,7 +63,7 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture)
 }
 
 SpriteFrame::SpriteFrame(const std::string& name, Texture* texture, const rectangle& texture_rect)
-: name(name), texture(texture), inner_rect(texture_rect)
+: name(name), texture(texture), inner_rect(vector2d::zero, texture_rect.size)
 {
 	assert(texture);
 	assert(texture_rect.position.x + texture_rect.size.width  <= texture->getOriginalSize().width);
@@ -72,7 +72,7 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture, const rectan
 	if (texture) {
 		texture->retain();
 
-		sprite_size = texture->getOriginalSize();
+		sprite_size = texture_rect.size;
 
 		float texture_w  = texture->getSize().width;
 		float texture_h  = texture->getSize().height;

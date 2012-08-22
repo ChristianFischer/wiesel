@@ -76,6 +76,38 @@ namespace wiesel {
 		void add(SpriteFrame *sprite);
 
 		/**
+		 * @brief Creates multiple frames of an rasterized spritesheet.
+		 * @param frames_x		Number of frames in X direction in this spritesheet.
+		 * @param frames_y		Number of frames in Y direction in this spritesheet.
+		 * @param start_at		Start creating frames at the given index.
+		 * @param num_frames	Determine the number of frames to be created.
+		 * @param start_with	Start with this character as frame name.
+		 *						Each following frame gets an incremented value of this name.
+		 */
+		void createRasterFrames(
+								unsigned int frames_x,
+								unsigned int frames_y,
+								unsigned int start_at,
+								unsigned int num_frames,
+								char start_with
+		);
+
+		/**
+		 * @brief Creates multiple frames of an rasterized spritesheet.
+		 * @param frames_x		Number of frames in X direction in this spritesheet.
+		 * @param frames_y		Number of frames in Y direction in this spritesheet.
+		 * @param start_at		Start creating frames at the given index.
+		 * @param mapping		A null-terminated string where each character
+		 *						will be used as the name of a new frame.
+		 */
+		void createRasterFrames(
+								unsigned int frames_x,
+								unsigned int frames_y,
+								unsigned int start_at,
+								const char *mapping
+		);
+
+		/**
 		 * @brief Creates an alias name for an existing sprite.
 		 * @param	alias		The new alias name for this sprite.
 		 * @param	original	The name of the original sprite.
