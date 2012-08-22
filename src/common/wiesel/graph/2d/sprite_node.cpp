@@ -149,7 +149,7 @@ void SpriteNode::setSpriteFrame(SpriteFrame* sprite) {
 			this->sprite = sprite;
 			this->sprite->retain();
 
-			setContentSize(sprite->getSize());
+			setBounds(rectangle(sprite->getSize()));
 			setTransformDirty();
 		}
 	}
@@ -162,7 +162,7 @@ void SpriteNode::setTextureRect(const rectangle& texture_rect) {
 	this->texture_rect = texture_rect;
 	this->vbo_dirty    = true;
 
-	setContentSize(texture_rect.size);
+	setBounds(texture_rect);
 	setTransformDirty();
 
 	return;
@@ -173,12 +173,19 @@ bool SpriteNode::hitBy(const vector2d& local) const {
 	switch(getSpriteHitDetection()) {
 		default:
 		case SpriteHitDetection_OuterBounds: {
+			// just test for the node's bounds
 			return Node2D::hitBy(local);
 		}
 
 		case SpriteHitDetection_InnerBounds: {
-			if (sprite && sprite->getInnerRect().contains(local)) {
-				return true;
+			// check the sprite, if any
+			if (sprite) {
+				return sprite->getInnerRect().contains(local);
+			}
+
+			// when a texture is set, check the texture rect
+			if (texture) {
+				return texture_rect.contains(local);
 			}
 
 			break;
