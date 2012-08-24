@@ -24,6 +24,11 @@
 
 #if WIESEL_USE_LIBSDL
 
+// don't define min/max macros - we're using the C++ template functions instead
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 // include SDL OpenGL headers
 #include <GLee.h>
 
