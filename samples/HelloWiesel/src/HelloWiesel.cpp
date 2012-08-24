@@ -26,6 +26,8 @@
 #include <wiesel/gl/vbo.h>
 #include <wiesel/io/filesystem.h>
 #include <wiesel/graph/2d/sprite_node.h>
+#include <wiesel/ui/bitmapfont.h>
+#include <wiesel/ui/label_node.h>
 #include <wiesel.h>
 
 using namespace wiesel;
@@ -66,8 +68,28 @@ public:
 		sprite->setScale(size / sprite->getContentSize().getMin());
 		sprite->retain();
 
+		// load the bitmap font
+		File*			font_file		= Engine::getCurrent()->getAssetFileSystem()->findFile("/images/font.png");
+		Texture*		font_texture	= Texture::fromFile(font_file);
+		SpriteSheet*	font_ss			= new SpriteSheet(font_texture);
+
+		// configure the font
+		font_ss->createRasterFrames(16, 8,  0, 26, 'A');
+		font_ss->createRasterFrames(16, 8, 32, 26, 'a');
+		font_ss->createRasterFrames(16, 8, 97, 31, '!');
+		BitmapFont *font = new BitmapFont(font_ss);
+
+		label = new LabelNode();
+		label->setFont(font);
+		label->setText("Hello Wiesel");
+		label->setPosition(center_x, 0.0f);
+		label->setPivot(0.5f, 0.0f);
+		label->setScale(screen.width / label->getContentSize().width * 0.95f);
+		label->retain();
+
 		Scene *scene = new Scene();
 		scene->addChild(sprite);
+		scene->addChild(label);
 		pushScene(scene);
 
 		return true;
@@ -94,7 +116,10 @@ public:
 
 private:
 	Texture*		texture;
+	Font*			font;
+
 	SpriteNode*		sprite;
+	LabelNode*		label;
 };
 
 
