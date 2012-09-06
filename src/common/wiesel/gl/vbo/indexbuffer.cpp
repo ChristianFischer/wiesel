@@ -23,6 +23,8 @@
 
 #include <assert.h>
 #include <malloc.h>
+#include <string.h>
+#include <stdint.h>
 
 
 using namespace wiesel;
