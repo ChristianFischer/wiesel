@@ -116,7 +116,7 @@ public:
 
 private:
 	Texture*		texture;
-	Font*			font;
+	wiesel::Font*	font;
 
 	SpriteNode*		sprite;
 	LabelNode*		label;
