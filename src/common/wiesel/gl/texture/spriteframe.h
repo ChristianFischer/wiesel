@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GL_TEXTURE_SPRITEFRAME_H__
 #define __WIESEL_GL_TEXTURE_SPRITEFRAME_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <wiesel/gl/gl.h>
 #include <wiesel/gl/texture/texture.h>
 #include <wiesel/geometry.h>
@@ -38,7 +40,7 @@ namespace wiesel {
 	/**
 	 * @brief An object which contains a specific part of a texture.
 	 */
-	class SpriteFrame : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT SpriteFrame : public virtual SharedObject
 	{
 	private:
 		SpriteFrame();
@@ -126,7 +128,7 @@ namespace wiesel {
 
 
 
-	std::ostream& operator <<(std::ostream&, const SpriteFrame *sprite_frame);
+	WIESEL_COMMON_EXPORT std::ostream& operator <<(std::ostream&, const SpriteFrame *sprite_frame);
 
 
 } /* namespace wiesel */

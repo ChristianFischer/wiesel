@@ -22,6 +22,8 @@
 #ifndef __WIESEL_UTIL_XML_PARSER_H__
 #define __WIESEL_UTIL_XML_PARSER_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -41,7 +43,7 @@ namespace wiesel {
 	 * An implementation will extend this class and use the callback methods
 	 * to read the XML content.
 	 */
-	class XmlSaxParser
+	class WIESEL_COMMON_EXPORT XmlSaxParser
 	{
 	public:
 		/**

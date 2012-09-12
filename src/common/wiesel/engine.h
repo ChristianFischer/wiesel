@@ -22,6 +22,8 @@
 #ifndef __WIESEL_ENGINE_H__
 #define __WIESEL_ENGINE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "screen.h"
 #include "application.h"
 #include "engine_interfaces.h"
@@ -55,7 +57,7 @@ namespace wiesel {
 	/**
 	 * @brief An interface to the game engine.
 	 */
-	class Engine {
+	class WIESEL_COMMON_EXPORT Engine {
 	protected:
 		Engine();
 		virtual ~Engine();
@@ -91,7 +93,7 @@ namespace wiesel {
 		/**
 		 * @brief starts the main loop with the currently installed engine.
 		 */
-		static void run(Application *application);
+		static WIESEL_COMMON_EXPORT void run(Application *application);
 
 		/**
 		 * @brief requests to stop the main loop after the current frame.
@@ -236,9 +238,9 @@ namespace wiesel {
 
 	// static members
 	private:
-		static Engine*			current_instance;
-		static Application*		current_app;
-		static bool				exit_requested;
+		static WIESEL_COMMON_EXPORT Engine*			    current_instance;
+		static WIESEL_COMMON_EXPORT Application*		current_app;
+		static WIESEL_COMMON_EXPORT bool				exit_requested;
 
 	// instance members
 	protected:

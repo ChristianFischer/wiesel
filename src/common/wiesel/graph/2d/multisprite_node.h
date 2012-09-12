@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GRAPH_2D_MULTISPRITENODE_H__
 #define	__WIESEL_GRAPH_2D_MULTISPRITENODE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "node2d.h"
 #include "sprite_node.h"
 #include "wiesel/gl/texture/texture.h"
@@ -49,7 +51,7 @@ namespace wiesel {
 	 * This Node is designed to provide a very basic functionality, so each sprite can
 	 * have an individual offset, but no custom transformations like scaling or rotation.
 	 */
-	class MultiSpriteNode : public Node2D
+	class WIESEL_COMMON_EXPORT MultiSpriteNode : public Node2D
 	{
 	public:
 		/**

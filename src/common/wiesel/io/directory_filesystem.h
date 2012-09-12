@@ -22,6 +22,8 @@
 #ifndef __WIESEL_IO_DIRECTORY_FILESYSTEM_H__
 #define __WIESEL_IO_DIRECTORY_FILESYSTEM_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/io/filesystem.h"
 
 
@@ -37,7 +39,7 @@ namespace wiesel {
 	 * as it's root directory. Each directory of this filesystem corresponds to a
 	 * directory of the enclosed filesystem.
 	 */
-	class DirectoryFileSystem : public FileSystem
+	class WIESEL_COMMON_EXPORT DirectoryFileSystem : public FileSystem
 	{
 	private:
 		DirectoryFileSystem() {};
@@ -69,11 +71,11 @@ namespace wiesel {
 	/**
 	 * @brief A virtual \ref Directory object, which wraps a directory of an other filesystem.
 	 */
-	class DirectoryFileSystemDirectory : public Directory
+	class WIESEL_COMMON_EXPORT DirectoryFileSystemDirectory : public Directory
 	{
 	public:
 		DirectoryFileSystemDirectory(DirectoryFileSystem *fs, DirectoryFileSystemDirectory *parent, Directory *enclosed_directory);
-		~DirectoryFileSystemDirectory();
+		virtual ~DirectoryFileSystemDirectory();
 
 		/**
 		 * @brief get the enclosed directory object of this virtual directory.
@@ -100,11 +102,11 @@ namespace wiesel {
 	/**
 	 * @brief A virtual \ref Directory object, which wraps the root directory of a \ref DirectoryFileSystem.
 	 */
-	class DirectoryFileSystemRootDirectory : public DirectoryFileSystemDirectory
+	class WIESEL_COMMON_EXPORT DirectoryFileSystemRootDirectory : public DirectoryFileSystemDirectory
 	{
 	public:
 		DirectoryFileSystemRootDirectory(DirectoryFileSystem *fs, Directory *enclosed_directory);
-		~DirectoryFileSystemRootDirectory();
+		virtual ~DirectoryFileSystemRootDirectory();
 
 		virtual std::string getName() const;
 	};
@@ -114,11 +116,11 @@ namespace wiesel {
 	/**
 	 * @brief A virtual \ref File object, which wraps a directory of an other filesystem.
 	 */
-	class DirectoryFileSystemFile : public File
+	class WIESEL_COMMON_EXPORT DirectoryFileSystemFile : public File
 	{
 	public:
 		DirectoryFileSystemFile(DirectoryFileSystemDirectory *parent, File *enclosed_file);
-		~DirectoryFileSystemFile();
+		virtual ~DirectoryFileSystemFile();
 
 		/**
 		 * @brief get the enclosed file object of this virtual file.

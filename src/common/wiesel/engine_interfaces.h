@@ -22,6 +22,8 @@
 #ifndef __WIESEL_ENGINE_INTERFACES_H__
 #define __WIESEL_ENGINE_INTERFACES_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <wiesel/util/shared_object.h>
 
 
@@ -32,7 +34,7 @@ namespace wiesel {
 	 * To receive updates, the object has to be received on the engine object.
 	 * The update will be invoked each frame by the engine.
 	 */
-	class IUpdateable : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT IUpdateable : public virtual SharedObject
 	{
 	public:
 		IUpdateable();

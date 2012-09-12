@@ -22,6 +22,8 @@
 #ifndef __WIESEL_UTIL_MANAGED_OBJECT_H__
 #define __WIESEL_UTIL_MANAGED_OBJECT_H__
 
+#include <wiesel/wiesel-base.def>
+
 #include <assert.h>
 #include <stddef.h>
 #include <vector>
@@ -41,7 +43,7 @@ namespace wiesel {
 	 *
 	 * By design, this class should be used as a virtual base class only.
 	 */
-	class SharedObject
+	class WIESEL_BASE_EXPORT SharedObject
 	{
 	protected:
 		SharedObject();

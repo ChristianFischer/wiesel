@@ -22,6 +22,8 @@
 #ifndef __WIESEL_IO_DATASOURCE_H__
 #define __WIESEL_IO_DATASOURCE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "databuffer.h"
 #include "wiesel/util/shared_object.h"
 
@@ -31,7 +33,7 @@ namespace wiesel {
 	/**
 	 * @brief Wrapper object for any kind of data source, like files or buffers.
 	 */
-	class DataSource : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT DataSource : public virtual SharedObject
 	{
 	protected:
 		DataSource();
@@ -51,7 +53,7 @@ namespace wiesel {
 	/**
 	 * @brief A DataSource which provides data of a \ref DataBuffer object.
 	 */
-	class BufferDataSource : public DataSource
+	class WIESEL_COMMON_EXPORT BufferDataSource : public DataSource
 	{
 	private:
 		BufferDataSource() : buffer(NULL) {}

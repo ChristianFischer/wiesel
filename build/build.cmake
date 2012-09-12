@@ -34,3 +34,10 @@ include(config/local/paths.cmake OPTIONAL)
 
 
 
+# on win32 we may need to copy all SDL DLL's to our binary directory
+if (WIN32)
+	if (DEFINED EXTRALIBS_PATH)
+		file(GLOB DLLS_TO_COPY ${EXTRALIBS_PATH}/bin/*.dll)
+		file(COPY ${DLLS_TO_COPY} DESTINATION .)
+	endif()
+endif()

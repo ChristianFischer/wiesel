@@ -22,6 +22,8 @@
 #ifndef __WIESEL_UI_TOUCH_H__
 #define	__WIESEL_UI_TOUCH_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <wiesel/util/shared_object.h>
 #include <wiesel/math/vector2d.h>
 #include <wiesel/math/vector3d.h>
@@ -52,7 +54,7 @@ namespace wiesel {
 
 
 
-	class Touch
+	class WIESEL_COMMON_EXPORT Touch
 	{
 	friend class TouchHandler;
 
@@ -143,7 +145,7 @@ namespace wiesel {
 
 
 
-	class TouchReceiver : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT TouchReceiver : public virtual SharedObject
 	{
 	public:
 		TouchReceiver();

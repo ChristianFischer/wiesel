@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GL_GLUTILS_H__
 #define __WIESEL_GL_GLUTILS_H__
 
+#include <wiesel/wiesel-common.def>
+
 // include platform specific OpenGL headers
 #include "wiesel/platform/gl_import.h"
 
@@ -36,7 +38,7 @@ namespace wiesel
 	 * @param file	The current source code file.
 	 * @param line	The current source code line.
 	 */
-	void checkGlError(const char *file, int line);
+	WIESEL_COMMON_EXPORT void checkGlError(const char *file, int line);
 }
 
 

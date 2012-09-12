@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GRAPH_2D_NODE2D_H__
 #define	__WIESEL_GRAPH_2D_NODE2D_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/graph/node.h"
 #include "wiesel/math/vector2d.h"
 #include "wiesel/geometry.h"
@@ -29,7 +31,7 @@
 
 namespace wiesel {
 
-	class Node2D : public Node
+	class WIESEL_COMMON_EXPORT Node2D : public Node
 	{
 	public:
 		Node2D();

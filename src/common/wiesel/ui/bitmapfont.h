@@ -22,6 +22,8 @@
 #ifndef __WIESEL_UI_BITMAPFONT_H__
 #define __WIESEL_UI_BITMAPFONT_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "font.h"
 
 namespace wiesel {
@@ -37,7 +39,7 @@ namespace wiesel {
 	/**
 	 * @brief A font class implementing a bitmap font, provided from a spritesheet.
 	 */
-	class BitmapFont : public Font
+	class WIESEL_COMMON_EXPORT BitmapFont : public Font
 	{
 	public:
 		/**

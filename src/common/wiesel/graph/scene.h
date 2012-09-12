@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GRAPH_SCENE_H__
 #define	__WIESEL_GRAPH_SCENE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "node.h"
 
 namespace wiesel {
@@ -37,7 +39,7 @@ namespace wiesel {
 	/**
 	 * @brief Base-class for scenes.
 	 */
-	class Scene : public Node
+	class WIESEL_COMMON_EXPORT Scene : public Node
 	{
 	public:
 		Scene();

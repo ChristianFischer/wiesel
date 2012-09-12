@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GL_TEXTURE_TEXTURE_H__
 #define __WIESEL_GL_TEXTURE_TEXTURE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <wiesel/gl/gl.h>
 #include <wiesel/geometry.h>
 #include <wiesel/util/shared_object.h>
@@ -32,7 +34,7 @@
 
 namespace wiesel {
 
-	class Texture : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT Texture : public virtual SharedObject
 	{
 	private:
 		Texture();
@@ -43,12 +45,12 @@ namespace wiesel {
 		/**
 		 * @brief load a texture from a \ref File.
 		 */
-		static Texture *fromFile(File *filename);
+		static WIESEL_COMMON_EXPORT Texture *fromFile(File *filename);
 
 		/**
 		 * @brief load a texture from a \ref DataSource.
 		 */
-		static Texture *fromDataSource(DataSource *data);
+		static WIESEL_COMMON_EXPORT Texture *fromDataSource(DataSource *data);
 
 		/**
 		 * @brief get the texture's size.

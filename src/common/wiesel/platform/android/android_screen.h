@@ -22,6 +22,8 @@
 #ifndef __WIESEL_PLATFORM_ANDROID_SCREEN_H__
 #define __WIESEL_PLATFORM_ANDROID_SCREEN_H__
 
+#include <wiesel/wiesel-common.def>
+
 #ifdef __ANDROID__
 
 #include "../../screen.h"
@@ -40,7 +42,7 @@ namespace wiesel {
 	/**
 	 * @brief The android Screen implementation.
 	 */
-	class AndroidScreen
+	class WIESEL_COMMON_EXPORT AndroidScreen
 	: public Screen
 	{
 	private:

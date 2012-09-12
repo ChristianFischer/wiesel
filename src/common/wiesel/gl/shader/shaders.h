@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GL_SHADER_SHADERS_H__
 #define	__WIESEL_GL_SHADER_SHADERS_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "shader.h"
 
 #include "wiesel/gl/vbo/vertexbuffer.h"
@@ -36,7 +38,7 @@ namespace wiesel {
 	 * @brief An utility class to create new shaders
 	 * and cache existing shaders.
 	 */
-	class Shaders
+	class WIESEL_COMMON_EXPORT Shaders
 	{
 	private:
 		Shaders();
@@ -45,20 +47,20 @@ namespace wiesel {
 	// singleton
 	public:
 		/// get the singleton instance
-		static Shaders *instance();
+		static WIESEL_COMMON_EXPORT Shaders *instance();
 
 	// shader variable names
 	public:
-		static const char *ATTRIBUTE_VERTEX_POSITION;
-		static const char *ATTRIBUTE_VERTEX_NORMAL;
-		static const char *ATTRIBUTE_VERTEX_COLOR;
-		static const char *ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
-		static const char *UNIFORM_PROJECTION_MATRIX;
-		static const char *UNIFORM_MODELVIEW_MATRIX;
-		static const char *UNIFORM_TEXTURE;
-		static const char *VARYING_COLOR;
-		static const char *VARYING_NORMAL;
-		static const char *VARYING_TEXTURE_COORDINATE;
+		WIESEL_COMMON_EXPORT static const char *ATTRIBUTE_VERTEX_POSITION;
+		WIESEL_COMMON_EXPORT static const char *ATTRIBUTE_VERTEX_NORMAL;
+		WIESEL_COMMON_EXPORT static const char *ATTRIBUTE_VERTEX_COLOR;
+		WIESEL_COMMON_EXPORT static const char *ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
+		WIESEL_COMMON_EXPORT static const char *UNIFORM_PROJECTION_MATRIX;
+		WIESEL_COMMON_EXPORT static const char *UNIFORM_MODELVIEW_MATRIX;
+		WIESEL_COMMON_EXPORT static const char *UNIFORM_TEXTURE;
+		WIESEL_COMMON_EXPORT static const char *VARYING_COLOR;
+		WIESEL_COMMON_EXPORT static const char *VARYING_NORMAL;
+		WIESEL_COMMON_EXPORT static const char *VARYING_TEXTURE_COORDINATE;
 
 	// public types
 	public:
