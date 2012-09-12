@@ -22,9 +22,10 @@
 #ifndef __WIESEL_UI_TOUCHHANDLER_H__
 #define	__WIESEL_UI_TOUCHHANDLER_H__
 
-#include "touch.h"
-
+#include <wiesel/wiesel-common.def>
 #include <wiesel/engine_interfaces.h>
+
+#include "touch.h"
 
 #include <vector>
 
@@ -39,7 +40,7 @@ namespace wiesel {
 	/**
 	 * @brief Manager class for handling touch events.
 	 */
-	class TouchHandler :
+	class WIESEL_COMMON_EXPORT TouchHandler :
 		public IUpdateable
 	{
 	public:

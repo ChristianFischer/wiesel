@@ -22,6 +22,8 @@
 #ifndef __WIESEL_APPLICATION_H__
 #define __WIESEL_APPLICATION_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "graph/scene.h"
 #include <vector>
 
@@ -32,7 +34,7 @@ namespace wiesel {
 	/**
 	 * @brief An abstract class implementing the application logic.
 	 */
-	class Application {
+	class WIESEL_COMMON_EXPORT Application {
 	public:
 		Application();
 		virtual ~Application();

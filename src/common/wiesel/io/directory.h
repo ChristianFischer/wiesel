@@ -22,6 +22,8 @@
 #ifndef __WIESEL_IO_DIRECTORY_H__
 #define __WIESEL_IO_DIRECTORY_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/util/shared_object.h"
 #include "file.h"
 
@@ -43,7 +45,7 @@ namespace wiesel {
 	/**
 	 * @brief A class representing a directory within a \ref FileSystem.
 	 */
-	class Directory : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT Directory : public virtual SharedObject
 	{
 	private:
 		Directory() {}

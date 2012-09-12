@@ -22,6 +22,8 @@
 #ifndef __WIESEL_MATH_MATRIX_H__
 #define	__WIESEL_MATH_MATRIX_H__
 
+#include <wiesel/wiesel-base.def>
+
 #include <ostream>
 
 
@@ -30,7 +32,7 @@ namespace wiesel {
 	/**
 	 * @brief A class covering a 4x4 matrix for 3D transformation.
 	 */
-	class matrix4x4
+	class WIESEL_BASE_EXPORT matrix4x4
 	{
 	public:
 		/// creates a new uninitialised matrix.
@@ -165,20 +167,20 @@ namespace wiesel {
 
 	public:
 		/// the identity matrix
-		static const matrix4x4 identity;
+		static WIESEL_BASE_EXPORT const matrix4x4 identity;
 
 		/// the zero matrix
-		static const matrix4x4 zero;
+		static WIESEL_BASE_EXPORT const matrix4x4 zero;
 	};
 
 
 
 
-	matrix4x4 operator *(const matrix4x4 &a, const matrix4x4 &b);
-	matrix4x4 operator /(const matrix4x4 &a, const matrix4x4 &b);
+	WIESEL_BASE_EXPORT matrix4x4 operator *(const matrix4x4 &a, const matrix4x4 &b);
+	WIESEL_BASE_EXPORT matrix4x4 operator /(const matrix4x4 &a, const matrix4x4 &b);
 
 
-	std::ostream& operator <<(std::ostream &o, const matrix4x4 &m);
+	WIESEL_BASE_EXPORT std::ostream& operator <<(std::ostream &o, const matrix4x4 &m);
 
 }
 #endif	/* __WIESEL_MATH_MATRIX_H__ */

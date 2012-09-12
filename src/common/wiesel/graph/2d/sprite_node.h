@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GRAPH_2D_SPRITENODE_H__
 #define	__WIESEL_GRAPH_2D_SPRITENODE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "node2d.h"
 #include "wiesel/gl/texture/texture.h"
 #include "wiesel/gl/vbo/vertexbuffer.h"
@@ -56,7 +58,7 @@ namespace wiesel {
 	/**
 	 * @brief A Node for displaying a single sprite.
 	 */
-	class SpriteNode : public Node2D
+	class WIESEL_COMMON_EXPORT SpriteNode : public Node2D
 	{
 	public:
 		/**

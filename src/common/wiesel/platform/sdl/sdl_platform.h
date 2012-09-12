@@ -22,6 +22,8 @@
 #ifndef __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__
 #define __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "../../application.h"
 
 #if WIESEL_USE_LIBSDL
@@ -35,7 +37,7 @@
 	}
 
 /// delegate for the application entry point
-void __internal_sdl_app_main(wiesel::Application *app, int argc, char* argv[]);
+WIESEL_COMMON_EXPORT void __internal_sdl_app_main(wiesel::Application *app, int argc, char* argv[]);
 
 #endif // WIESEL_USE_LIBSDL
 

@@ -22,6 +22,8 @@
 #ifndef __WIESEL_IO_FILE_H__
 #define __WIESEL_IO_FILE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/util/shared_object.h"
 #include "datasource.h"
 
@@ -44,7 +46,7 @@ namespace wiesel {
 	/**
 	 * @brief A class representing a file within a \ref FileSystem.
 	 */
-	class File : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT File : public virtual SharedObject
 	{
 	private:
 		File() {}
@@ -120,7 +122,7 @@ namespace wiesel {
 		/**
 		 * @brief Sort a list of files by their names.
 		 */
-		static void sortByName(FileList &list, bool asc=true);
+		static WIESEL_COMMON_EXPORT void sortByName(FileList &list, bool asc=true);
 
 	private:
 		Directory*	parent;
@@ -149,7 +151,7 @@ namespace wiesel {
 	/**
 	 * @brief A \ref DataSource object which provides access to a \ref FileObject.
 	 */
-	class FileDataSource : public DataSource
+	class WIESEL_COMMON_EXPORT FileDataSource : public DataSource
 	{
 	private:
 		FileDataSource() : file(NULL) {};

@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GRAPH_NODE_H__
 #define	__WIESEL_GRAPH_NODE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <wiesel/util/shared_object.h>
 #include <wiesel/math/matrix.h>
 #include <wiesel/math/vector2d.h>
@@ -52,7 +54,7 @@ namespace wiesel {
 	 * for your custom objects.
 	 * Instead, you should be consider Node2D or Node3D.
 	 */
-	class Node : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT Node : public virtual SharedObject
 	{
 	public:
 		Node();

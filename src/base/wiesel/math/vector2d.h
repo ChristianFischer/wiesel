@@ -22,6 +22,8 @@
 #ifndef __WIESEL_MATH_VECTOR2D_H__
 #define	__WIESEL_MATH_VECTOR2D_H__
 
+#include <wiesel/wiesel-base.def>
+
 #include "matrix.h"
 
 #include <ostream>
@@ -32,7 +34,7 @@ namespace wiesel {
 	/**
 	 * @brief A class handling a two dimensional vector.
 	 */
-	class vector2d
+	class WIESEL_BASE_EXPORT vector2d
 	{
 	public:
 		/// creates a new uninitialised vector
@@ -85,34 +87,34 @@ namespace wiesel {
 
 	public:
 		/// a null-vector
-		static vector2d zero;
+		static WIESEL_BASE_EXPORT vector2d zero;
 	};
 
 
 
-	vector2d operator +(const vector2d &a, const vector2d &b);
-	vector2d operator -(const vector2d &a, const vector2d &b);
-	vector2d operator *(const vector2d &a, const vector2d &b);
-	vector2d operator /(const vector2d &a, const vector2d &b);
-	vector2d operator *(const vector2d &a, float s);
-	vector2d operator /(const vector2d &a, float s);
+	WIESEL_BASE_EXPORT vector2d operator +(const vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT vector2d operator -(const vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT vector2d operator *(const vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT vector2d operator /(const vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT vector2d operator *(const vector2d &a, float s);
+	WIESEL_BASE_EXPORT vector2d operator /(const vector2d &a, float s);
 
-	const vector2d& operator +=(vector2d &a, const vector2d &b);
-	const vector2d& operator -=(vector2d &a, const vector2d &b);
-	const vector2d& operator *=(vector2d &a, const vector2d &b);
-	const vector2d& operator /=(vector2d &a, const vector2d &b);
-	const vector2d& operator *=(vector2d &a, float s);
-	const vector2d& operator /=(vector2d &a, float s);
-
-
-	vector2d operator *(const vector2d &v, const matrix4x4 &m);
-	vector2d operator /(const vector2d &v, const matrix4x4 &m);
-
-	const vector2d& operator *=(vector2d &v, const matrix4x4 &m);
-	const vector2d& operator /=(vector2d &v, const matrix4x4 &m);
+	WIESEL_BASE_EXPORT const vector2d& operator +=(vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT const vector2d& operator -=(vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT const vector2d& operator *=(vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT const vector2d& operator /=(vector2d &a, const vector2d &b);
+	WIESEL_BASE_EXPORT const vector2d& operator *=(vector2d &a, float s);
+	WIESEL_BASE_EXPORT const vector2d& operator /=(vector2d &a, float s);
 
 
-	std::ostream& operator <<(std::ostream &o, const vector2d &v);
+	WIESEL_BASE_EXPORT vector2d operator *(const vector2d &v, const matrix4x4 &m);
+	WIESEL_BASE_EXPORT vector2d operator /(const vector2d &v, const matrix4x4 &m);
+
+	WIESEL_BASE_EXPORT const vector2d& operator *=(vector2d &v, const matrix4x4 &m);
+	WIESEL_BASE_EXPORT const vector2d& operator /=(vector2d &v, const matrix4x4 &m);
+
+
+	WIESEL_BASE_EXPORT std::ostream& operator <<(std::ostream &o, const vector2d &v);
 
 }
 #endif	/* __WIESEL_MATH_VECTOR2D_H__ */

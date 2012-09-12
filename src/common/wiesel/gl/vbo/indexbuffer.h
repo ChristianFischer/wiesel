@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GL_VBO_INDEXBUFFER_H__
 #define __WIESEL_GL_VBO_INDEXBUFFER_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <wiesel/gl/gl.h>
 #include <wiesel/util/shared_object.h>
 #include <wiesel/gl/shader/shader.h>
@@ -36,7 +38,7 @@ namespace wiesel {
 	/**
 	 * @brief 
 	 */
-	class IndexBuffer : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT IndexBuffer : public virtual SharedObject
 	{
 	public:
 		/// alias type for the index of each vertex.

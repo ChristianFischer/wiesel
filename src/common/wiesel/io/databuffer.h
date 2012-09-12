@@ -22,6 +22,8 @@
 #ifndef __WIESEL_IO_DATABUFFER_H__
 #define __WIESEL_IO_DATABUFFER_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/util/shared_object.h"
 #include <string>
 
@@ -31,7 +33,7 @@ namespace wiesel {
 	/**
 	 * @brief Wrapper object for any kind of data buffers.
 	 */
-	class DataBuffer : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT DataBuffer : public virtual SharedObject
 	{
 	protected:
 		DataBuffer();
@@ -71,7 +73,7 @@ namespace wiesel {
 	 * @brief A \ref DataBuffer implementation, which stores a simple data pointer.
 	 * When the object is released, the buffer will be destroyed.
 	 */
-	class ExclusiveDataBuffer : public DataBuffer
+	class WIESEL_COMMON_EXPORT ExclusiveDataBuffer : public DataBuffer
 	{
 	private:
 		ExclusiveDataBuffer() : data(NULL), size(0) {}
@@ -115,7 +117,7 @@ namespace wiesel {
 	 * @brief A \ref DataBuffer implementation, which stores a simple data pointer.
 	 * The buffer will NOT be destroyed, when the object is released.
 	 */
-	class SharedDataBuffer : public DataBuffer
+	class WIESEL_COMMON_EXPORT SharedDataBuffer : public DataBuffer
 	{
 	private:
 		SharedDataBuffer() : data(NULL), size(0) {}

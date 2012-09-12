@@ -22,6 +22,8 @@
 #ifndef __WIESEL_MATH_VECTOR3D_H__
 #define	__WIESEL_MATH_VECTOR3D_H__
 
+#include <wiesel/wiesel-base.def>
+
 #include "vector2d.h"
 #include "matrix.h"
 
@@ -33,7 +35,7 @@ namespace wiesel {
 	/**
 	 * @brief A class handling a three dimensional vector.
 	 */
-	class vector3d
+	class WIESEL_BASE_EXPORT vector3d
 	{
 	public:
 		/// creates a new uninitialised vector
@@ -84,7 +86,7 @@ namespace wiesel {
 
 	public:
 		/// a null-vector
-		static vector3d zero;
+		static WIESEL_BASE_EXPORT vector3d zero;
 	};
 
 
@@ -92,38 +94,38 @@ namespace wiesel {
 	/**
 	 * @brief Compute the dot-product or scalar-product of two vectors.
 	 */
-	float dot(const vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT float dot(const vector3d &a, const vector3d &b);
 
 	/**
 	 * @brief Compute the cross-product of two vectors.
 	 */
-	vector3d cross(const vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT vector3d cross(const vector3d &a, const vector3d &b);
 
 
 
-	vector3d operator +(const vector3d &a, const vector3d &b);
-	vector3d operator -(const vector3d &a, const vector3d &b);
-	vector3d operator *(const vector3d &a, const vector3d &b);
-	vector3d operator /(const vector3d &a, const vector3d &b);
-	vector3d operator *(const vector3d &a, float s);
-	vector3d operator /(const vector3d &a, float s);
+	WIESEL_BASE_EXPORT vector3d operator +(const vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT vector3d operator -(const vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT vector3d operator *(const vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT vector3d operator /(const vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT vector3d operator *(const vector3d &a, float s);
+	WIESEL_BASE_EXPORT vector3d operator /(const vector3d &a, float s);
 
-	const vector3d& operator +=(vector3d &a, const vector3d &b);
-	const vector3d& operator -=(vector3d &a, const vector3d &b);
-	const vector3d& operator *=(vector3d &a, const vector3d &b);
-	const vector3d& operator /=(vector3d &a, const vector3d &b);
-	const vector3d& operator *=(vector3d &a, float s);
-	const vector3d& operator /=(vector3d &a, float s);
-
-
-	vector3d operator *(const vector3d &v, const matrix4x4 &m);
-	vector3d operator /(const vector3d &v, const matrix4x4 &m);
-
-	const vector3d& operator *=(vector3d &v, const matrix4x4 &m);
-	const vector3d& operator /=(vector3d &v, const matrix4x4 &m);
+	WIESEL_BASE_EXPORT const vector3d& operator +=(vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT const vector3d& operator -=(vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT const vector3d& operator *=(vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT const vector3d& operator /=(vector3d &a, const vector3d &b);
+	WIESEL_BASE_EXPORT const vector3d& operator *=(vector3d &a, float s);
+	WIESEL_BASE_EXPORT const vector3d& operator /=(vector3d &a, float s);
 
 
-	std::ostream& operator <<(std::ostream &o, const vector3d &v);
+	WIESEL_BASE_EXPORT vector3d operator *(const vector3d &v, const matrix4x4 &m);
+	WIESEL_BASE_EXPORT vector3d operator /(const vector3d &v, const matrix4x4 &m);
+
+	WIESEL_BASE_EXPORT const vector3d& operator *=(vector3d &v, const matrix4x4 &m);
+	WIESEL_BASE_EXPORT const vector3d& operator /=(vector3d &v, const matrix4x4 &m);
+
+
+	WIESEL_BASE_EXPORT std::ostream& operator <<(std::ostream &o, const vector3d &v);
 
 }
 #endif	/* __WIESEL_MATH_VECTOR3D_H__ */

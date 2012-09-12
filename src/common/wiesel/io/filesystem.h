@@ -22,6 +22,8 @@
 #ifndef __WIESEL_IO_FILESYSTEM_H__
 #define __WIESEL_IO_FILESYSTEM_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "directory.h"
 #include "file.h"
 
@@ -35,7 +37,7 @@ namespace wiesel {
 	/**
 	 * @brief A class representing a filesystem to provide access to files and directories of a platform.
 	 */
-	class FileSystem
+	class WIESEL_COMMON_EXPORT FileSystem
 	{
 	protected:
 		FileSystem();

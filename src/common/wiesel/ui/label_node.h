@@ -22,6 +22,8 @@
 #ifndef __WIESEL_UI_LABELNODE_H__
 #define	__WIESEL_UI_LABELNODE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/graph/2d/multisprite_node.h"
 
 #include <string>
@@ -36,7 +38,7 @@ namespace wiesel {
 	/**
 	 * @brief A node which can display multiline texts.
 	 */
-	class LabelNode : public MultiSpriteNode
+	class WIESEL_COMMON_EXPORT LabelNode : public MultiSpriteNode
 	{
 	public:
 		LabelNode();

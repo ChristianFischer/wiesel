@@ -22,6 +22,8 @@
 #ifndef __WIESEL_UI_FONT_H__
 #define	__WIESEL_UI_FONT_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/util/shared_object.h"
 
 #include <string>
@@ -38,7 +40,7 @@ namespace wiesel {
 	/**
 	 * @brief A class used by \ref LabelNode
 	 */
-	class Font : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT Font : public virtual SharedObject
 	{
 	protected:
 		Font();

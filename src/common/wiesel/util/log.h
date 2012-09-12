@@ -22,6 +22,8 @@
 #ifndef __WIESEL_UTIL_LOG_H__
 #define __WIESEL_UTIL_LOG_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <ostream>
 #include <string>
 
@@ -51,7 +53,7 @@ namespace wiesel {
 	 * @brief write a single log message to the output console, if the current log level is high enough.
 	 * @param level		The current log level.
 	 */
-	int logmsg(LogLevel level, const char *tag, const char *message, ...)
+	WIESEL_COMMON_EXPORT int logmsg(LogLevel level, const char *tag, const char *message, ...)
 	#if defined(__GNUC__)
 		__attribute__ ((format(printf, 3, 4)))
 	#endif
@@ -62,24 +64,24 @@ namespace wiesel {
 	/**
 	 * @brief A Log class for logging messages using a std::ostream derived class.
 	 */
-	class Log : public std::basic_ostream< char, std::char_traits<char> >
+	class WIESEL_COMMON_EXPORT Log : public std::basic_ostream< char, std::char_traits<char> >
 	{
 	public:
 		Log(std::basic_streambuf<char, std::char_traits<char> > *buffer);
 		virtual ~Log();
 
 	public:
-		static Log err;			//!< error log level for critical error messages.
-		static Log warn;		//!< warning log level for minor errors and warnings.
-		static Log info;		//!< info log level for simple program information.
-		static Log debug;		//!< detailed log level for detailed program information, not relevant for productive usage.
+		static WIESEL_COMMON_EXPORT Log err;		//!< error log level for critical error messages.
+		static WIESEL_COMMON_EXPORT Log warn;		//!< warning log level for minor errors and warnings.
+		static WIESEL_COMMON_EXPORT Log info;		//!< info log level for simple program information.
+		static WIESEL_COMMON_EXPORT Log debug;		//!< detailed log level for detailed program information, not relevant for productive usage.
 
 
 		/**
 		 * @brief set the current \ref LogLevel.
 		 * All messages with a higher level than the currently configured level will be discarded.
 		 */
-		static void setLevel(LogLevel level);
+		static WIESEL_COMMON_EXPORT void setLevel(LogLevel level);
 
 		/**
 		 * @brief get the current \ref LogLevel.
@@ -91,7 +93,7 @@ namespace wiesel {
 		/**
 		 * @brief checks, if a specific combination of log tag and \ref LogLevel will be included in the log messages.
 		 */
-		static bool isLogged(LogLevel level, const char *tag);
+		static WIESEL_COMMON_EXPORT bool isLogged(LogLevel level, const char *tag);
 
 		/**
 		 * @brief checks, if a specific combination of log tag and \ref LogLevel will be included in the log messages.
@@ -101,7 +103,7 @@ namespace wiesel {
 		}
 
 	private:
-		static LogLevel		current_log_level;
+		static WIESEL_COMMON_EXPORT LogLevel		current_log_level;
 	};
 
 } /* namespace wiesel */

@@ -22,6 +22,8 @@
 #ifndef __WIESEL_PLATFORM_ANDROID_ENGINE_H__
 #define __WIESEL_PLATFORM_ANDROID_ENGINE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #ifdef __ANDROID__
 
 #include "../../../wiesel/engine.h"
@@ -38,7 +40,7 @@ namespace wiesel {
 	/**
 	 * @brief The android engine implementation.
 	 */
-	class AndroidEngine
+	class WIESEL_COMMON_EXPORT AndroidEngine
 	: public Engine
 	{
 	public:

@@ -22,6 +22,8 @@
 #ifndef __WIESEL_PLATFORM_SDL_SCREEN_H__
 #define __WIESEL_PLATFORM_SDL_SCREEN_H__
 
+#include <wiesel/wiesel-common.def>
+
 #if WIESEL_USE_LIBSDL
 
 #include "../../screen.h"
@@ -35,7 +37,7 @@ namespace wiesel {
 	/**
 	 * @brief The SDL Screen implementation.
 	 */
-	class SdlScreen
+	class WIESEL_COMMON_EXPORT SdlScreen
 	: public Screen
 	{
 	private:

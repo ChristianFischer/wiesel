@@ -31,7 +31,7 @@
 #include "wiesel/util/log.h"
 #include "wiesel/ui/touchhandler.h"
 
-#include <SDL/SDL_image.h>
+#include <SDL_image.h>
 
 #include <assert.h>
 #include <inttypes.h>

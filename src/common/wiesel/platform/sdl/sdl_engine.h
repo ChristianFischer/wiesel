@@ -22,6 +22,8 @@
 #ifndef __WIESEL_PLATFORM_SDL_ENGINE_H__
 #define __WIESEL_PLATFORM_SDL_ENGINE_H__
 
+#include <wiesel/wiesel-common.def>
+
 #ifdef WIESEL_USE_LIBSDL
 
 #include "../../../wiesel/engine.h"
@@ -35,7 +37,7 @@ namespace wiesel {
 	/**
 	 * @brief The SDL engine implementation.
 	 */
-	class SdlEngine
+	class WIESEL_COMMON_EXPORT SdlEngine
 	: public Engine
 	{
 	public:

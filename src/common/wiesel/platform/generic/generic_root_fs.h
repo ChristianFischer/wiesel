@@ -22,6 +22,8 @@
 #ifndef __WIESEL_PLATFORM_GENERIC_FILESUPPORT_GENERIC_ROOT_FS_H__
 #define __WIESEL_PLATFORM_GENERIC_FILESUPPORT_GENERIC_ROOT_FS_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/io/filesystem.h"
 
 
@@ -31,7 +33,7 @@ namespace wiesel {
 
 
 
-	class GenericFileSystem : public FileSystem
+	class WIESEL_COMMON_EXPORT GenericFileSystem : public FileSystem
 	{
 	public:
 		GenericFileSystem();
@@ -45,7 +47,7 @@ namespace wiesel {
 
 
 
-	class GenericFileSystemDirectory : public Directory
+	class WIESEL_COMMON_EXPORT GenericFileSystemDirectory : public Directory
 	{
 	public:
 		GenericFileSystemDirectory(GenericFileSystem *fs, Directory *parent, const std::string &name);
@@ -63,7 +65,7 @@ namespace wiesel {
 
 
 
-	class GenericFileSystemFile : public File
+	class WIESEL_COMMON_EXPORT GenericFileSystemFile : public File
 	{
 	public:
 		GenericFileSystemFile(GenericFileSystemDirectory *parent, const std::string &name);

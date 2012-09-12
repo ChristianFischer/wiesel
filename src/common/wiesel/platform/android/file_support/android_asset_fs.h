@@ -22,6 +22,8 @@
 #ifndef __WIESEL_PLATFORM_ANDROID_FILESUPPORT_ANDROID_ASSET_FS_H__
 #define __WIESEL_PLATFORM_ANDROID_FILESUPPORT_ANDROID_ASSET_FS_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "wiesel/io/filesystem.h"
 
 #include <android/asset_manager.h>
@@ -33,7 +35,7 @@ namespace wiesel {
 
 
 
-	class AndroidAssetFileSystem : public FileSystem
+	class WIESEL_COMMON_EXPORT AndroidAssetFileSystem : public FileSystem
 	{
 	private:
 		AndroidAssetFileSystem() {};
@@ -55,7 +57,7 @@ namespace wiesel {
 
 
 
-	class AndroidAssetFileSystemDirectory : public Directory
+	class WIESEL_COMMON_EXPORT AndroidAssetFileSystemDirectory : public Directory
 	{
 	public:
 		AndroidAssetFileSystemDirectory(AndroidAssetFileSystem *fs, Directory *parent, const std::string &name);
@@ -76,7 +78,7 @@ namespace wiesel {
 
 
 
-	class AndroidAssetFileSystemFile : public File
+	class WIESEL_COMMON_EXPORT AndroidAssetFileSystemFile : public File
 	{
 	public:
 		AndroidAssetFileSystemFile(AndroidAssetFileSystemDirectory *parent, const std::string &name);

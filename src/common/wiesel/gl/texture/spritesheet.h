@@ -22,6 +22,8 @@
 #ifndef __WIESEL_GL_TEXTURE_SPRITESHEET_H__
 #define __WIESEL_GL_TEXTURE_SPRITESHEET_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include "spriteframe.h"
 
 #include <wiesel/gl/gl.h>
@@ -46,7 +48,7 @@ namespace wiesel {
 	/**
 	 * @brief A SpriteSheet contains multiple sprites which belongs to a single texture.
 	 */
-	class SpriteSheet : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT SpriteSheet : public virtual SharedObject
 	{
 	public:
 		typedef std::vector<SpriteFrame*>			List;
@@ -65,7 +67,7 @@ namespace wiesel {
 		 * @brief Load a spritesheet from a file.
 		 * @param file	A file containing the spritesheet.
 		 */
-		static SpriteSheet* fromFile(File *file);
+		static WIESEL_COMMON_EXPORT SpriteSheet* fromFile(File *file);
 
 		virtual ~SpriteSheet();
 

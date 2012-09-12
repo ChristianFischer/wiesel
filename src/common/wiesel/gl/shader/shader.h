@@ -49,7 +49,7 @@ namespace wiesel {
 	/**
 	 * @brief A class handling a single shader object.
 	 */
-	class Shader : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT Shader : public virtual SharedObject
 	{
 	private:
 		Shader();
@@ -77,13 +77,13 @@ namespace wiesel {
 		 * @brief compile a shader from source code.
 		 * @return the created shader on success, \c NULL when compiling failed.
 		 */
-		static Shader *compile(const std::string &source, ShaderType type);
+		static WIESEL_COMMON_EXPORT Shader *compile(const std::string &source, ShaderType type);
 
 		/**
 		 * @brief compile a shader from source code.
 		 * @return the created shader on success, \c NULL when compiling failed.
 		 */
-		static Shader *compile(DataSource *source, ShaderType type);
+		static WIESEL_COMMON_EXPORT Shader *compile(DataSource *source, ShaderType type);
 
 		/**
 		 * 
@@ -149,7 +149,7 @@ namespace wiesel {
 	/**
 	 * @brief Handles a shader program with mulitple shaders linked.
 	 */
-	class ShaderProgram : public virtual SharedObject
+	class WIESEL_COMMON_EXPORT ShaderProgram : public virtual SharedObject
 	{
 	public:
 		/**

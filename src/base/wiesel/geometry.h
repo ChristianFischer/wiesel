@@ -22,6 +22,7 @@
 #ifndef __WIESEL_GEOMETRY_H__
 #define __WIESEL_GEOMETRY_H__
 
+#include <wiesel/wiesel-base.def>
 
 #include "math/vector2d.h"
 
@@ -30,7 +31,7 @@
 
 namespace wiesel {
 
-	struct dimension
+	class WIESEL_BASE_EXPORT dimension
 	{
 	// constructors
 	public:
@@ -85,7 +86,7 @@ namespace wiesel {
 	/**
 	 * @brief A basic class covering the boundings of a rectangle.
 	 */
-	class rectangle
+	class WIESEL_BASE_EXPORT rectangle
 	{
 	public:
 		/// creates a new rectangle with zero position and size.
@@ -158,19 +159,19 @@ namespace wiesel {
 	/**
 	 * @brief Create a new rectangle, which contains both parameter rectangles.
 	 */
-	rectangle createUnion(const rectangle &a, const rectangle &b);
+	WIESEL_BASE_EXPORT rectangle createUnion(const rectangle &a, const rectangle &b);
 
 
 	/**
 	 * @brief Create the intersection of two rectangles.
 	 */
-	rectangle createIntersection(const rectangle &a, const rectangle &b);
+	WIESEL_BASE_EXPORT rectangle createIntersection(const rectangle &a, const rectangle &b);
 
 
 
-	std::ostream& operator <<(std::ostream &o, const dimension &dim);
-	std::ostream& operator <<(std::ostream &o, const rectangle &r);
-	
+	WIESEL_BASE_EXPORT std::ostream& operator <<(std::ostream &o, const dimension &dim);
+	WIESEL_BASE_EXPORT std::ostream& operator <<(std::ostream &o, const rectangle &r);
+
 }
 
 #endif

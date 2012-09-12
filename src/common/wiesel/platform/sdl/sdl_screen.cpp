@@ -26,7 +26,7 @@
 #include <wiesel/gl/gl.h>
 #include <assert.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 
 using namespace wiesel;

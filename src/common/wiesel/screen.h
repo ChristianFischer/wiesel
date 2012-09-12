@@ -22,6 +22,8 @@
 #ifndef __WIESEL_SCREEN_H__
 #define __WIESEL_SCREEN_H__
 
+#include <wiesel/wiesel-common.def>
+
 #include <wiesel/geometry.h>
 #include <wiesel/math/matrix.h>
 
@@ -30,7 +32,7 @@ namespace wiesel {
 	/**
 	 * @brief An abstract interface to the current screen.
 	 */
-	class Screen {
+	class WIESEL_COMMON_EXPORT Screen {
 	public:
 		Screen();
 		virtual ~Screen();
