@@ -23,10 +23,12 @@ set(
 
 # paths
 set(WIESEL_SRC_DIR       ${WIESEL_DIR}/src)
+set(WIESEL_TESTS_DIR     ${WIESEL_DIR}/tests)
 set(WIESEL_MODULES_DIR   ${WIESEL_DIR}/libraries/desktop)
 
 # load standard modules
 include(wiesel-module)
+include(wiesel-testsuite)
 
 
 # load optional config includes

@@ -21,15 +21,6 @@ function(wiesel_module_add_dependency parent_target module)
 	if (NOT MODULE_INCLUDE_DIRECTORIES STREQUAL "MODULE_INCLUDE_DIRECTORIES-NOTFOUND")
 		wiesel_target_add_includes(${parent_target} ${MODULE_INCLUDE_DIRECTORIES})
 	endif()
-
-	# also add exported libraries to the parent target
-#	get_target_property(MODULE_LIBRARIES ${module} EXPORT_LIBRARIES)
-#	if (NOT MODULE_LIBRARIES STREQUAL "MODULE_LIBRARIES-NOTFOUND")
-#		wiesel_target_add_libraries(${parent_target} ${MODULE_LIBRARIES})
-#	endif()
-	
-#	get_target_property(INCLUDES_2 ${parent_target} INCLUDE_DIRECTORIES)
-#	message("includes for ${parent_target}:  ${INCLUDES_2}")
 	
 endfunction(wiesel_module_add_dependency)
 
@@ -48,38 +39,41 @@ endfunction(wiesel_module_export_libraries)
 
 
 function(wiesel_module_get_files var path)
-
-	file(GLOB_RECURSE MY_FILES ${path})
+	file(GLOB_RECURSE MY_FILES ${path}/*.c ${path}/*.cpp)
 	set(${var} ${MY_FILES} PARENT_SCOPE)
-	
 endfunction(wiesel_module_get_files)
 
 
 
-function(wiesel_create_executable target source_dir filter)
+function(wiesel_create_executable target source_dir)
 	# get all sources from this directory
-	wiesel_module_get_files(MODULE_SRC_FILES ${source_dir}/${filter})
+	wiesel_module_get_files(MODULE_SRC_FILES ${source_dir})
 	
 	# add sources to the module's target
 	add_executable(${target} ${MODULE_SRC_FILES})
+
+	# also create according test package
+	# SORRY! no test support for executables yet :-/
+	#wiesel_create_test_package_for(${target} "${test_dir}")
 	
 	# add the source dir as include directory to the target
 	wiesel_target_add_includes(${target} ${source_dir})
-	
 endfunction(wiesel_create_executable)
 
 
 
-function(wiesel_create_module target source_dir filter)
+function(wiesel_create_module target source_dir test_dir)
 	# get all sources from this directory
-	wiesel_module_get_files(MODULE_SRC_FILES ${source_dir}/${filter})
+	wiesel_module_get_files(MODULE_SRC_FILES ${source_dir})
 	
 	# add sources to the module's target
 	add_library(${target} SHARED ${MODULE_SRC_FILES})
 	
+	# also create according test package
+	wiesel_create_test_package_for(${target} "${test_dir}")
+	
 	# add the source dir as include directory to the target
 	wiesel_target_add_includes(${target} ${source_dir})
-	
 endfunction(wiesel_create_module)
 
 
@@ -91,23 +85,55 @@ function(wiesel_target_add_includes target)
 	foreach(incl ${ARGN})
 		wiesel_target_add_compileflags(${target} -I${incl})
 	endforeach()
-	
+
+	# also add the include to the according test target
+	if (WIESEL_BUILD_TESTS)
+		wiesel_target_has_valid_testpackage(HAS_TEST_PACKAGE ${target})
+		wiesel_test_package_name(TEST_PACKAGE_NAME ${target})
+		
+		if (${HAS_TEST_PACKAGE})
+			wiesel_target_add_includes(${TEST_PACKAGE_NAME} ${ARGN})
+		endif()
+	endif(WIESEL_BUILD_TESTS)
 endfunction(wiesel_target_add_includes)
 
 
 
 function(wiesel_target_add_libraries target)
 	target_link_libraries(${target} ${ARGN})
+
+	# also add the libraries to the according test target
+	if (WIESEL_BUILD_TESTS)
+		wiesel_target_has_valid_testpackage(HAS_TEST_PACKAGE ${target})
+		wiesel_test_package_name(TEST_PACKAGE_NAME ${target})
+		
+		if (${HAS_TEST_PACKAGE})
+			wiesel_target_add_libraries(${TEST_PACKAGE_NAME} ${ARGN})
+		endif()
+	endif(WIESEL_BUILD_TESTS)
 endfunction(wiesel_target_add_libraries)
 
 
 
 function(wiesel_target_add_compileflags target)
+	# get the original compile flags
 	get_property(TARGET_COMPILE_FLAGS TARGET ${target} PROPERTY COMPILE_FLAGS)
 	
+	# append each argument
 	foreach(flag ${ARGN})
 		set(TARGET_COMPILE_FLAGS "${TARGET_COMPILE_FLAGS} ${flag}")
 	endforeach()
 	
+	# now write the flags property back
 	set_property(TARGET ${target} PROPERTY COMPILE_FLAGS ${TARGET_COMPILE_FLAGS})
+
+	# also add the compile flags to the according test target
+	if (WIESEL_BUILD_TESTS)
+		wiesel_target_has_valid_testpackage(HAS_TEST_PACKAGE ${target})
+		wiesel_test_package_name(TEST_PACKAGE_NAME ${target})
+		
+		if (${HAS_TEST_PACKAGE})
+			wiesel_target_add_compileflags(${TEST_PACKAGE_NAME} ${ARGN})
+		endif()
+	endif(WIESEL_BUILD_TESTS)
 endfunction(wiesel_target_add_compileflags)
