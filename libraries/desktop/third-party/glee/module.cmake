@@ -2,7 +2,7 @@
 
 
 # create the library
-wiesel_create_module(glee ${WIESEL_SRC_DIR}/third-party/glee-5.4 *.c)
+wiesel_create_module(glee ${WIESEL_SRC_DIR}/third-party/glee-5.4 "")
 
 # export include directories of this library for other targets
 wiesel_module_export_includes(glee ${WIESEL_SRC_DIR}/third-party/glee-5.4)

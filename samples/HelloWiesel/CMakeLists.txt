@@ -3,6 +3,13 @@
 # ensure a correct version of cmake is installed
 cmake_minimum_required(VERSION 2.8)
 
+# compatibility
+set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
+
+
+# set the project name
+project(HelloWiesel)
+
 
 # in this case, the engine folder is in the same repository,
 # so we always know the correct location.
@@ -16,12 +23,7 @@ include(${WIESEL_DIR}/build/build.cmake)
 
 
 
-# set the project name
-project(HelloWiesel)
-
-
-
-wiesel_create_executable(HelloWiesel src *.cpp)
+wiesel_create_executable(HelloWiesel ./src)
 
 
 # add required libraries
