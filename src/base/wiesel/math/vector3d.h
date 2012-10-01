@@ -66,7 +66,7 @@ namespace wiesel {
 
 	// casting
 	public:
-		/// cast into a pointer to all matrix values
+		/// cast into a pointer to all vector values
 		inline operator const float*() const {
 			return static_cast<const float*>(vec);
 		}

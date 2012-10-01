@@ -36,6 +36,16 @@ include(config/local/paths.cmake OPTIONAL)
 
 
 
+# enable warnings?
+option(WIESEL_BUILD_WARN_ALL "Enable all warnings on build. (gcc option -Wall)" ON)
+if (WIESEL_BUILD_WARN_ALL)
+	set(CMAKE_CXX_FLAGS "-g -Wall")
+	set(CMAKE_C_FLAGS "-g -Wall")
+endif(WIESEL_BUILD_WARN_ALL)
+
+
+
+
 # on win32 we may need to copy all SDL DLL's to our binary directory
 if (WIN32)
 	if (DEFINED EXTRALIBS_PATH)
