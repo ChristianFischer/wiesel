@@ -19,10 +19,32 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "gtest/gtest.h"
+#ifndef __WIESEL_MATH_UTILS_H__
+#define	__WIESEL_MATH_UTILS_H__
+
+#include <wiesel/wiesel-base.def>
 
 
-int main(int argc, char **argv) {
-	testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+
+namespace wiesel {
+
+	/**
+	 * @brief converts a degree angle into radians.
+	 */
+	float deg2rad(float deg);
+
+	/**
+	 * @brief converts a radians angle into degrees.
+	 */
+	float rad2deg(float rad);
+
+	/**
+	 * @brief A helper class to compare if two floats are almost equal.
+	 * Since floats doesn't have
+	 */
+	template<typename FLOAT>
+	WIESEL_BASE_EXPORT bool areFloatsAlmostEqual(FLOAT a, FLOAT b, unsigned int max_ulp=5);
+
 }
+#endif	/* __WIESEL_MATH_VECTOR2D_H__ */
+

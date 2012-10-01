@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "matrix.h"
+#include "utils.h"
 
 #include <assert.h>
 #include <math.h>
@@ -297,6 +298,18 @@ void matrix4x4::scaleZ(float s) {
 
 
 
+bool matrix4x4::equals(const matrix4x4 &other, int tolerance) const {
+	for(register int i=16; --i>=0;) {
+		if (!areFloatsAlmostEqual(m[i], other.m[i], tolerance)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+
 
 
 
@@ -328,12 +341,12 @@ bool matrix4x4::operator ==(const matrix4x4 &other) const {
 
 bool matrix4x4::operator !=(const matrix4x4 &other) const {
 	for(register int i=16; --i>=0;) {
-		if (this->m[i] == other.m[i]) {
-			return false;
+		if (this->m[i] != other.m[i]) {
+			return true;
 		}
 	}
 
-	return true;
+	return false;
 }
 
 

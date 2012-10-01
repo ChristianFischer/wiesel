@@ -21,8 +21,8 @@
  */
 #include "node2d.h"
 
+#include <wiesel/math/utils.h>
 #include <cmath>
-
 
 using namespace wiesel;
 
@@ -128,7 +128,7 @@ void Node2D::updateTransform() {
 
 	local_transform.translate(-pivot_in_units.x, -pivot_in_units.y);
 	local_transform.scale(scale_x, scale_y, 1.0f);
-	local_transform.rotateZ(rotation * M_PI / 180.0f);
+	local_transform.rotateZ(deg2rad(rotation));
 	local_transform.translate(position.x, position.y);
 
 	Node::updateTransform();

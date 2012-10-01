@@ -132,6 +132,15 @@ namespace wiesel {
 		/// scale on z-axis
 		void scaleZ(float s);
 
+	// tests
+	public:
+		/**
+		 * @brief Tests, if this matrix equals an other.
+		 * Unlike the comparision operator, this function allows a small difference,
+		 * since floating operations will produce rounding errors, so comparing
+		 * floats needs a bit of tolerance.
+		 */
+		bool equals(const matrix4x4 &other, int tolerance=5) const;
 
 	// operators
 	public:
