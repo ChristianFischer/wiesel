@@ -25,6 +25,7 @@
 #include <wiesel/math/matrix.h>
 #include <wiesel/math/vector2d.h>
 #include <wiesel/math/vector3d.h>
+#include <wiesel/geometry.h>
 
 #include <gtest/gtest.h>
 #include <cmath>
@@ -36,12 +37,18 @@
 
 
 // create googletest-like macros
+#define EXPECT_DIMENSION_EQ(expected, actual)	EXPECT_PRED_FORMAT2(compareDimensionUsingEpsilon, expected, actual)
+#define EXPECT_DIMENSION_NE(expected, actual)	EXPECT_FALSE(compareDimensionUsingEpsilon(expected, actual))
+#define EXPECT_RECT_EQ(expected, actual)		EXPECT_PRED_FORMAT2(compareRectangleUsingEpsilon, expected, actual)
+#define EXPECT_RECT_NE(expected, actual)		EXPECT_FALSE(compareRectangleUsingEpsilon(expected, actual))
+
 #define EXPECT_VECTOR_EQ(expected, actual)		EXPECT_PRED_FORMAT2(compareVectorUsingEpsilon, expected, actual)
 #define EXPECT_VECTOR_NE(expected, actual)		EXPECT_FALSE(compareVectorUsingEpsilon(expected, actual))
 #define EXPECT_MATRIX_EQ(expected, actual)		EXPECT_PRED_FORMAT2(compareMatrixUsingEpsilon, expected, actual)
 #define EXPECT_MATRIX_NE(expected, actual)		EXPECT_FALSE(compareMatrixUsingEpsilon(expected, actual))
 #define EXPECT_MATRIX_IDENTITY(actual)			EXPECT_MATRIX_EQ(::wiesel::matrix4x4::identity, actual)
 #define EXPECT_MATRIX_NOT_IDENTITY(actual)		EXPECT_MATRIX_NE(::wiesel::matrix4x4::identity, actual)
+
 
 
 namespace wiesel {
@@ -67,7 +74,27 @@ namespace wiesel {
 
 
 	/**
-	 * @brief GoogleTest helper function for comparing two vectors using an epsilon value.
+	 * @brief helper function for comparing two dimensions using an epsilon value.
+	 */
+	bool compareDimensionUsingEpsilon(
+							const ::wiesel::dimension &expected,
+							const ::wiesel::dimension &actual,
+							float epsilon=UNITTEST_EPSILON
+	);
+
+
+	/**
+	 * @brief helper function for comparing two rectangles using an epsilon value.
+	 */
+	bool compareRectangleUsingEpsilon(
+							const ::wiesel::rectangle &expected,
+							const ::wiesel::rectangle &actual,
+							float epsilon=UNITTEST_EPSILON
+	);
+
+
+	/**
+	 * @brief helper function for comparing two vectors using an epsilon value.
 	 */
 	bool compareVectorUsingEpsilon(
 							const ::wiesel::vector2d &expected,
@@ -77,7 +104,7 @@ namespace wiesel {
 
 
 	/**
-	 * @brief GoogleTest helper function for comparing two vectors using an epsilon value.
+	 * @brief helper function for comparing two vectors using an epsilon value.
 	 */
 	bool compareVectorUsingEpsilon(
 							const ::wiesel::vector3d &expected,
@@ -87,7 +114,7 @@ namespace wiesel {
 
 
 	/**
-	 * @brief GoogleTest helper function for comparing two matrices using an epsilon value.
+	 * @brief helper function for comparing two matrices using an epsilon value.
 	 */
 	bool compareMatrixUsingEpsilon(
 							const ::wiesel::matrix4x4 &expected,
@@ -97,6 +124,30 @@ namespace wiesel {
 
 
 
+
+
+	/**
+	 * @brief GoogleTest helper function for comparing two dimensions.
+	 */
+	::testing::AssertionResult compareDimensionUsingEpsilon(
+							const char* expected_expression,
+							const char* actual_expression,
+							const ::wiesel::dimension &expected,
+							const ::wiesel::dimension &actual,
+							float epsilon=UNITTEST_EPSILON
+	);
+
+
+	/**
+	 * @brief GoogleTest helper function for comparing two rectangles.
+	 */
+	::testing::AssertionResult compareRectangleUsingEpsilon(
+							const char* expected_expression,
+							const char* actual_expression,
+							const ::wiesel::rectangle &expected,
+							const ::wiesel::rectangle &actual,
+							float epsilon=UNITTEST_EPSILON
+	);
 
 
 	/**

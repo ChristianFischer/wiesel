@@ -26,17 +26,17 @@
 using namespace wiesel;
 
 
-dimension::dimension() 
+dimension::dimension()
 : width(0.0f), height(0.0f) {
 	return;
 }
 
-dimension::dimension(float width, float height) 
+dimension::dimension(float width, float height)
 : width(width), height(height) {
 	return;
 }
 
-dimension::dimension(const dimension &other) 
+dimension::dimension(const dimension &other)
 : width(other.width), height(other.height) {
 	return;
 }
@@ -69,6 +69,28 @@ void dimension::scale(float s) {
 void dimension::scale(float sx, float sy) {
 	this->width  *= sx;
 	this->height *= sy;
+}
+
+
+const dimension& dimension::operator=(const dimension &other) {
+	this->width  = other.width;
+	this->height = other.height;
+	return *this;
+}
+
+
+bool dimension::operator==(const dimension &other) const {
+	return
+			this->width  == other.width
+		&&	this->height == other.height
+	;
+}
+
+bool dimension::operator!=(const dimension &other) const {
+	return
+			this->width  != other.width
+		||	this->height != other.height
+	;
 }
 
 
@@ -137,6 +159,14 @@ rectangle rectangle::normalized() const {
 }
 
 
+bool rectangle::isNormalized() const {
+	return
+			this->size.width  >= 0
+		&&	this->size.height >= 0
+	;
+}
+
+
 float rectangle::getMinX() const {
 	return position.x;
 }
@@ -162,6 +192,28 @@ float rectangle::getCenterY() const {
 }
 
 
+const rectangle& rectangle::operator=(const rectangle &other) {
+	this->position = other.position;
+	this->size     = other.size;
+	return *this;
+}
+
+
+bool rectangle::operator==(const rectangle &other) const {
+	return
+			this->position == other.position
+		&&	this->size     == other.size
+	;
+}
+
+bool rectangle::operator!=(const rectangle &other) const {
+	return
+			this->position != other.position
+		||	this->size     != other.size
+	;
+}
+
+
 bool rectangle::contains(float x, float y) const {
 	if (
 			x >= getMinX()
@@ -182,15 +234,15 @@ bool rectangle::contains(const vector2d& v) const {
 
 bool rectangle::contains(const rectangle& r) const {
 	if (
-			r.getMinX() < this->getMaxX()
-		&&	r.getMinY() < this->getMaxY()
-		&&	r.getMaxX() > this->getMinX()
-		&&	r.getMaxY() > this->getMinY()
+			r.getMinX() < this->getMinX()
+		||	r.getMinY() < this->getMinY()
+		||	r.getMaxX() > this->getMaxX()
+		||	r.getMaxY() > this->getMaxY()
 	) {
-		return true;
+		return false;
 	}
 
-	return false;
+	return true;
 }
 
 

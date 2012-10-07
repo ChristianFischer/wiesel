@@ -37,13 +37,13 @@ namespace wiesel {
 	public:
 		/// constructs a new dimension object with zero width and height
 		dimension();
-		
+
 		/// constructs a new dimension object with width and height
 		dimension(float width, float height);
-		
+
 		/// copy-constructor
 		dimension(const dimension &other);
-		
+
 	// operations
 	public:
 		/// get the smallest dimension, either width or height.
@@ -60,21 +60,28 @@ namespace wiesel {
 
 		/// scale width and height with factor \c s
 		void scale(float s);
-		
+
 		/// scale width and height with separate factors
 		void scale(float sx, float sy);
+
+	// operators
+	public:
+		const dimension& operator=(const dimension &other);
+
+		bool operator ==(const dimension &other) const;
+		bool operator !=(const dimension &other) const;
 
 	// members
 	public:
 		float width;
 		float height;
 	};
-	
-	
+
+
 	inline dimension operator*(const dimension &dim, float s) {
 		return dimension(dim.width * s, dim.height * s);
 	}
-	
+
 	inline dimension& operator*=(dimension &dim, float s) {
 		dim.width  *= s;
 		dim.height *= s;
@@ -102,7 +109,7 @@ namespace wiesel {
 		rectangle(float with, float height);
 
 		/// creates a new rectangle with a given size and zero position.
-		rectangle(const dimension &size);
+		explicit rectangle(const dimension &size);
 
 		/// deconstructor
 		~rectangle();
@@ -114,6 +121,9 @@ namespace wiesel {
 
 		/// get the normalized version of this rectangle. Keeps the original rectangle unchanged.
 		rectangle normalized() const;
+
+		/// checks, if this rectangle is normalized.
+		bool isNormalized() const;
 
 	// getters
 	public:
@@ -134,6 +144,13 @@ namespace wiesel {
 
 		/// get the centre y-position
 		float getCenterY() const;
+
+	// operators
+	public:
+		const rectangle& operator=(const rectangle &other);
+
+		bool operator ==(const rectangle &other) const;
+		bool operator !=(const rectangle &other) const;
 
 	// tests
 	public:

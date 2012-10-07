@@ -24,6 +24,34 @@
 
 namespace wiesel {
 
+	bool compareDimensionUsingEpsilon(
+							const dimension &expected,
+							const dimension &actual,
+							float epsilon
+	) {
+		return
+				compareFloatsUsingEpsilon(expected.width,  actual.width,  epsilon)
+			&&	compareFloatsUsingEpsilon(expected.height, actual.height, epsilon)
+		;
+	}
+
+
+
+
+	bool compareRectangleUsingEpsilon(
+							const rectangle &expected,
+							const rectangle &actual,
+							float epsilon
+	) {
+		return
+				compareVectorUsingEpsilon   (expected.position, actual.position, epsilon)
+			&&	compareDimensionUsingEpsilon(expected.size,     actual.size,     epsilon)
+		;
+	}
+
+
+
+
 	bool compareVectorUsingEpsilon(
 							const vector2d &expected,
 							const vector2d &actual,
@@ -67,6 +95,48 @@ namespace wiesel {
 
 
 
+
+
+	::testing::AssertionResult compareDimensionUsingEpsilon(
+							const char* expected_expression,
+							const char* actual_expression,
+							const dimension &expected,
+							const dimension &actual,
+							float epsilon
+	) {
+		if (compareDimensionUsingEpsilon(expected, actual) == false) {
+			return ::testing::internal::EqFailure(
+								expected_expression,
+								actual_expression,
+								::testing::internal::FormatForComparisonFailureMessage(expected, actual),
+								::testing::internal::FormatForComparisonFailureMessage(actual, expected),
+								false
+			);
+		}
+
+		return ::testing::AssertionSuccess();
+	}
+
+
+	::testing::AssertionResult compareRectangleUsingEpsilon(
+							const char* expected_expression,
+							const char* actual_expression,
+							const rectangle &expected,
+							const rectangle &actual,
+							float epsilon
+	) {
+		if (compareRectangleUsingEpsilon(expected, actual) == false) {
+			return ::testing::internal::EqFailure(
+								expected_expression,
+								actual_expression,
+								::testing::internal::FormatForComparisonFailureMessage(expected, actual),
+								::testing::internal::FormatForComparisonFailureMessage(actual, expected),
+								false
+			);
+		}
+
+		return ::testing::AssertionSuccess();
+	}
 
 
 	::testing::AssertionResult compareVectorUsingEpsilon(
