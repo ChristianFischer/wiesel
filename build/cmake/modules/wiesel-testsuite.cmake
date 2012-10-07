@@ -22,9 +22,16 @@ if(WIESEL_BUILD_TESTS)
 
 	set(GOOGLETEST_CMAKE_ARGS
 	)
-
+	
 	# for MinGW we need to disable threading, because it's missing some POSIX functions
 	if (MINGW OR MSYS)
+		set(GOOGLETEST_ADD_PTHREADS_SUPPORT	FALSE)
+	else()
+		set(GOOGLETEST_ADD_PTHREADS_SUPPORT	TRUE)
+	endif(MINGW OR MSYS)
+
+	# disable pthread support on googletest
+	if (NOT GOOGLETEST_ADD_PTHREADS_SUPPORT)
 		set(
 				GOOGLETEST_CMAKE_ARGS
 				${GOOGLETEST_CMAKE_ARGS}
@@ -100,6 +107,11 @@ function(wiesel_create_test_package_for target test_dir)
 		# add dependency to it's module target
 		add_dependencies(${TEST_NAME} ${target})
 		target_link_libraries(${TEST_NAME} ${target})
+
+		# link pthread library if required
+		if (GOOGLETEST_ADD_PTHREADS_SUPPORT)
+			target_link_libraries(${TEST_NAME} pthread)
+		endif(GOOGLETEST_ADD_PTHREADS_SUPPORT)
 
 		# finally create the test
 		add_test(
