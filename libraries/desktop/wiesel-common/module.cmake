@@ -2,7 +2,7 @@
 
 
 # collect all files which belongs to this library
-wiesel_create_module(wiesel-common ${WIESEL_SRC_DIR}/common ${WIESEL_TESTS_DIR}/tests)
+wiesel_create_module(wiesel-common ${WIESEL_SRC_DIR}/common ${WIESEL_TESTS_DIR}/common)
 
 # export include directories of this library for other targets
 wiesel_module_export_includes(wiesel-common ${WIESEL_SRC_DIR}/common)
