@@ -19,30 +19,22 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_UTIL_IMAGEUTILS_H__
-#define __WIESEL_UTIL_IMAGEUTILS_H__
+#ifndef __WIESEL_SDL_DEF_H__
+#define __WIESEL_SDL_DEF_H__
 
-#include <wiesel/wiesel-common.def>
+/**
+ * some defines and flags specially for the wiesel-sdl library
+ */
 
-namespace wiesel {
-namespace imageutils {
-
-	/**
-	 * @brief compute the next power-of-two size, which is equal or greater than the input number.
-	 */
-	WIESEL_COMMON_EXPORT unsigned int getNextPowerOfTwo(unsigned int number);
-
-	/**
-	 * @brief increase or decrease the size of the image.
-	 * @return the buffer of the resized image, which may be the same as the original input.
-	 */
-	WIESEL_COMMON_EXPORT unsigned char* resizeImage(
-			unsigned char *buffer,			unsigned char bytesPerPixel,
-			unsigned int original_width,	unsigned int original_height,
-			unsigned int new_width,			unsigned int new_height
-	);
-}
-}
+#if defined(_WIN32)
+	#if defined(wiesel_sdl_EXPORTS)
+		#define WIESEL_SDL_EXPORT		__declspec(dllexport)
+	#else
+		#define WIESEL_SDL_EXPORT		__declspec(dllimport)
+	#endif
+#else
+		#define WIESEL_SDL_EXPORT
+#endif
 
 
-#endif /* IMAGEUTILS_H_ */
+#endif // __WIESEL_SDL_DEF_H__

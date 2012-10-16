@@ -19,43 +19,33 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "datasource.h"
-
-using namespace wiesel;
+#include "imageutils.h"
 
 
+namespace wiesel {
 
-DataSource::DataSource() {
-	return;
-}
+	unsigned int getNextPowerOfTwo(unsigned int num) {
+		unsigned int out_num = 1;
+		for(; out_num<num; out_num<<=1) { }
 
-DataSource::~DataSource() {
-	return;
-}
-
-
-
-BufferDataSource::BufferDataSource(DataBuffer *buffer)
-: buffer(buffer)
-{
-	if (buffer) {
-		buffer->retain();
+		return out_num;
 	}
-}
 
-BufferDataSource::BufferDataSource(DataBuffer::mutable_data_t data, size_t size)
-: buffer(new ExclusiveDataBuffer(data, size))
-{
-	buffer->retain();
-}
 
-BufferDataSource::~BufferDataSource() {
-	if (buffer) {
-		buffer->release();
+
+	size_t getBytesPerPixel(PixelFormat pixel_format) {
+		switch(pixel_format) {
+			case PixelFormat_RGB_888: {
+				return 3;
+			}
+
+			case PixelFormat_RGBA_8888: {
+				return 4;
+			}
+		}
+
+		return 0;
 	}
-}
 
-DataBuffer *BufferDataSource::getDataBuffer() {
-	return buffer;
-}
+} // namespace wiesel
 

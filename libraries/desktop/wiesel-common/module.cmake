@@ -35,13 +35,3 @@ if(DEFINED SDL_FOUND)
 else()
 	message(FATAL_ERROR "required library SDL not found!")
 endif()
-
-
-# add SDL_image dependency
-include(FindSDL_image)
-
-if(DEFINED SDL_FOUND)
-	wiesel_target_add_libraries(wiesel-common ${SDLIMAGE_LIBRARY})
-else()
-	message(FATAL_ERROR "required library SDL not found!")
-endif()

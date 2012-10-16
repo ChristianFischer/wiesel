@@ -19,43 +19,35 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "datasource.h"
+#ifndef __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#define __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
 
-using namespace wiesel;
+#include <wiesel/io/databuffer.h>
+#include <wiesel/io/file.h>
+#include <wiesel/modules.h>
+#include <wiesel/resources/graphics/image_loader.h>
+#include <wiesel/wiesel-sdl.def>
 
 
+namespace wiesel {
 
-DataSource::DataSource() {
-	return;
+	class WIESEL_SDL_EXPORT SdlImageLoader : public IImageLoader
+	{
+	private:
+		SdlImageLoader();
+
+	public:
+		static SdlImageLoader *create();
+		
+		virtual ~SdlImageLoader();
+
+
+		virtual Image *loadImage(DataSource *source);
+		virtual Image *loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size);
+		
+	private:
+		virtual Image *internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot);
+	};
 }
 
-DataSource::~DataSource() {
-	return;
-}
-
-
-
-BufferDataSource::BufferDataSource(DataBuffer *buffer)
-: buffer(buffer)
-{
-	if (buffer) {
-		buffer->retain();
-	}
-}
-
-BufferDataSource::BufferDataSource(DataBuffer::mutable_data_t data, size_t size)
-: buffer(new ExclusiveDataBuffer(data, size))
-{
-	buffer->retain();
-}
-
-BufferDataSource::~BufferDataSource() {
-	if (buffer) {
-		buffer->release();
-	}
-}
-
-DataBuffer *BufferDataSource::getDataBuffer() {
-	return buffer;
-}
-
+#endif // __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
