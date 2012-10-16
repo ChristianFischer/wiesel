@@ -62,7 +62,7 @@ namespace wiesel {
 		/**
 		 * @brief Creates a new \ref BufferDataSource with existing data.
 		 */
-		BufferDataSource(DataBuffer::data_t data, size_t size);
+		BufferDataSource(DataBuffer::mutable_data_t data, size_t size);
 
 		/**
 		 * @brief Creates a new \ref BufferDataSource with an existing \ref DataBuffer.

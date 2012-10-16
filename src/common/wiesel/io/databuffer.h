@@ -39,9 +39,22 @@ namespace wiesel {
 		DataBuffer();
 
 	public:
+		typedef unsigned char* mutable_data_t;
 		typedef const unsigned char* data_t;
 
 		virtual ~DataBuffer();
+
+		/**
+		 * @brief Receive a pointer to the mutable data.
+		 * The content of this pointer is mutable and can be modified.
+		 * It's not guaranteed, that mutable data is available on all buffers.
+		 * A buffer may return \c NULL, if it's data should not be changed.
+		 * It depends on the buffer's implementation, if the content
+		 * is accessible after the buffer's release.
+		 * The application should not use this pointer after the
+		 * object was released.
+		 */
+		virtual mutable_data_t getMutableData() = 0;
 
 		/**
 		 * @brief Receive a pointer to the data buffer.
@@ -65,6 +78,15 @@ namespace wiesel {
 		 * object was released.
 		 */
 		virtual const char *getDataAsCharPtr() const;
+
+	public:
+		/**
+		 * @brief Change the size of the data buffer.
+		 * Resizing is not supported by all buffers. The function will
+		 * return \c false when resizing failed.
+		 * @return \c true, when the buffer was resized, \c false on fail.
+		 */
+		virtual bool resize(size_t new_size) = 0;
 	};
 
 
@@ -80,9 +102,22 @@ namespace wiesel {
 
 	public:
 		/**
+		 * @brief Creates a new \ref DataBuffer of a specific size.
+		 * The created buffer's data will be uninitialized.
+		 * @param size	The size of the buffer to create.
+		 * @return A new \ref DataBuffer or \c NULL on fail.
+		 */
+		static ExclusiveDataBuffer *create(size_t size);
+
+		/**
 		 * @brief Creates a new \ref DataBuffer with a copy of \c data.
 		 */
 		static ExclusiveDataBuffer *createCopyOf(data_t data, size_t size);
+
+		/**
+		 * @brief Creates a new \ref DataBuffer with a copy of \c data.
+		 */
+		static ExclusiveDataBuffer *createCopyOf(const void *data, size_t size);
 
 		/**
 		 * @brief Creates a new \ref DataBuffer with a copy of \c data.
@@ -100,15 +135,18 @@ namespace wiesel {
 		 * will be destroyed.
 		 * To create a copy of an existing buffer use \ref ExclusiveDataBuffer::copyOf(data_t,size_t).
 		 */
-		ExclusiveDataBuffer(data_t data, size_t size);
+		ExclusiveDataBuffer(mutable_data_t data, size_t size);
 		~ExclusiveDataBuffer();
 
+		virtual mutable_data_t getMutableData();
 		virtual data_t getData() const;
 		virtual size_t getSize() const;
 
+		virtual bool resize(size_t size);
+
 	private:
-		data_t	data;
-		size_t	size;
+		mutable_data_t	data;
+		size_t			size;
 	};
 
 
@@ -126,8 +164,11 @@ namespace wiesel {
 		SharedDataBuffer(data_t data, size_t size);
 		~SharedDataBuffer();
 
+		virtual mutable_data_t getMutableData();
 		virtual data_t getData() const;
 		virtual size_t getSize() const;
+
+		virtual bool resize(size_t size);
 
 	private:
 		data_t	data;

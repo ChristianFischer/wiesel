@@ -32,6 +32,9 @@
 #include <vector>
 
 
+#include <wiesel/util/log.h>
+#include <ios>
+
 
 /**
  * @brief Registers a new module class.
@@ -49,7 +52,6 @@
  */
 #define REGISTER_MODULE(interface_class, implementation_class, factory, api, api_version, priotiry) \
 	ModuleLoaderImpl<interface_class, implementation_class> implementation_class##_Loader(factory, api, api_version, priotiry);
-
 
 /**
  * @brief Registers a new module class.
@@ -85,12 +87,9 @@ namespace wiesel {
 	class WIESEL_COMMON_EXPORT IModuleLoader;
 
 	template <class INTERFACE_CLASS>
-	class WIESEL_COMMON_EXPORT ModuleLoader;
+	class ModuleLoader;
 
-	template <class INTERFACE_CLASS, class IMPLEMENTATION_CLASS>
-	class WIESEL_COMMON_EXPORT ModuleLoaderImpl;
-
-	bool SortModuleLoadersPredicate(IModuleLoader *a, IModuleLoader *b);
+	bool WIESEL_COMMON_EXPORT SortModuleLoadersPredicate(IModuleLoader *a, IModuleLoader *b);
 
 
 
@@ -185,7 +184,7 @@ namespace wiesel {
 		template <class INTERFACE_CLASS>
 		INTERFACE_CLASS* createFirst() const {
 			std::vector<ModuleLoader<INTERFACE_CLASS>*> loaders = findModules<INTERFACE_CLASS>();
-			for(std::vector<ModuleLoader<INTERFACE_CLASS>*>::iterator it=loeaders.begin(); it!=loaders.end(); it++) {
+			for(typename std::vector<ModuleLoader<INTERFACE_CLASS>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
 				INTERFACE_CLASS *module = (*it)->create();
 				if (module) {
 					return module;
@@ -241,14 +240,27 @@ namespace wiesel {
 		virtual ~IModuleLoader() {}
 
 	public:
+		/**
+		 * @brief Get the API name, which is implemented by this module.
+		 */
 		inline const std::string& getApi() const {
 			return api;
 		}
 
+		/**
+		 * @brief Get the version number of the module's API implementation.
+		 * Modules with the same API will be ordered by their version number.
+		 * The version number will be displayed as hexadecimal numeric value,
+		 * for example version number 3.1.17 could be 0x03011700u.
+		 */
 		inline ApiVersion getApiVersion() const {
 			return version;
 		}
 
+		/**
+		 * @brief Get the priority value of this module.
+		 * Modules with a higher priority value should be preferred.
+		 */
 		inline Priority getPriority() const {
 			return priority;
 		}
@@ -265,7 +277,7 @@ namespace wiesel {
 	 * @brief A class for loading a module of a specific interface.
 	 */
 	template <class INTERFACE_CLASS>
-	class WIESEL_COMMON_EXPORT ModuleLoader : public IModuleLoader
+	class ModuleLoader : public IModuleLoader
 	{
 	protected:
 		/**
@@ -296,7 +308,7 @@ namespace wiesel {
 	 * This class would be usually be instanciated via macro \ref REGISTER_MODULE.
 	 */
 	template <class INTERFACE_CLASS, class IMPLEMENTATION_CLASS>
-	class WIESEL_COMMON_EXPORT ModuleLoaderImpl : public ModuleLoader<INTERFACE_CLASS>
+	class ModuleLoaderImpl : public ModuleLoader<INTERFACE_CLASS>
 	{
 	public:
 		/**
@@ -309,7 +321,7 @@ namespace wiesel {
 		 * The loader will be automatically registered into module registry.
 		 * @see REGISTER_MODULE
 		 */
-		ModuleLoaderImpl(Factory factory, const std::string &api, IModuleLoader::ApiVersion version, IModuleLoader::Priority priority=IModuleLoader::PriorityNormal) :
+		ModuleLoaderImpl<INTERFACE_CLASS,IMPLEMENTATION_CLASS>(Factory factory, const std::string &api, unsigned int version, unsigned short priority=IModuleLoader::PriorityNormal) :
 		ModuleLoader<INTERFACE_CLASS>(api, version, priority) {
 			this->module_factory = factory;
 			return;
@@ -339,7 +351,7 @@ namespace wiesel {
 	 * This class would be usually be instanciated via macro \ref REGISTER_MODULE.
 	 */
 	template <class INTERFACE_CLASS, class IMPLEMENTATION_CLASS>
-	class WIESEL_COMMON_EXPORT ModuleLoaderSingletonImpl : public ModuleLoader<INTERFACE_CLASS>
+	class ModuleLoaderSingletonImpl : public ModuleLoader<INTERFACE_CLASS>
 	{
 	public:
 		/**

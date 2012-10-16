@@ -100,14 +100,6 @@ SdlEngine::~SdlEngine() {
 
 
 bool SdlEngine::onInit() {
-	int initialized = IMG_Init(IMG_INIT_PNG|IMG_INIT_JPG);
-	if((initialized & IMG_INIT_PNG) == 0) {
-		Log::err << "Loading libPNG failed." << std::endl;
-	}
-	if((initialized & IMG_INIT_JPG) == 0) {
-		Log::err << "Loading libJPG failed." << std::endl;
-	}
-
 	return true;
 }
 
@@ -118,8 +110,6 @@ void SdlEngine::onShutdown() {
 		delete screen;
 		screen = NULL;
 	}
-
-	IMG_Quit();
 
 	return;
 }
@@ -195,77 +185,6 @@ FileSystem *SdlEngine::getAssetFileSystem() {
 
 TouchHandler *SdlEngine::getTouchHandler() {
 	return touch_handler;
-}
-
-
-bool SdlEngine::decodeImage(
-		DataSource *data,
-		unsigned char **pBuffer, size_t *pSize,
-		unsigned int *pWidth, unsigned int *pHeight,
-		unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
-		int *pRbits, int *pGbits, int *pBbits, int *pAbits,
-		bool as_texture
-) {
-	SDL_Surface *surface = NULL;
-
-	FileDataSource *fds = dynamic_cast<FileDataSource*>(data);
-	if (fds) {
-		File *file = fds->getFile();
-		string path = file->getNativePath();
-
-		if (path.empty() == false) {
-			surface = IMG_Load(path.c_str());
-		}
-	}
-
-	// when loading from file failed, try loading via buffer
-	if (surface == NULL) {
-		DataBuffer *buffer = data->getDataBuffer();
-		SDL_RWops *rw = SDL_RWFromConstMem(buffer->getData(), buffer->getSize());
-		surface = IMG_Load_RW(rw, 0);
-		SDL_FreeRW(rw);
-	}
-
-	if (surface) {
-		int r=0, g=0, b=0, a=0;
-		switch(surface->format->BytesPerPixel) {
-			case 4:		r = 8;	g = 8;	b = 8;	a = 8;	break;
-			case 3:		r = 8;	g = 8;	b = 8;	a = 0;	break;
-
-			default: {
-				// no compatible pixel format
-				SDL_FreeSurface(surface);
-				return false;
-			}
-		}
-		
-		// compute the buffer size
-		size_t image_size = surface->w * surface->h * surface->format->BytesPerPixel;
-		
-		// copy the pixel data into the buffer
-		if  (pBuffer) {
-			*pBuffer = reinterpret_cast<unsigned char*>(malloc(image_size));
-			memcpy(*pBuffer, surface->pixels, image_size);
-		}
-
-		// set results
-		if (pWidth)				*pWidth				= surface->w;
-		if (pHeight)			*pHeight			= surface->h;
-		if (pOriginalWidth)		*pOriginalWidth		= surface->w;
-		if (pOriginalHeight)	*pOriginalHeight	= surface->h;
-		if (pSize)				*pSize				= image_size;
-		if (pRbits)				*pRbits				= r;
-		if (pGbits)				*pGbits				= g;
-		if (pBbits)				*pBbits				= b;
-		if (pAbits)				*pAbits				= a;
-
-		// release the surface
-		SDL_FreeSurface(surface);
-
-		return true;
-	}
-
-	return false;
 }
 
 #endif // WIESEL_USE_LIBSDL

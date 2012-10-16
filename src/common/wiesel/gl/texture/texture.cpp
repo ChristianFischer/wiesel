@@ -21,8 +21,10 @@
  */
 #include "texture.h"
 #include <wiesel.h>
-#include <wiesel/util/imageutils.h>
-#include <malloc.h>
+#include <wiesel/resources/graphics/image.h>
+#include <wiesel/resources/graphics/imageutils.h>
+#include <wiesel/resources/graphics/image_loader.h>
+#include <wiesel/modules.h>
 
 
 using namespace wiesel;
@@ -67,71 +69,74 @@ bool Texture::createHardwareTexture() {
 
 	// release the previous buffer
 	release_texture();
+	
+	Image *image = NULL;
+	dimension new_original_size;
 
-	unsigned char*	buffer		= NULL;
-	size_t			buffer_size	= 0;
-	unsigned int	width		= 0;
-	unsigned int	height		= 0;
-	unsigned int	orig_width	= 0;
-	unsigned int	orig_height	= 0;
-	int				r_bits		= 0;
-	int				g_bits		= 0;
-	int				b_bits		= 0;
-	int				a_bits		= 0;
+	std::vector<ModuleLoader<IImageLoader>*> loaders = ModuleRegistry::getInstance()->findModules<IImageLoader>();
+	for(std::vector<ModuleLoader<IImageLoader>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
+		IImageLoader *loader = (*it)->create();
+		if (loader == NULL) {
+			continue;
+		}
 
-	bool successful = Engine::getCurrent()->decodeImage(
-												data,
-												&buffer, &buffer_size,
-												&width, &height,
-												&orig_width, &orig_height,
-												&r_bits, &g_bits, &b_bits, &a_bits,
-												true
-	);
+		image = loader->loadPowerOfTwoImage(data, &new_original_size);
+		if (image == NULL) {
+			continue;
+		}
 
-	// compute the byte-size of the image
-	int bytesPerPixel = (r_bits + g_bits + b_bits + a_bits) / 8;
+		break;
+	}
 
-	unsigned int texture_width	= width;
-	unsigned int texture_height	= height;
+	// check if loading was successful
+	if (image == NULL) {
+		return false;
+	}
 
-	if (successful && buffer) {
-		// when power-of-two sizes are required, compute the next pot-size of the texture
-		texture_width	= imageutils::getNextPowerOfTwo(texture_width);
-		texture_height	= imageutils::getNextPowerOfTwo(texture_height);
+	// ensure power-of-two size
+	if (image->ensurePowerOfTwo() == false) {
+		return false;
+	}
 
-		if ((texture_width != width) || (texture_height != height)) {
-			unsigned char *new_buffer = imageutils::resizeImage(
-											buffer, bytesPerPixel,
-											width,			height,
-											texture_width,	texture_height
-			);
+	GLint internalFormat;
+	GLenum image_format;
+	GLenum image_type;
 
-			// something went wrong - so delete the current buffer
-			if (new_buffer == NULL) {
-				successful = false;
-				free(buffer);
-			}
+	switch(image->getPixelFormat()) {
+		case PixelFormat_RGBA_8888: {
+			internalFormat = GL_RGBA;
+			image_format   = GL_RGBA;
+			image_type     = GL_UNSIGNED_BYTE;
+			break;
+		}
 
-			buffer = new_buffer;
+		case PixelFormat_RGB_888: {
+			internalFormat = GL_RGB;
+			image_format   = GL_RGB;
+			image_type     = GL_UNSIGNED_BYTE;
+			break;
 		}
 	}
 
-	if (successful && buffer) {
-		// create the hardware texture
-		glGenTextures(1, &handle);
-		glBindTexture(GL_TEXTURE_2D, handle);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		size          = dimension(texture_width, texture_height);
-		original_size = dimension(orig_width,    orig_height);
-	}
+	// create the hardware texture
+	glGenTextures(1, &handle);
+	glBindTexture(GL_TEXTURE_2D, handle);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	if (buffer) {
-		free(buffer);
-	}
+	glTexImage2D(
+					GL_TEXTURE_2D, 0,
+					internalFormat,
+					image->getSize().width, image->getSize().height,
+					0,
+					image_format, image_type,
+					image->getPixelData()->getData()
+	);
 
-	return successful;
+	size          = image->getSize();
+	original_size = new_original_size;
+
+	return true;
 }
 
 

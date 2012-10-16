@@ -53,12 +53,12 @@ public:
 		return;
 	}
 
-	static TestMod17* create() {
-		return new TestMod17();
-	}
-
 	virtual ~TestMod17() {
 		return;
+	}
+
+	static TestMod17* create() {
+		return new TestMod17();
 	}
 
 	virtual int getTestValue() {
@@ -74,12 +74,12 @@ public:
 		return;
 	}
 
-	static TestMod23* create() {
-		return new TestMod23();
-	}
-
 	virtual ~TestMod23() {
 		return;
+	}
+
+	static TestMod23* create() {
+		return new TestMod23();
 	}
 
 	virtual int getTestValue() {
@@ -95,12 +95,12 @@ public:
 		return;
 	}
 
-	static TestMod42* create() {
-		return new TestMod42();
-	}
-
 	virtual ~TestMod42() {
 		return;
+	}
+
+	static TestMod42* create() {
+		return new TestMod42();
 	}
 
 	virtual int getTestValue() {

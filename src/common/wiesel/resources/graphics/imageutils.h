@@ -19,43 +19,26 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "datasource.h"
+#ifndef __WIESEL_RESOURCES_GRAPHICS_IMAGEUTILS_H__
+#define __WIESEL_RESOURCES_GRAPHICS_IMAGEUTILS_H__
 
-using namespace wiesel;
+#include <wiesel/wiesel-common.def>
+
+#include "image.h"
 
 
+namespace wiesel {
 
-DataSource::DataSource() {
-	return;
+	/**
+	 * @brief compute the next power-of-two size, which is equal or greater than the input number.
+	 */
+	WIESEL_COMMON_EXPORT unsigned int getNextPowerOfTwo(unsigned int number);
+
+	/**
+	 * @brief Get the size in bytes for a pixel in a specific pixel format.
+	 */
+	WIESEL_COMMON_EXPORT size_t getBytesPerPixel(PixelFormat pixel_format);
 }
 
-DataSource::~DataSource() {
-	return;
-}
 
-
-
-BufferDataSource::BufferDataSource(DataBuffer *buffer)
-: buffer(buffer)
-{
-	if (buffer) {
-		buffer->retain();
-	}
-}
-
-BufferDataSource::BufferDataSource(DataBuffer::mutable_data_t data, size_t size)
-: buffer(new ExclusiveDataBuffer(data, size))
-{
-	buffer->retain();
-}
-
-BufferDataSource::~BufferDataSource() {
-	if (buffer) {
-		buffer->release();
-	}
-}
-
-DataBuffer *BufferDataSource::getDataBuffer() {
-	return buffer;
-}
-
+#endif /* __WIESEL_RESOURCES_GRAPHICS_IMAGEUTILS_H__ */
