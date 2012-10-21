@@ -27,6 +27,7 @@ set(WIESEL_TESTS_DIR     ${WIESEL_DIR}/tests)
 set(WIESEL_MODULES_DIR   ${WIESEL_DIR}/libraries/desktop)
 
 # load standard modules
+include(wiesel-registry)
 include(wiesel-module)
 include(wiesel-testsuite)
 

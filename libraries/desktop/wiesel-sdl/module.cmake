@@ -4,6 +4,9 @@
 # create the SDL module
 wiesel_create_module(wiesel-sdl ${WIESEL_SRC_DIR}/sdl ${WIESEL_TESTS_DIR}/sdl)
 
+# export include directories of this library for other targets
+wiesel_module_export_includes(wiesel-sdl ${WIESEL_SRC_DIR}/sdl)
+
 # add required modules
 wiesel_module_add_dependency(wiesel-sdl wiesel-base)
 wiesel_module_add_dependency(wiesel-sdl wiesel-common)
