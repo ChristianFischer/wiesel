@@ -22,6 +22,16 @@ function(wiesel_module_add_dependency parent_target module)
 		wiesel_target_add_includes(${parent_target} ${MODULE_INCLUDE_DIRECTORIES})
 	endif()
 	
+	# the parent target inherits all exported loaders from it's dependency
+	get_target_property(MODULE_LOADERS ${module} EXPORT_MODULE_LOADERS)
+	if (NOT MODULE_LOADERS STREQUAL "MODULE_LOADERS-NOTFOUND")
+		wiesel_module_export_loaders(${parent_target} ${MODULE_LOADERS})
+		
+		# on executable targets, we need to append the module's registry
+		set(MODULE_REGISTRY_FILE ${CMAKE_CURRENT_BINARY_DIR}/generated/${parent_target}-module-registry.cpp)
+		wiesel_append_module_registry(${parent_target} ${MODULE_REGISTRY_FILE} ${MODULE_LOADERS})
+	endif()
+	
 endfunction(wiesel_module_add_dependency)
 
 
@@ -46,11 +56,20 @@ endfunction(wiesel_module_get_files)
 
 
 function(wiesel_create_executable target source_dir)
+	set(MODULE_REGISTRY_FILE ${CMAKE_CURRENT_BINARY_DIR}/generated/${target}-module-registry.cpp)
+
 	# get all sources from this directory
 	wiesel_module_get_files(MODULE_SRC_FILES ${source_dir})
 	
 	# add sources to the module's target
-	add_executable(${target} ${MODULE_SRC_FILES})
+	add_executable(${target} ${MODULE_REGISTRY_FILE} ${MODULE_SRC_FILES})
+	
+	# scan for all loadable modules in the library's source-tree
+	wiesel_module_scan_for_loaders(MODULE_LOADERS ${source_dir})
+	wiesel_module_export_loaders(${target} ${MODULE_LOADERS})
+	
+	# executables get an module registry file which contains the collected module loaders
+	wiesel_create_module_registry(${target} ${MODULE_REGISTRY_FILE})
 
 	# also create according test package
 	# SORRY! no test support for executables yet :-/
@@ -68,6 +87,10 @@ function(wiesel_create_module target source_dir test_dir)
 	
 	# add sources to the module's target
 	add_library(${target} SHARED ${MODULE_SRC_FILES})
+	
+	# scan for all loadable modules in the library's source-tree
+	wiesel_module_scan_for_loaders(MODULE_LOADERS ${source_dir})
+	wiesel_module_export_loaders(${target} ${MODULE_LOADERS})
 	
 	# also create according test package
 	wiesel_create_test_package_for(${target} "${test_dir}")

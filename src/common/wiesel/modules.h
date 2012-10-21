@@ -51,7 +51,7 @@
  *								\ref IModuleLoader::PriorityNormal, \ref IModuleLoader::PriorityHigh.
  */
 #define REGISTER_MODULE(interface_class, implementation_class, factory, api, api_version, priotiry) \
-	ModuleLoaderImpl<interface_class, implementation_class> implementation_class##_Loader(factory, api, api_version, priotiry);
+	::wiesel::ModuleLoaderImpl<interface_class, implementation_class> implementation_class##_Loader(factory, api, api_version, priotiry);
 
 /**
  * @brief Registers a new module class.
@@ -68,7 +68,7 @@
  *								\ref IModuleLoader::PriorityNormal, \ref IModuleLoader::PriorityHigh.
  */
 #define REGISTER_MODULE_SINGLETON(interface_class, implementation_class, factory, api, api_version, priotiry) \
-	ModuleLoaderSingletonImpl<interface_class, implementation_class> implementation_class##_Loader(factory, api, api_version, priotiry);
+	::wiesel::ModuleLoaderSingletonImpl<interface_class, implementation_class> implementation_class##_Loader(factory, api, api_version, priotiry);
 
 
 namespace wiesel {
