@@ -9,7 +9,7 @@ wiesel_module_export_includes(wiesel-sdl ${WIESEL_SRC_DIR}/sdl)
 
 # add required modules
 wiesel_module_add_dependency(wiesel-sdl wiesel-base)
-wiesel_module_add_dependency(wiesel-sdl wiesel-common)
+wiesel_module_add_dependency(wiesel-sdl wiesel-core)
 #wiesel_module_add_dependency(wiesel-sdl glee third-party/glee)
 
 
