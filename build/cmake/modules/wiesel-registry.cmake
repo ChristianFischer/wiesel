@@ -8,10 +8,6 @@ endfunction(wiesel_module_scan_for_loaders)
 
 function(wiesel_module_export_loaders module)
 	set_property(TARGET ${module} APPEND PROPERTY EXPORT_MODULE_LOADERS ${ARGN})
-	
-	foreach(loader ${ARGN})
-		message("${module} exports loader: ${loader}")
-	endforeach()
 endfunction(wiesel_module_export_loaders)
 
 

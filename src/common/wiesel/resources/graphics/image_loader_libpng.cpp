@@ -19,12 +19,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifdef __ANDROID__
+#include "image_loader_libpng.h"
 
-#include "../android_engine.h"
-#include "wiesel/io/file.h"
+#include "wiesel/resources/graphics/imageutils.h"
+
+#if WIESEL_SUPPORTS_LIBPNG
+
 #include "wiesel/util/log.h"
-#include "wiesel/util/imageutils.h"
+#include <inttypes.h>
 #include <png.h>
 
 using namespace wiesel;
@@ -55,17 +57,33 @@ static void pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t leng
 
 
 
-bool AndroidEngine::decodeImage_PNG(
-		DataSource *data,
-		unsigned char **pBuffer, size_t *pSize,
-		unsigned int *pWidth, unsigned int *pHeight,
-		unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
-		int *pRbits, int *pGbits, int *pBbits, int *pAbits,
-		bool as_texture
-) {
+LibPngImageLoader *LibPngImageLoader::create() {
+	return new LibPngImageLoader();
+}
+
+LibPngImageLoader::LibPngImageLoader() {
+	return;
+}
+
+LibPngImageLoader::~LibPngImageLoader() {
+	return;
+}
+
+
+
+Image *LibPngImageLoader::loadImage(DataSource *source) {
+	return internal_loadImage(source, NULL, false);
+}
+
+
+Image *LibPngImageLoader::loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size) {
+	return internal_loadImage(source, pOriginal_size, true);
+}
+
+
+Image *LibPngImageLoader::internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot) {
 	png_structp png_ptr;
 	png_infop info_ptr;
-	unsigned int sig_read = 0;
 	int bit_depth;
 	int color_type;
 	int interlace_type;
@@ -78,23 +96,33 @@ bool AndroidEngine::decodeImage_PNG(
 	// Create and initialize the png_struct with the desired error handler functions.
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (png_ptr == NULL) {
-		return false;
+		return NULL;
 	}
 
 	// Allocate/initialize the memory for image information.
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL) {
 		png_destroy_read_struct(&png_ptr, NULL, NULL);
-		return false;
+		return NULL;
 	}
 
 	bool io_initialized = false;
-	FileDataSource *filedata = dynamic_cast<FileDataSource*>(data);
+	FileDataSource *filedata = dynamic_cast<FileDataSource*>(source);
 	if (filedata) {
 		File *file = filedata->getFile();
 
 		// open the file
 		if ((fp = fopen(file->getFullPath().c_str(), "rb")) != NULL) {
+			// get first bytes and check if the file is a valid PNG file
+			uint64_t header;
+			if (
+					fread(&header, 1, 8, fp) != 8
+				||	png_sig_cmp(reinterpret_cast<png_byte*>(&header), 0, 8) != 0
+			) {
+				return NULL;
+			}
+
+			// initialize png read struct
 			png_init_io(png_ptr, fp);
 
 			// success
@@ -106,17 +134,29 @@ bool AndroidEngine::decodeImage_PNG(
 	}
 
 	if (io_initialized == false) {
-		PNG_BufferObject readbuffer;
-		readbuffer.buffer = data->getDataBuffer();
-		readbuffer.offset = 0;
-        png_set_read_fn(png_ptr, &readbuffer, pngReadCallback);
+		DataBuffer *buffer = source->getDataBuffer();
 
-        io_initialized = true;
+		// we need to cheat, because some PNG headers seems to require non-const data
+		png_bytep data_bytes = const_cast<png_bytep>(buffer->getData());
+
+		// check, if PNG file is valid
+		if (
+				buffer->getSize() < 8
+			||	png_sig_cmp(data_bytes, 0, 8) != 0
+		) {
+			return NULL;
+		}
+
+		PNG_BufferObject readbuffer;
+		readbuffer.buffer = buffer;
+		readbuffer.offset = 0;
+		png_set_read_fn(png_ptr, &readbuffer, pngReadCallback);
+
+		io_initialized = true;
 	}
 
 	if (io_initialized == false) {
-		Log::info << "loading from source failed" << std::endl;
-		return false;
+		return NULL;
 	}
 
 	// read png
@@ -129,9 +169,9 @@ bool AndroidEngine::decodeImage_PNG(
 	png_get_IHDR(png_ptr, info_ptr, &original_width, &original_height, &bit_depth, &color_type, &interlace_type, 0, 0);
 
 	// when we're loading a texture, we may need a power-of-two size
-	if (as_texture) {
-		width  = imageutils::getNextPowerOfTwo(original_width);
-		height = imageutils::getNextPowerOfTwo(original_height);
+	if (pot) {
+		width  = getNextPowerOfTwo(original_width);
+		height = getNextPowerOfTwo(original_height);
 	}
 	else {
 		width  = original_width;
@@ -141,11 +181,20 @@ bool AndroidEngine::decodeImage_PNG(
 	// init image info
 	bool has_alpha = (color_type & PNG_COLOR_MASK_ALPHA) ? true : false;
 	int bytesPerPixel = has_alpha ? 4 : 3;
+	PixelFormat pixel_format;
+
+	// determine pixelformat
+	if (has_alpha) {
+		pixel_format = PixelFormat_RGBA_8888;
+	}
+	else {
+		pixel_format = PixelFormat_RGB_888;
+	}
 
 	// allocate memory and read data
 	unsigned char *image_data = reinterpret_cast<unsigned char*>(malloc(width * height * bytesPerPixel));
 	if (image_data == NULL) {
-		return false;
+		return NULL;
 	}
 
 	png_bytep *png_rows = png_get_rows(png_ptr, info_ptr);
@@ -169,29 +218,17 @@ bool AndroidEngine::decodeImage_PNG(
 			(height - original_height) * bytesPerRowDst
 	);
 
-	// copy data into output pointers
-	if (pRbits)  *pRbits  = bit_depth;
-	if (pGbits)  *pGbits  = bit_depth;
-	if (pBbits)  *pBbits  = bit_depth;
-	if (pAbits)  *pAbits  = has_alpha ? bit_depth : 0;
-	if (pWidth)  *pWidth  = width;
-	if (pHeight) *pHeight = height;
-	if (pSize)   *pSize   = width * height * bytesPerPixel;
+	// create the image object
+	Image *image = new Image(
+			new ExclusiveDataBuffer(image_data, width * height * bytesPerPixel),
+			pixel_format,
+			dimension(width, height)
+	);
 
-	if  (pOriginalWidth) {
-		*pOriginalWidth = original_width;
-	}
-
-	if  (pOriginalHeight) {
-		*pOriginalHeight = original_height;
-	}
-
-	if  (pBuffer) {
-		*pBuffer = image_data;
-	}
-	else {
-		// when no buffer-pointer was provided, delete the image data
-		free(image_data);
+	// store original size if requested
+	if (pOriginalSize) {
+		pOriginalSize->width  = original_width;
+		pOriginalSize->height = original_height;
 	}
 
 	// clear the png data
@@ -202,7 +239,8 @@ bool AndroidEngine::decodeImage_PNG(
 		fclose(fp);
 	}
 
-	return true;
+	return image;
 }
 
-#endif // __ANDROID__
+#endif // WIESEL_SUPPORTS_LIBPNG
+

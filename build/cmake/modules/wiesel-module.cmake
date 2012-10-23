@@ -56,7 +56,7 @@ endfunction(wiesel_module_get_files)
 
 
 function(wiesel_create_executable target source_dir)
-	set(MODULE_REGISTRY_FILE ${CMAKE_CURRENT_BINARY_DIR}/generated/${target}-module-registry.cpp)
+	set(MODULE_REGISTRY_FILE ${WIESEL_GENERATED_DIR}/${target}-module-registry.cpp)
 
 	# get all sources from this directory
 	wiesel_module_get_files(MODULE_SRC_FILES ${source_dir})
