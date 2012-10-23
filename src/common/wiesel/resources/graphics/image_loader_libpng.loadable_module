@@ -1,0 +1,19 @@
+
+#include "image_loader_libpng.h"
+
+
+#if WIESEL_SUPPORTS_LIBPNG
+
+	// add the module to the module registry
+	namespace wiesel {
+		REGISTER_MODULE_SINGLETON(
+				IImageLoader,
+				LibPngImageLoader,
+				&LibPngImageLoader::create,
+				"LibPNG",
+				0x01050000u,
+				IModuleLoader::PriorityHigh
+		)
+	}
+
+#endif // WIESEL_SUPPORTS_LIBPNG

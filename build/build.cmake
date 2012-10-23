@@ -25,6 +25,11 @@ set(
 set(WIESEL_SRC_DIR       ${WIESEL_DIR}/src)
 set(WIESEL_TESTS_DIR     ${WIESEL_DIR}/tests)
 set(WIESEL_MODULES_DIR   ${WIESEL_DIR}/libraries/desktop)
+set(WIESEL_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
+
+# all source-files can include from the "generated" dir
+include_directories(${WIESEL_GENERATED_DIR})
+
 
 # load standard modules
 include(wiesel-registry)
