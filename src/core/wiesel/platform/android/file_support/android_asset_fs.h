@@ -22,7 +22,7 @@
 #ifndef __WIESEL_PLATFORM_ANDROID_FILESUPPORT_ANDROID_ASSET_FS_H__
 #define __WIESEL_PLATFORM_ANDROID_FILESUPPORT_ANDROID_ASSET_FS_H__
 
-#include <wiesel/wiesel-common.def>
+#include <wiesel/wiesel-core.def>
 
 #include "wiesel/io/filesystem.h"
 

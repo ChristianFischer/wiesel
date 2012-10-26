@@ -104,7 +104,8 @@ namespace wiesel {
 			bInt = 0x80000000 - bInt;
 		}
 
-		uint64_t diff = std::abs(aInt - bInt);
+		// FIXME: casting to int32 to fix "call of overloaded 'abs(int64_t)' is ambiguous" on android
+		uint64_t diff = std::abs(static_cast<int32_t>(aInt - bInt));
 		if (diff <= max_ulp) {
 			return true;
 		}
