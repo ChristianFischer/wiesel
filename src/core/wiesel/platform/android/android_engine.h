@@ -22,7 +22,7 @@
 #ifndef __WIESEL_PLATFORM_ANDROID_ENGINE_H__
 #define __WIESEL_PLATFORM_ANDROID_ENGINE_H__
 
-#include <wiesel/wiesel-common.def>
+#include <wiesel/wiesel-core.def>
 
 #ifdef __ANDROID__
 
@@ -68,26 +68,6 @@ namespace wiesel {
 		virtual FileSystem *getAssetFileSystem();
 
 		virtual TouchHandler *getTouchHandler();
-
-	public:
-		virtual bool decodeImage(
-				DataSource *data,
-				unsigned char **pBuffer, size_t *pSize,
-				unsigned int *pWidth, unsigned int *pHeight,
-				unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
-				int *pRbits, int *pGbits, int *pBbits, int *pAbits,
-				bool as_texture
-		);
-
-	private:
-		virtual bool decodeImage_PNG(
-				DataSource *data,
-				unsigned char **pBuffer, size_t *pSize,
-				unsigned int *pWidth, unsigned int *pHeight,
-				unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
-				int *pRbits, int *pGbits, int *pBbits, int *pAbits,
-				bool as_texture
-		);
 
 	protected:
 		struct android_app*			app;

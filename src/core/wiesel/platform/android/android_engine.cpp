@@ -379,49 +379,4 @@ TouchHandler *AndroidEngine::getTouchHandler() {
 	return touch_handler;
 }
 
-
-bool AndroidEngine::decodeImage(
-		DataSource *data,
-		unsigned char **pBuffer, size_t *pSize,
-		unsigned int *pWidth, unsigned int *pHeight,
-		unsigned int *pOriginalWidth, unsigned int *pOriginalHeight,
-		int *pRbits, int *pGbits, int *pBbits, int *pAbits,
-		bool as_texture
-) {
-	FileDataSource *filedata = dynamic_cast<FileDataSource*>(data);
-	if (filedata) {
-		string file_ext = filedata->getFile()->getExtension();
-		// TODO: convert to lower case
-
-		if (file_ext == "png") {
-			return decodeImage_PNG(
-					data, pBuffer, pSize,
-					pWidth, pHeight, pOriginalWidth, pOriginalHeight,
-					pRbits, pGbits, pBbits, pAbits, as_texture
-			);
-		}
-	}
-	else {
-		DataBuffer *buffer = data->getDataBuffer();
-
-		// check first bytes
-		if (buffer->getSize() >= 4) {
-			uint32_t header_32 = *(reinterpret_cast<const int32_t*>(buffer->getData()));
-
-			// when a format was recognized, we create a new BufferDataSource, to re-use the created data-buffer,
-			// because passing the original 'data' object could cause the buffer will be re-loaded from a storage.
-
-			if (header_32 == 0x474e5089U) {
-				return decodeImage_PNG(
-						new BufferDataSource(buffer), pBuffer, pSize,
-						pWidth, pHeight, pOriginalWidth, pOriginalHeight,
-						pRbits, pGbits, pBbits, pAbits, as_texture
-				);
-			}
-		}
-	}
-
-	return false;
-}
-
 #endif // __ANDROID__
