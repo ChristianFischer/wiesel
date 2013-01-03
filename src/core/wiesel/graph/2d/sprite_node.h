@@ -158,7 +158,7 @@ namespace wiesel {
 
 	// overridables
 	protected:
-		virtual void onDraw();
+		virtual void onDraw(video::VideoDevice *video_device);
 
 		virtual void rebuildVertexBuffer();
 

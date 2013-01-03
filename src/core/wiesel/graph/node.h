@@ -35,6 +35,10 @@ namespace wiesel {
 
 	class Node;
 
+	namespace video {
+		class VideoDevice;
+	}
+
 
 	/**
 	 * @brief Alias type for a list of nodes.
@@ -156,14 +160,14 @@ namespace wiesel {
 		 * @brief Converts a screen-location (for example the location of a touch event) into
 		 * the local coordinate system of this node.
 		 */
-		vector2d convertScreenToLocal(const vector2d &screen);
+		vector2d convertScreenToLocal(video::VideoDevice *video_device, const vector2d &screen);
 
 	// public functions
 	public:
 		/**
 		 * @brief Render this node including all it's children.
 		 */
-		virtual void render();
+		virtual void render(video::VideoDevice *video_device);
 
 	// overridables
 	protected:
@@ -171,14 +175,14 @@ namespace wiesel {
 		 * @brief Called to render this node.
 		 * This function should be the only place to put rendering code.
 		 */
-		virtual void onDraw();
+		virtual void onDraw(video::VideoDevice *video_device);
 
 	// private functions
 	private:
 		/**
 		 * @brief Render the current node.
 		 */
-		void render_this();
+		void render_this(video::VideoDevice *video_device);
 
 	// members available for subclasses
 	protected:

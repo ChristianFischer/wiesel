@@ -24,7 +24,7 @@
 
 #include <wiesel/io/databuffer.h>
 #include <wiesel/io/file.h>
-#include <wiesel/modules.h>
+#include <wiesel/module.h>
 #include <wiesel/resources/graphics/image_loader.h>
 #include <wiesel/wiesel-common-config.h>
 #include <wiesel/wiesel-common.def>

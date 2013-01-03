@@ -19,37 +19,20 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
-#define __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#include "sdl_message_receiver.h"
 
-#include <wiesel/io/databuffer.h>
-#include <wiesel/io/file.h>
-#include <wiesel/module.h>
-#include <wiesel/resources/graphics/image_loader.h>
-#include <wiesel/wiesel-sdl.def>
+#include <wiesel/engine.h>
+#include <wiesel/util/log.h>
+
+using namespace wiesel::sdl;
 
 
-namespace wiesel {
-namespace sdl {
-
-	class WIESEL_SDL_EXPORT SdlImageLoader : public IImageLoader
-	{
-	private:
-		SdlImageLoader();
-
-	public:
-		static SdlImageLoader *create();
-		
-		virtual ~SdlImageLoader();
-
-
-		virtual Image *loadImage(DataSource *source);
-		virtual Image *loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size);
-		
-	private:
-		virtual Image *internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot);
-	};
-}
+ISdlMessageReceiver::ISdlMessageReceiver() {
+	return;
 }
 
-#endif // __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+
+ISdlMessageReceiver::~ISdlMessageReceiver() {
+	return;
+}
+

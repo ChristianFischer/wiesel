@@ -24,7 +24,7 @@
 #include <wiesel/resources/graphics/image.h>
 #include <wiesel/resources/graphics/imageutils.h>
 #include <wiesel/resources/graphics/image_loader.h>
-#include <wiesel/modules.h>
+#include <wiesel/module_registry.h>
 
 
 using namespace wiesel;

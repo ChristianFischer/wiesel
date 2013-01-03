@@ -10,8 +10,10 @@ wiesel_module_export_includes(wiesel-sdl ${WIESEL_SRC_DIR}/sdl)
 # add required modules
 wiesel_module_add_dependency(wiesel-sdl wiesel-base)
 wiesel_module_add_dependency(wiesel-sdl wiesel-core)
-#wiesel_module_add_dependency(wiesel-sdl glee third-party/glee)
 
+
+# TODO: remove when GL dependencies gets removed
+wiesel_target_add_compileflags(wiesel-sdl "-DWIESEL_USE_GLEE")
 
 
 # add SDL dependency

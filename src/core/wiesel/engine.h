@@ -24,7 +24,7 @@
 
 #include <wiesel/wiesel-core.def>
 
-#include "screen.h"
+#include "platform.h"
 #include "application.h"
 #include "engine_interfaces.h"
 
@@ -58,47 +58,66 @@ namespace wiesel {
 	 * @brief An interface to the game engine.
 	 */
 	class WIESEL_CORE_EXPORT Engine {
-	protected:
+	private:
 		Engine();
 		virtual ~Engine();
 
+	// getter
 	public:
 		/**
 		 * @brief get the currently active Engine instance.
 		 */
-		inline static Engine *getCurrent() {
-			return current_instance;
+		inline static Engine *getInstance() {
+			return &instance;
+		}
+
+		/**
+		 * @brief get the current platform, this engine is running on.
+		 */
+		inline const std::vector<Platform*> *getPlatforms() {
+			return &platforms;
 		}
 
 		/**
 		 * @brief get the current running application or \c NULL, if none
 		 */
-		inline static Application *getApplication() {
-			return current_app;
+		inline Application *getApplication() {
+			return application;
 		}
 
 		/**
-		 * @brief Install a new Engine isntance, if currently no other instance is active.
-		 * @returns \c true, if the engine was installed successfully.
-		 * @returns \c false, if the installation process failed or another engine is already running.
+		 * @brief get the system's root file system where all data is stored.
+		 * The root filesystem may be read-only or empty for the application.
 		 */
-		static WIESEL_CORE_EXPORT bool install(Engine *engine);
+		FileSystem *getRootFileSystem();
+
+		/**
+		 * @brief get the file system, which stores the assets of the current application.
+		 */
+		FileSystem *getAssetFileSystem();
+
+	// lifecycle
+	public:
+		/**
+		 * @brief initialize the engine.
+		 */
+		bool initialize(int argc, char* argv[]);
 
 		/**
 		 * @brief terminate the currently registered engine.
 		 * Also terminates the currently runnung \ref Application instance.
 		 */
-		static WIESEL_CORE_EXPORT bool shutdown();
+		bool shutdown();
 
 		/**
-		 * @brief starts the main loop with the currently installed engine.
+		 * @brief starts the main loop.
 		 */
-		static WIESEL_CORE_EXPORT void run(Application *application);
+		void run();
 
 		/**
 		 * @brief requests to stop the main loop after the current frame.
 		 */
-		static void requestExit();
+		void requestExit();
 
 	// register/remove objects
 	public:
@@ -121,45 +140,6 @@ namespace wiesel {
 			return state;
 		}
 
-		/**
-		 * @brief checks, if the current instance is still the active \ref Engine instance.
-		 */
-		inline bool isActive() const {
-			return (this == current_instance);
-		}
-
-		/**
-		 * @brief get the screen object.
-		 */
-		inline Screen *getScreen() {
-			return screen;
-		}
-
-	// overridables
-	protected:
-		/**
-		 * @brief initialize the engine on installation process.
-		 */
-		virtual bool onInit() = 0;
-
-		/**
-		 * @brief clean up on shutdown.
-		 * The engine should release all resources here.
-		 */
-		virtual void onShutdown() = 0;
-
-		/**
-		 * @brief first update of the engine.
-		 * May be used to invoke \ref startApp, but can be left empty.
-		 */
-		virtual void onRunFirst() = 0;
-
-		/**
-		 * @brief called periodically by the main loop to process the message loop.
-		 * @return \c true to stop the main loop
-		 */
-		virtual bool onRun() = 0;
-
 	// application control
 	protected:
 		/**
@@ -167,24 +147,24 @@ namespace wiesel {
 		 * Fails, if no application is available.
 		 * In other states, this method will have no effect.
 		 */
-		static void startApp();
+		void startApp();
 
 		/**
 		 * @brief the application will enter the background.
 		 */
-		static void enterBackground();
+		void enterBackground();
 
 		/**
 		 * @brief the application will enter the foreground.
 		 */
-		static void enterForeground();
+		void enterForeground();
 
 		/**
 		 * @brief suspends a running application.
 		 * Fails, if no application is available.
 		 * In other states, this method will have no effect.
 		 */
-		static void suspendApp();
+		void suspendApp();
 
 		/**
 		 * @brief resumes a suspended application.
@@ -192,39 +172,21 @@ namespace wiesel {
 		 * In other states, this method will have no effect.
 		 * After resuming, the application is in the Background state.
 		 */
-		static void resumeSuspendedApp();
-
-	// filesystems
-	public:
-		/**
-		 * @brief get the system's root file system where all data is stored.
-		 * The root filesystem may be read-only or empty for the application.
-		 */
-		virtual FileSystem *getRootFileSystem() = 0;
-
-		/**
-		 * @brief get the file system, which stores the assets of the current application.
-		 */
-		virtual FileSystem *getAssetFileSystem() = 0;
-
-	// additional objects
-	public:
-		virtual TouchHandler *getTouchHandler() = 0;
+		void resumeSuspendedApp();
 
 	// static members
 	private:
-		static WIESEL_CORE_EXPORT Engine*			    current_instance;
-		static WIESEL_CORE_EXPORT Application*		current_app;
-		static WIESEL_CORE_EXPORT bool				exit_requested;
-
+		static WIESEL_CORE_EXPORT Engine	instance;
+	
 	// instance members
-	protected:
-		Screen*		screen;
-
 	private:
 		std::vector<IUpdateable*>		updateables;
 
 		EngineState						state;
+		bool							exit_requested;
+
+		std::vector<Platform*>			platforms;
+		Application*					application;
 	};
 
 }

@@ -19,10 +19,10 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_GENERIC_FILESUPPORT_GENERIC_ROOT_FS_H__
-#define __WIESEL_PLATFORM_GENERIC_FILESUPPORT_GENERIC_ROOT_FS_H__
+#ifndef __WIESEL_IO_GENERIC_ROOT_FS_H__
+#define __WIESEL_IO_GENERIC_ROOT_FS_H__
 
-#include <wiesel/wiesel-core.def>
+#include <wiesel/wiesel-common.def>
 
 #include "wiesel/io/filesystem.h"
 
@@ -33,7 +33,7 @@ namespace wiesel {
 
 
 
-	class WIESEL_CORE_EXPORT GenericFileSystem : public FileSystem
+	class WIESEL_COMMON_EXPORT GenericFileSystem : public FileSystem
 	{
 	public:
 		GenericFileSystem();
@@ -47,7 +47,7 @@ namespace wiesel {
 
 
 
-	class WIESEL_CORE_EXPORT GenericFileSystemDirectory : public Directory
+	class WIESEL_COMMON_EXPORT GenericFileSystemDirectory : public Directory
 	{
 	public:
 		GenericFileSystemDirectory(GenericFileSystem *fs, Directory *parent, const std::string &name);
@@ -65,7 +65,7 @@ namespace wiesel {
 
 
 
-	class WIESEL_CORE_EXPORT GenericFileSystemFile : public File
+	class WIESEL_COMMON_EXPORT GenericFileSystemFile : public File
 	{
 	public:
 		GenericFileSystemFile(GenericFileSystemDirectory *parent, const std::string &name);
@@ -81,4 +81,4 @@ namespace wiesel {
 	};
 
 } /* namespace wiesel */
-#endif /* __WIESEL_PLATFORM_GENERIC_FILESUPPORT_GENERIC_ROOT_FS_H__ */
+#endif /* __WIESEL_IO_GENERIC_ROOT_FS_H__ */

@@ -19,24 +19,46 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "screen.h"
+#ifndef __WIESEL_GENERIC_PLATFORM_H__
+#define __WIESEL_GENERIC_PLATFORM_H__
 
-using namespace wiesel;
+#include <wiesel/wiesel-common.def>
+
+#include <wiesel/platform.h>
 
 
-Screen::Screen() {
-	projection = matrix4x4::identity;
-	return;
+namespace wiesel {
+
+	class GenericFileSystem;
+
+
+	/**
+	 * @brief A generic platform implementation which should fit
+	 * most windows and unix like implementations.
+	 */
+	class WIESEL_COMMON_EXPORT GenericPlatform : public Platform
+	{
+	public:
+		GenericPlatform();
+		virtual ~GenericPlatform();
+
+	// overridables
+	protected:
+		virtual bool onInit();
+		virtual void onShutdown();
+
+		virtual void onRunFirst();
+		virtual bool onRun();
+
+	public:
+		virtual FileSystem *getRootFileSystem();
+		virtual FileSystem *getAssetFileSystem();
+
+	protected:
+		FileSystem*		root_fs;
+		FileSystem*		asset_fs;
+	};
+
 }
 
-Screen::~Screen() {
-	return;
-}
-
-
-void Screen::updateScreenSize(float w, float h) {
-	size = dimension(w, h);
-	projection = matrix4x4::ortho(0, w, 0, h, 0, 1000);
-	return;
-}
-
+#endif /* __WIESEL_GENERIC_PLATFORM_H__ */

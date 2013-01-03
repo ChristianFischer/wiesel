@@ -1,8 +1,10 @@
 
+#include <wiesel/module_registry.h>
 #include "sdl_image_loader.h"
 
 // add the module to the module registry
 namespace wiesel {
+namespace sdl {
 	REGISTER_MODULE_SINGLETON(
 			IImageLoader,
 			SdlImageLoader,
@@ -11,4 +13,5 @@ namespace wiesel {
 			0x01020000u,
 			IModuleLoader::PriorityNormal
 	)
+}
 }

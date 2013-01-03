@@ -19,37 +19,36 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
-#define __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#ifndef __WIESEL_SDL_VIDEO_SDLVIDEOLOADER_H__
+#define __WIESEL_SDL_VIDEO_SDLVIDEOLOADER_H__
 
-#include <wiesel/io/databuffer.h>
-#include <wiesel/io/file.h>
-#include <wiesel/module.h>
-#include <wiesel/resources/graphics/image_loader.h>
 #include <wiesel/wiesel-sdl.def>
+
+#include <wiesel/video/screen.h>
+#include <wiesel/video/video_loader.h>
 
 
 namespace wiesel {
 namespace sdl {
 
-	class WIESEL_SDL_EXPORT SdlImageLoader : public IImageLoader
+	/**
+	 * @brief The SDL video device implementation.
+	 */
+	class WIESEL_SDL_EXPORT SdlVideoLoader :
+			public wiesel::video::IVideoLoader
 	{
-	private:
-		SdlImageLoader();
+	public:
+		SdlVideoLoader();
+		virtual ~SdlVideoLoader();
 
 	public:
-		static SdlImageLoader *create();
-		
-		virtual ~SdlImageLoader();
+		static SdlVideoLoader *create();
 
-
-		virtual Image *loadImage(DataSource *source);
-		virtual Image *loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size);
-		
-	private:
-		virtual Image *internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot);
+	public:
+		virtual bool loadVideoDevice(video::Screen *screen, const dimension &resolution, unsigned int flags);
 	};
+
 }
 }
 
-#endif // __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#endif // __WIESEL_SDL_VIDEO_SDLVIDEOLOADER_H__

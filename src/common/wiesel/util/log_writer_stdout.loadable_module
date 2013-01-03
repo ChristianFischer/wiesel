@@ -1,0 +1,15 @@
+
+#include <wiesel/module_registry.h>
+#include "log_writer_stdout.h"
+
+// add the module to the module registry
+namespace wiesel {
+	REGISTER_MODULE_SINGLETON(
+			ILogWriter,
+			LogWriterStdOut,
+			&generic_create<LogWriterStdOut>,
+			"STDOUT",
+			0x01000000u,
+			IModuleLoader::PriorityLow
+	)
+}

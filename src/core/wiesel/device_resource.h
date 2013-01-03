@@ -19,31 +19,51 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#if WIESEL_USE_LIBSDL
+#ifndef __WIESEL_DEVICE_RESOURCE_H__
+#define __WIESEL_DEVICE_RESOURCE_H__
 
-#include <wiesel.h>
-#include <stdio.h>
+#include <wiesel/wiesel-core.def>
+
+#include <wiesel/util/shared_object.h>
 
 
-using namespace wiesel;
 
+namespace wiesel {
 
-// implementing the platform specific logging
-int _logmsg_impl(LogLevel level, const char *tag, const char *message) {
-	FILE *stream = stdout;
-	char lvl = '?';
-	switch(level) {
-		case LogLevel_Debug:	lvl = 'D';							break;
-		case LogLevel_Info:		lvl = 'I';							break;
-		case LogLevel_Warning:	lvl = 'W';							break;
-		case LogLevel_Error:	lvl = 'E';		stream = stderr;	break;
-		default:				lvl = '-';							break;	// should not happen
-	}
-
-	fprintf(stream, "[%c] %-16s %s\n", lvl, tag, message);
-	fflush(stream);
+	// forward declarations
 	
-	return 0;
+	class Device;
+	
+	
+	class WIESEL_CORE_EXPORT DeviceResource : public virtual SharedObject
+	{
+	private:
+		/// hidden default constructor
+		DeviceResource();
+		
+	protected:
+		/// create a new device resource, 
+		DeviceResource(Device *device);
+		
+	public:
+		virtual ~DeviceResource();
+		
+	// getters
+	public:
+		/// get the device, which owns this resource
+		inline Device* getDevice() {
+			return device;
+		}
+		
+		/// get the device, which owns this resource
+		inline const Device* getDevice() const {
+			return device;
+		}
+		
+	private:
+		Device*		device;
+	};
+
 }
 
-#endif // WIESEL_USE_LIBSDL
+#endif /* __WIESEL_DEVICE_RESOURCE_H__ */

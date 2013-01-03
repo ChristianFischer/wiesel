@@ -19,37 +19,49 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
-#define __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#ifndef __WIESEL_SDL_VIDEO_SDLVIDEODEVICE_H__
+#define __WIESEL_SDL_VIDEO_SDLVIDEODEVICE_H__
 
-#include <wiesel/io/databuffer.h>
-#include <wiesel/io/file.h>
-#include <wiesel/module.h>
-#include <wiesel/resources/graphics/image_loader.h>
 #include <wiesel/wiesel-sdl.def>
+
+#include <wiesel/geometry.h>
+#include <wiesel/video/screen.h>
+#include <wiesel/video/video_device.h>
+
+#include "../sdl_platform.h"
+#include "../sdl_message_receiver.h"
 
 
 namespace wiesel {
 namespace sdl {
 
-	class WIESEL_SDL_EXPORT SdlImageLoader : public IImageLoader
+	/**
+	 * @brief The SDL video device implementation.
+	 */
+	class WIESEL_SDL_EXPORT SdlVideoDevice : 
+			public wiesel::video::VideoDevice,
+			public ISdlMessageReceiver
 	{
-	private:
-		SdlImageLoader();
-
 	public:
-		static SdlImageLoader *create();
-		
-		virtual ~SdlImageLoader();
+		SdlVideoDevice(SdlPlatform *platform, wiesel::video::Screen *screen);
+		virtual ~SdlVideoDevice();
 
+		bool init(const dimension &size, unsigned int flags);
+		bool shutdown();
 
-		virtual Image *loadImage(DataSource *source);
-		virtual Image *loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size);
-		
+		virtual void preRender();
+		virtual void postRender();
+
+	// ISdlMessageReceiver
+	public:
+		virtual void onEvent(const SDL_Event &event);
+
 	private:
-		virtual Image *internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot);
+		SdlPlatform*				platform;
+		wiesel::video::Screen*		screen;
 	};
+
 }
 }
 
-#endif // __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#endif // __WIESEL_SDL_VIDEO_SDLVIDEODEVICE_H__

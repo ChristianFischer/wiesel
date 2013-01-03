@@ -23,6 +23,8 @@
 
 #include <wiesel/util/shared_object.h>
 #include <wiesel/util/log.h>
+#include <wiesel/module.h>
+#include <wiesel/module_registry.h>
 
 #include <wiesel/ui/touchhandler.h>
 
@@ -36,62 +38,120 @@
 using namespace wiesel;
 
 
-Engine*				Engine::current_instance		= NULL;
-Application*		Engine::current_app				= NULL;
-bool				Engine::exit_requested			= false;
+Engine		Engine::instance;
 
 
-Engine::Engine()
-: screen(NULL)
-{
-	state		= Engine_Uninitialized;
+Engine::Engine() {
+	state				= Engine_Uninitialized;
+	exit_requested		= false;
+	application			= NULL;
+
 	return;
 }
 
 Engine::~Engine() {
+	shutdown();
 	return;
 }
 
 
-bool Engine::install(Engine *engine) {
-	// if there's already an existing instance, the installation fails
-	assert(current_instance == NULL);
-	if (current_instance) {
-		return false;
+bool Engine::initialize(int argc, char* argv[]) {
+	// try to find a valid platform object
+	if (this->platforms.empty()) {
+		std::vector<ModuleLoader<Platform>*> loaders = ModuleRegistry::getInstance()->findModules<Platform>();
+		for(std::vector<ModuleLoader<Platform>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
+			Platform *platform = (*it)->create();
+
+			if (platform) {
+				platform->retain();
+				platform->onInit();
+
+				this->platforms.push_back(platform);
+			}
+		}
+
+		assert(platforms.empty() == false);
+		if (platforms.empty()) {
+			return false;
+		}
 	}
 
-	// initialize the new engine
-	if (engine->onInit() == false) {
-		return false;
+	// try to find a valid application object
+	if (this->application == NULL) {
+		std::vector<ModuleLoader<Application>*> loaders = ModuleRegistry::getInstance()->findModules<Application>();
+		for(std::vector<ModuleLoader<Application>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
+			Application *app = (*it)->create();
+			if (app) {
+				this->application = app;
+				this->application->retain();
+				this->application->onInit();
+			}
+		}
+
+		assert(application);
+		if (application == NULL) {
+			return false;
+		}
 	}
 
-	// store the new instance
-	current_instance = engine;
-
-	// success
 	return true;
 }
 
 
-bool Engine::shutdown() {
-	if (current_instance == NULL) {
-		return false;
+FileSystem *Engine::getRootFileSystem() {
+	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {
+		Platform *platform = *it;
+
+		FileSystem *fs = platform->getRootFileSystem();
+		if (fs) {
+			return fs;
+		}
 	}
 
-	// shutdown
-	current_instance->onShutdown();
-	delete current_instance;
-	current_instance = NULL;
+	return NULL;
+}
+
+
+FileSystem *Engine::getAssetFileSystem() {
+	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {
+		Platform *platform = *it;
+
+		FileSystem *fs = platform->getAssetFileSystem();
+		if (fs) {
+			return fs;
+		}
+	}
+
+	return NULL;
+}
+
+
+bool Engine::shutdown() {
+	// release the application object
+	if (application) {
+		application->onShutdown();
+		application->release();
+		application = NULL;
+	}
+
+	// release all platforms
+	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {
+		Platform *platform = *it;
+		platform->onShutdown();
+		platform->release();
+	}
+
+	platforms.clear();
 
 	// done
 	return true;
 }
 
 
-void Engine::run(Application *application) {
-	// no other application running
-	assert(current_app == NULL);
-	if (current_app) {
+void Engine::run() {
+	// check, if a platform object is available
+	assert(platforms.empty() == false);
+	if (platforms.empty()) {
 		return;
 	}
 
@@ -104,11 +164,10 @@ void Engine::run(Application *application) {
 	// reset the exit_requested flag before starting the main loop
 	exit_requested = false;
 
-	// store the application object
-	current_app = application;
-
 	// first onRun before entering the main loop
-	current_instance->onRunFirst();
+	for(std::vector<Platform*>::iterator it=platforms.begin(); it!=platforms.end(); it++) {
+		(*it)->onRunFirst();
+	}
 
 	// timers
 	clock_t last_t = clock();
@@ -116,19 +175,19 @@ void Engine::run(Application *application) {
 
 	bool done = false;
 	do {
-		done = current_instance->onRun();
+		done = false;
+
+		for(std::vector<Platform*>::iterator it=platforms.begin(); it!=platforms.end(); it++) {
+			Platform *platform = *it;
+			done |= platform->onRun();
+		}
 
 		// measure time of this frame
 		last_t = now_t;
 		now_t  = clock();
 		float dt = (float(now_t - last_t) / CLOCKS_PER_SEC);
 
-		// run all updateable objects
-		for(int i=current_instance->updateables.size(); --i>=0;) {
-			current_instance->updateables.at(i)->update(dt);
-		}
-
-		switch(current_instance->getState()) {
+		switch(getState()) {
 			case Engine_Uninitialized: {
 				// do nothing
 				break;
@@ -145,20 +204,18 @@ void Engine::run(Application *application) {
 			}
 
 			case Engine_Running: {
-				// application onRun
-				current_app->onRun(dt);
-
-				Screen *screen = current_instance->getScreen();
-
-				if (screen) {
-					screen->preRender();
-					current_app->onRender();
-					screen->postRender();
+				// run all updateable objects
+				for(int i=updateables.size(); --i>=0;) {
+					updateables.at(i)->update(dt);
 				}
 
 				break;
 			}
 		}
+
+		// the application's onRun will be invoked every frame
+		// the application may decide itself, what to do in each state
+		application->onRun(dt);
 
 		// purge all dead objects at the end of each frame
 		SharedObject::purgeDeadObjects();
@@ -167,12 +224,6 @@ void Engine::run(Application *application) {
 		done |= exit_requested;
 	}
 	while(!done);
-
-	// release the current app
-	current_app->onShutdown();
-
-	// clear current application
-	current_app = NULL;
 
 	return;
 }
@@ -210,16 +261,15 @@ void Engine::unregisterUpdateable(IUpdateable* updateable) {
 
 
 void Engine::startApp() {
-	assert(current_instance != NULL);
-	assert(current_app != NULL);
+	assert(application != NULL);
 
-	switch(current_instance->getState()) {
+	switch(getState()) {
 		case Engine_Uninitialized: {
-			if (current_app) {
-				current_app->onInit();
+			if (application) {
+				application->onInit();
 			}
 
-			current_instance->state = Engine_Background;
+			state = Engine_Background;
 
 			break;
 		}
@@ -234,16 +284,15 @@ void Engine::startApp() {
 
 
 void Engine::enterBackground() {
-	assert(current_instance != NULL);
-	assert(current_app != NULL);
+	assert(application != NULL);
 
-	switch(current_instance->getState()) {
+	switch(getState()) {
 		case Engine_Running: {
-			if (current_app != NULL) {
-				current_app->onEnterBackground();
+			if (application != NULL) {
+				application->onEnterBackground();
 			}
 
-			current_instance->state = Engine_Background;
+			state = Engine_Background;
 
 			break;
 		}
@@ -258,16 +307,15 @@ void Engine::enterBackground() {
 
 
 void Engine::enterForeground() {
-	assert(current_instance != NULL);
-	assert(current_app != NULL);
+	assert(application != NULL);
 
-	switch(current_instance->getState()) {
+	switch(getState()) {
 		case Engine_Background: {
-			if (current_app != NULL) {
-				current_app->onEnterForeground();
+			if (application != NULL) {
+				application->onEnterForeground();
 			}
 
-			current_instance->state = Engine_Running;
+			state = Engine_Running;
 
 			break;
 		}
@@ -282,10 +330,9 @@ void Engine::enterForeground() {
 
 
 void Engine::suspendApp() {
-	assert(current_instance != NULL);
-	assert(current_app != NULL);
+	assert(application != NULL);
 
-	switch(current_instance->getState()) {
+	switch(getState()) {
 		case Engine_Running: {
 			enterBackground();
 
@@ -293,11 +340,11 @@ void Engine::suspendApp() {
 		}
 
 		case Engine_Background: {
-			if (current_app) {
-				current_app->onSuspend();
+			if (application) {
+				application->onSuspend();
 			}
 
-			current_instance->state = Engine_Suspended;
+			state = Engine_Suspended;
 
 			break;
 		}
@@ -312,16 +359,15 @@ void Engine::suspendApp() {
 
 
 void Engine::resumeSuspendedApp() {
-	assert(current_instance != NULL);
-	assert(current_app != NULL);
+	assert(application != NULL);
 
-	switch(current_instance->getState()) {
+	switch(getState()) {
 		case Engine_Suspended: {
-			if (current_app) {
-				current_app->onResumeSuspended();
+			if (application) {
+				application->onResumeSuspended();
 			}
 
-			current_instance->state = Engine_Background;
+			state = Engine_Background;
 
 			break;
 		}

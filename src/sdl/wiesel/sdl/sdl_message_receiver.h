@@ -19,19 +19,36 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_PLATFORMS_H__
-#define __WIESEL_PLATFORM_PLATFORMS_H__
+#ifndef __WIESEL_SDL_SDLMESSAGERECEIVER_H__
+#define __WIESEL_SDL_SDLMESSAGERECEIVER_H__
 
-#include "wiesel/application.h"
-#include "wiesel/engine.h"
+#include <wiesel/wiesel-sdl.def>
+#include <wiesel/engine_interfaces.h>
+#include <wiesel/platform.h>
 
+#include <SDL.h>
 
-#if defined(__ANDROID__)
-	// get the android platform
-	#include "android/platform_main.h"
-#endif
-
-#include "sdl/sdl_platform.h"
+#include <vector>
 
 
-#endif // __WIESEL_PLATFORM_PLATFORMS_H__
+namespace wiesel {
+namespace sdl {
+
+	/**
+	 * @brief An interface for classes, which wants to receive messages
+	 * from the SDL event queue.
+	 */
+	class ISdlMessageReceiver :
+		public virtual SharedObject
+	{
+	public:
+		ISdlMessageReceiver();
+		virtual ~ISdlMessageReceiver();
+
+		virtual void onEvent(const SDL_Event &event) = 0;
+	};
+
+}
+}
+
+#endif /* __WIESEL_SDL_SDLMESSAGERECEIVER_H__ */

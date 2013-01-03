@@ -22,6 +22,7 @@
 #include "node.h"
 
 #include "wiesel/engine.h"
+#include "wiesel/video/video_device.h"
 
 #include <assert.h>
 #include <algorithm>
@@ -143,54 +144,55 @@ void Node::updateTransform() {
 }
 
 
-vector2d Node::convertScreenToLocal(const vector2d& screen) {
+vector2d Node::convertScreenToLocal(video::VideoDevice *video_device, const vector2d& screen) {
 	// at first, convert into OpenGL coordinate space
 	vector2d transformed = vector2d(
-			+(screen.x / Engine::getCurrent()->getScreen()->getSize().width  - 0.5f) * 2,
-			-(screen.y / Engine::getCurrent()->getScreen()->getSize().height - 0.5f) * 2
+			+(screen.x / video_device->getResolution().width  - 0.5f) * 2,
+			-(screen.y / video_device->getResolution().height - 0.5f) * 2
 	);
 
 	// then use the projection- and modelview matrix to get the actual coordinate system
 	return
 			transformed
-		/	Engine::getCurrent()->getScreen()->getProjectionMatrix()
+		/	video_device->getProjectionMatrix()
 		/	this->getWorldTransform()
 	;
 }
 
 
-void Node::render() {
+void Node::render(video::VideoDevice *video_device) {
 	bool this_drawn = false;
 
 	for(NodeList::iterator it=children.begin(); it!=children.end(); it++) {
 		Node *child = *it;
 
 		if (!this_drawn && child->getOrderKey() >= 0) {
-			render_this();
+			render_this(video_device);
+			this_drawn = true;
 		}
 
-		child->render();
+		child->render(video_device);
 	}
 
 	if (!this_drawn) {
-		render_this();
+		render_this(video_device);
 	}
 
 	return;
 }
 
 
-void Node::render_this() {
+void Node::render_this(video::VideoDevice *video_device) {
 	if (transform_dirty) {
 		updateTransform();
 	}
 
-	onDraw();
+	onDraw(video_device);
 
 	return;
 }
 
 
-void Node::onDraw() {
+void Node::onDraw(video::VideoDevice *video_device) {
 	return;
 }

@@ -24,7 +24,9 @@
 
 #include <wiesel/wiesel-core.def>
 
-#include "graph/scene.h"
+#include "wiesel/graph/scene.h"
+#include "wiesel/module.h"
+
 #include <vector>
 
 
@@ -34,7 +36,8 @@ namespace wiesel {
 	/**
 	 * @brief An abstract class implementing the application logic.
 	 */
-	class WIESEL_CORE_EXPORT Application {
+	class WIESEL_CORE_EXPORT Application : public Module
+	{
 	public:
 		Application();
 		virtual ~Application();
@@ -79,7 +82,7 @@ namespace wiesel {
 		 * @brief called each frame to render graphics.
 		 * DUMMY - will be replaced by scene graph later.
 		 */
-		virtual void onRender();
+		virtual void onRender(video::VideoDevice *video_device);
 
 	// scene stack
 	public:

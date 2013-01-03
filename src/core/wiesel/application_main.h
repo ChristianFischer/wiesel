@@ -19,20 +19,28 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_APPLICATIONMAIN_H__
-#define __WIESEL_APPLICATIONMAIN_H__
+#ifndef __WIESEL_APPLICATION_ENTRY_H__
+#define __WIESEL_APPLICATION_ENTRY_H__
 
-#include "../wiesel.h"
+#include <wiesel/wiesel-core.def>
+#include <wiesel/application.h>
+#include <wiesel/module.h>
+#include <wiesel/module_registry.h>
 
-// application class
-#include "application.h"
+/// macro to register an application class, so it can be loaded from the engine
+#define WIESEL_APPLICATION_SETUP(APPLICATION_CLASS)								\
+				static APPLICATION_CLASS* __##APPLICATION_CLASS##_factory() {	\
+					return new APPLICATION_CLASS();								\
+				}																\
+																				\
+				REGISTER_MODULE(												\
+							wiesel::Application,								\
+							APPLICATION_CLASS,									\
+							&__##APPLICATION_CLASS##_factory,					\
+							"Application",										\
+							0x01000000u,										\
+							wiesel::IModuleLoader::PriorityNormal				\
+				)
 
-// get all the platforms
-#include "platform/platforms.h"
 
-// check, if the entry-point macro exists.
-#if !defined(WIESEL_APPLICATION_SETUP)
-#error "WIESEL_APPLICATION_SETUP not defined - compiling on an unknown platform?"
-#endif
-
-#endif // __WIESEL_H__
+#endif /* __WIESEL_APPLICATION_H__ */

@@ -96,7 +96,7 @@ void TouchHandler::startTouch(TouchID id, float x, float y) {
 	// store this touch object
 	active_touches.push_back(touch);
 
-	Application *app = Engine::getApplication();
+	Application *app = Engine::getInstance()->getApplication();
 	Node  *node  = NULL;
 
 	// search for a node which claims the touch

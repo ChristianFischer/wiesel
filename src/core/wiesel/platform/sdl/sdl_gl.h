@@ -22,7 +22,7 @@
 #ifndef __WIESEL_PLATFORM_SDL_GL_H__
 #define __WIESEL_PLATFORM_SDL_GL_H__
 
-#if WIESEL_USE_LIBSDL
+#if WIESEL_USE_GLEE
 
 // don't define min/max macros - we're using the C++ template functions instead
 #ifndef NOMINMAX
