@@ -22,12 +22,14 @@
 #include "sdl_image_loader.h"
 
 #include <wiesel/util/log.h>
+#include <wiesel/module_registry.h>
 
 #include <SDL_image.h>
 #include <string>
 
 
 using namespace wiesel;
+using namespace wiesel::sdl;
 using namespace std;
 
 

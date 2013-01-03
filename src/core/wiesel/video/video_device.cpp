@@ -19,37 +19,41 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
-#define __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#include "video_device.h"
 
-#include <wiesel/io/databuffer.h>
-#include <wiesel/io/file.h>
-#include <wiesel/module.h>
-#include <wiesel/resources/graphics/image_loader.h>
-#include <wiesel/wiesel-sdl.def>
+using namespace wiesel;
+using namespace wiesel::video;
 
 
-namespace wiesel {
-namespace sdl {
-
-	class WIESEL_SDL_EXPORT SdlImageLoader : public IImageLoader
-	{
-	private:
-		SdlImageLoader();
-
-	public:
-		static SdlImageLoader *create();
-		
-		virtual ~SdlImageLoader();
-
-
-		virtual Image *loadImage(DataSource *source);
-		virtual Image *loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size);
-		
-	private:
-		virtual Image *internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot);
-	};
-}
+VideoDevice::VideoDevice() {
+	projection = matrix4x4::identity;
+	screen     = NULL;
+	return;
 }
 
-#endif // __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+VideoDevice::VideoDevice(Screen *screen) {
+	this->projection = matrix4x4::identity;
+	this->screen     = screen;
+	return;
+}
+
+VideoDevice::~VideoDevice() {
+	return;
+}
+
+
+void VideoDevice::setState(VideoState state) {
+	if (this->state != state) {
+		this->state  = state;
+	}
+
+	return;
+}
+
+
+void VideoDevice::updateScreenSize(float w, float h) {
+	size = dimension(w, h);
+	projection = matrix4x4::ortho(0, w, 0, h, 0, 1000);
+	return;
+}
+

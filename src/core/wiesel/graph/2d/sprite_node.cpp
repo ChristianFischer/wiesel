@@ -23,6 +23,7 @@
 #include "wiesel/engine.h"
 #include "wiesel/gl/shader/shaders.h"
 #include "wiesel/gl/texture/spriteframe.h"
+#include "wiesel/video/video_device.h"
 
 using namespace wiesel;
 
@@ -196,14 +197,14 @@ bool SpriteNode::hitBy(const vector2d& local) const {
 }
 
 
-void SpriteNode::onDraw() {
+void SpriteNode::onDraw(video::VideoDevice *video_device) {
 	if (texture) {
 		if (vbo_dirty) {
 			rebuildVertexBuffer();
 		}
 
 		shader->bind();
-		shader->setProjectionMatrix(Engine::getCurrent()->getScreen()->getProjectionMatrix());
+		shader->setProjectionMatrix(video_device->getProjectionMatrix());
 		shader->setModelviewMatrix(getWorldTransform());
 
 		vbo->bind(shader, texture);

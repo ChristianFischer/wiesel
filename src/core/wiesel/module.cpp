@@ -19,26 +19,35 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__
-#define __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__
+#include "module.h"
+#include "module_registry.h"
 
-#include <wiesel/wiesel-core.def>
+using namespace wiesel;
 
-#include "../../application.h"
 
-#if WIESEL_USE_LIBSDL
 
-/// application entry point macro
-#define	WIESEL_APPLICATION_SETUP(APPLICATION)						\
-	extern "C" int main(int argc, char* argv[]) {					\
-		APPLICATION app = APPLICATION();							\
-		__internal_sdl_app_main(&app, argc, argv);					\
-		return 0;													\
+ModuleRegistry *ModuleRegistry::getInstance() {
+	static ModuleRegistry instance = ModuleRegistry();
+	return &instance;
+}
+
+
+
+bool wiesel::SortModuleLoadersPredicate(IModuleLoader *a, IModuleLoader *b) {
+	// priority is the most important value
+	if (a->getPriority() != b->getPriority()) {
+		return a->getPriority() > b->getPriority();
 	}
 
-/// delegate for the application entry point
-WIESEL_CORE_EXPORT void __internal_sdl_app_main(wiesel::Application *app, int argc, char* argv[]);
+	// when the API on both modules are the same, order by API version
+	if (
+			a->getApi() == b->getApi()
+		&&	a->getApiVersion() != b->getApiVersion()
+	) {
+		return a->getApiVersion() > b->getApiVersion();
+	}
 
-#endif // WIESEL_USE_LIBSDL
+	// default order is API name
+	return a->getApi() > b->getApi();
+}
 
-#endif // __WIESEL_PLATFORM_SDL_PLATFORM_MAIN_H__

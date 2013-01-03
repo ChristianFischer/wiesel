@@ -20,6 +20,9 @@
  * Boston, MA 02110-1301 USA
  */
 #include "log.h"
+#include "log_writer.h"
+
+#include <wiesel/module_registry.h>
 
 #include <malloc.h>
 #include <stdarg.h>
@@ -27,6 +30,7 @@
 
 #include <sstream>
 #include <string>
+#include <list>
 
 
 using namespace wiesel;
@@ -38,9 +42,62 @@ LogLevel Log::current_log_level = LogLevel_Debug;
 
 
 
+/**
+ * @brief A simple object conrtaining a single log entry, including level, tag and message.
+ */
+struct LogEntry {
+	LogLevel	level;
+	std::string	tag;
+	std::string	message;
+};
 
-/// implements the current platforms logging mechanism.
-int _logmsg_impl(LogLevel level, const char *tag, const char *message);
+/// stores log messages, when no log writer is available
+static std::list<LogEntry> log_cache;
+
+
+/// try to write a single log message using all available modules.
+static bool __log_message(LogLevel level, const std::string &tag, const std::string &message) {
+	bool success = false;
+
+	std::vector<ModuleLoader<ILogWriter>*> loaders = ModuleRegistry::getInstance()->findModules<ILogWriter>();
+	for(std::vector<ModuleLoader<ILogWriter>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
+		ILogWriter *writer = (*it)->create();
+
+		if (writer) {
+			success |= writer->write(level, tag, message);
+		}
+	}
+
+	return success;
+}
+
+
+/// try to write a log message via log writer modules, or add it into the cache, if no logging is possible
+static void __log_or_cache_message(LogLevel level, const std::string &tag, const std::string &message) {
+	if (__log_message(level, tag, message) == false) {
+		LogEntry entry = { level, tag, message };
+		log_cache.push_back(entry);
+	}
+
+	return;
+}
+
+
+/// try to write all pending messages to streams. returns true, when the cache is empty
+static bool __flush_cache() {
+	for(std::list<LogEntry>::iterator it=log_cache.begin(); it!=log_cache.end();) {
+		bool success = __log_message(it->level, it->tag, it->message);
+		if (success) {
+			it = log_cache.erase(it);
+		}
+		else {
+			// stop, when an error occured
+			break;
+		}
+	}
+
+	return log_cache.empty();
+}
 
 
 
@@ -75,9 +132,12 @@ int wiesel::logmsg(LogLevel level, const char *tag, const char *message, ...) {
 		vsnprintf(buffer, buffer_size, message, args);
 		va_end(args);
 
-		int ret = _logmsg_impl(level, tag?tag:WIESEL_LOG_TAG, buffer);
+		// write into streams
+		std::string str_message(buffer);
+		__log_or_cache_message(level, tag, str_message);
 
-		return ret;
+		// return the number of written characters
+		return str_message.size();
 	}
 
 	return 0;
@@ -115,11 +175,18 @@ protected:
 	}
 
 private:
-	int writeCurrentLine() {
-		int ret = logmsg(level, tag.empty() ? NULL : tag.c_str(), ss.str().c_str());
+	void writeCurrentLine() {
+		// at first, try to flush the cache
+		__flush_cache();
+
+		// try to write the current message
+		__log_or_cache_message(level, tag, ss.str());
+
+		// clear the current buffer
 		ss.str("");
 		ss.clear();
-		return ret;
+
+		return;
 	}
 
 private:

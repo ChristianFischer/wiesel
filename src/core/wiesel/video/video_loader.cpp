@@ -19,37 +19,37 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
-#define __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#include "video_loader.h"
+#include "video_device.h"
+#include "screen.h"
 
-#include <wiesel/io/databuffer.h>
-#include <wiesel/io/file.h>
-#include <wiesel/module.h>
-#include <wiesel/resources/graphics/image_loader.h>
-#include <wiesel/wiesel-sdl.def>
+using namespace wiesel;
+using namespace wiesel::video;
 
 
-namespace wiesel {
-namespace sdl {
-
-	class WIESEL_SDL_EXPORT SdlImageLoader : public IImageLoader
-	{
-	private:
-		SdlImageLoader();
-
-	public:
-		static SdlImageLoader *create();
-		
-		virtual ~SdlImageLoader();
-
-
-		virtual Image *loadImage(DataSource *source);
-		virtual Image *loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size);
-		
-	private:
-		virtual Image *internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot);
-	};
-}
+IVideoLoader::IVideoLoader() {
+	return;
 }
 
-#endif // __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+
+IVideoLoader::~IVideoLoader() {
+	return;
+}
+
+
+bool IVideoLoader::install(Screen *screen, VideoDevice *video_device) {
+	assert(screen);
+
+	// cannot install a new device into a screen, which already contains a video device
+	assert(screen->video_device == NULL);
+
+	if (screen && screen->video_device==NULL) {
+		screen->video_device = video_device;
+		screen->video_device->retain();
+
+		return true;
+	}
+
+	return false;
+}
+

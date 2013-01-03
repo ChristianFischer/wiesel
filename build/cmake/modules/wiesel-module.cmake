@@ -85,6 +85,18 @@ function(wiesel_create_module target source_dir test_dir)
 	# get all sources from this directory
 	wiesel_module_get_files(MODULE_SRC_FILES ${source_dir})
 	
+	# get the library type, if given
+	if (DEFINED ARGV3)
+		set(libtype ${ARGV3})
+	else()
+		set(libtype SHARED)
+	endif()
+	
+	# check if libtype is valid
+	if (NOT ((${libtype} STREQUAL "SHARED") OR (${libtype} STREQUAL "STATIC")))
+		message(FATAL_ERROR "Illegal library type for module ${target}: ${libtype} - should be SHARED or STATIC")
+	endif()
+	
 	# add sources to the module's target
 	add_library(${target} SHARED ${MODULE_SRC_FILES})
 	

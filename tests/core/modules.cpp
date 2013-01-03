@@ -21,7 +21,7 @@
  */
 #include "gtest/gtest.h"
 
-#include <wiesel/modules.h>
+#include <wiesel/module_registry.h>
 
 
 using namespace wiesel;

@@ -19,24 +19,35 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#if WIESEL_USE_LIBSDL
-
-#include "sdl_platform.h"
-#include "sdl_engine.h"
+#include "log_writer_stdout.h"
 #include <stdio.h>
+
 
 using namespace wiesel;
 
 
-void __internal_sdl_app_main(Application *app, int argc, char* argv[]) {
-	// create the SDL engine object
-	SdlEngine *engine = new SdlEngine();
-	Engine::install(engine);
-	Engine::run(app);
-	Engine::shutdown();
-	
+LogWriterStdOut::LogWriterStdOut() {
 	return;
 }
 
+LogWriterStdOut::~LogWriterStdOut() {
+	return;
+}
 
-#endif // WIESEL_USE_LIBSDL
+// implementing the platform specific logging
+bool LogWriterStdOut::write(LogLevel level, const std::string &tag, const std::string &message) {
+	FILE *stream = stdout;
+	char lvl = '?';
+	switch(level) {
+		case LogLevel_Debug:	lvl = 'D';							break;
+		case LogLevel_Info:		lvl = 'I';							break;
+		case LogLevel_Warning:	lvl = 'W';							break;
+		case LogLevel_Error:	lvl = 'E';		stream = stderr;	break;
+		default:				lvl = '-';							break;	// should not happen
+	}
+
+	fprintf(stream, "[%c] %-16s %s\n", lvl, tag.c_str(), message.c_str());
+	fflush(stream);
+	
+	return true;
+}

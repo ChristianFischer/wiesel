@@ -19,27 +19,45 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_SCREEN_H__
-#define __WIESEL_SCREEN_H__
+#ifndef __WIESEL_VIDEO_VIDEODEVICE_H__
+#define __WIESEL_VIDEO_VIDEODEVICE_H__
 
 #include <wiesel/wiesel-core.def>
 
 #include <wiesel/geometry.h>
 #include <wiesel/math/matrix.h>
+#include <wiesel/device.h>
+
+#include "screen.h"
 
 namespace wiesel {
+namespace video {
 
 	/**
-	 * @brief An abstract interface to the current screen.
+	 * @brief An abstract interface to a video output device.
 	 */
-	class WIESEL_CORE_EXPORT Screen {
-	public:
-		Screen();
-		virtual ~Screen();
+	class WIESEL_CORE_EXPORT VideoDevice : public Device
+	{
+	private:
+		VideoDevice();
 
-		/// get the current screen size in pixels
-		inline const dimension& getSize() const {
+	public:
+		VideoDevice(Screen *screen);
+		virtual ~VideoDevice();
+
+		/// get the device's current state
+		inline VideoState getState() const {
+			return state;
+		}
+
+		/// get the current resolution in pixels
+		inline const dimension& getResolution() const {
 			return size;
+		}
+
+		/// get the screen, this video device is currently assigned to
+		inline Screen *getScreen() {
+			return screen;
 		}
 
 		/// get the current aspect ratio of the screen
@@ -62,13 +80,20 @@ namespace wiesel {
 
 	// member functions
 	protected:
+		/// set the device's current video state
+		void setState(VideoState state);
+
+		/// update the device's screen size
 		virtual void updateScreenSize(float w, float h);
 
 	protected:
+		VideoState	state;
+		Screen*		screen;
 		matrix4x4	projection;
 		dimension	size;
 	};
 
 }
+}
 
-#endif /* __WIESEL_SCREEN_H__ */
+#endif /* __WIESEL_VIDEO_VIDEODEVICE_H__ */

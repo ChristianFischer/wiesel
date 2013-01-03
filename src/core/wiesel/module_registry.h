@@ -19,11 +19,10 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_MODULES_H__
-#define __WIESEL_MODULES_H__
+#ifndef __WIESEL_MODULE_REGISTRY_H__
+#define __WIESEL_MODULE_REGISTRY_H__
 
-#include <wiesel/wiesel-core.def>
-#include <wiesel/util/shared_object.h>
+#include "module.h"
 
 #include <algorithm>
 #include <map>
@@ -73,16 +72,6 @@
 
 namespace wiesel {
 
-	/**
-	 * @brief
-	 */
-	class WIESEL_CORE_EXPORT Module : public virtual SharedObject
-	{
-	public:
-
-
-	};
-
 
 	class WIESEL_CORE_EXPORT IModuleLoader;
 
@@ -91,6 +80,16 @@ namespace wiesel {
 
 	bool WIESEL_CORE_EXPORT SortModuleLoadersPredicate(IModuleLoader *a, IModuleLoader *b);
 
+
+
+	/**
+	 * @brief A generic template function to create modules.
+	 * Can be used as generator function when registering a module class.
+	 */
+	template <class MODULE>
+	MODULE* generic_create() {
+		return new MODULE();
+	}
 
 
 
@@ -410,4 +409,4 @@ namespace wiesel {
 	};
 }
 
-#endif /* __WIESEL_MODULES_H__ */
+#endif /* __WIESEL_MODULE_REGISTRY_H__ */

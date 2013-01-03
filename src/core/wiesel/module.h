@@ -19,34 +19,25 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "modules.h"
+#ifndef __WIESEL_MODULE_H__
+#define __WIESEL_MODULE_H__
 
-using namespace wiesel;
+#include <wiesel/wiesel-core.def>
+#include <wiesel/util/shared_object.h>
 
 
+namespace wiesel {
 
-ModuleRegistry *ModuleRegistry::getInstance() {
-	static ModuleRegistry instance = ModuleRegistry();
-	return &instance;
+	/**
+	 * @brief
+	 */
+	class WIESEL_CORE_EXPORT Module : public virtual SharedObject
+	{
+	public:
+
+
+	};
+
 }
 
-
-
-bool wiesel::SortModuleLoadersPredicate(IModuleLoader *a, IModuleLoader *b) {
-	// priority is the most important value
-	if (a->getPriority() != b->getPriority()) {
-		return a->getPriority() > b->getPriority();
-	}
-
-	// when the API on both modules are the same, order by API version
-	if (
-			a->getApi() == b->getApi()
-		&&	a->getApiVersion() != b->getApiVersion()
-	) {
-		return a->getApiVersion() > b->getApiVersion();
-	}
-
-	// default order is API name
-	return a->getApi() > b->getApi();
-}
-
+#endif /* __WIESEL_MODULE_H__ */

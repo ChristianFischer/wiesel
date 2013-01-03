@@ -28,9 +28,12 @@
 #include <wiesel/graph/2d/sprite_node.h>
 #include <wiesel/ui/bitmapfont.h>
 #include <wiesel/ui/label_node.h>
+#include <wiesel/video/screen.h>
+#include <wiesel/video/video_device.h>
 #include <wiesel.h>
 
 using namespace wiesel;
+using namespace wiesel::video;
 using namespace std;
 
 
@@ -44,15 +47,28 @@ public:
 public:
 	virtual bool onInit() {
 		Log::info << "start application HelloWiesel" << std::endl;
+
+		// at first, we create our screen object
+		screen = new Screen();
+		screen->retain();
+
+		// the screen needs to be initialized
+		screen->loadVideoDevice(dimension(640, 480), 0);
+		
+		// successful?
+		assert(screen->getVideoDevice());
+		if (!screen->getVideoDevice()) {
+			return false;
+		}
 		
 		// get the screen centre
-		const dimension &screen = Engine::getCurrent()->getScreen()->getSize();
-		float center_x = screen.width  / 2;
-		float center_y = screen.height / 2;
-		float size     = min(screen.width, screen.height);
+		const dimension &screen_size = screen->getVideoDevice()->getResolution();
+		float center_x = screen_size.width  / 2;
+		float center_y = screen_size.height / 2;
+		float size     = min(screen_size.width, screen_size.height);
 
 		// note: we're loading this image from SDcard, it's currently not part of this sample application
-		File *tex_file = Engine::getCurrent()->getAssetFileSystem()->findFile("/images/wiesel.png");
+		File *tex_file = Engine::getInstance()->getAssetFileSystem()->findFile("/images/wiesel.png");
 		if (tex_file) {
 			Log::info << "load texture from: " << tex_file->getFullPath() << std::endl;
 			texture = Texture::fromFile(tex_file);
@@ -69,7 +85,7 @@ public:
 		sprite->retain();
 
 		// load the bitmap font
-		File*			font_file		= Engine::getCurrent()->getAssetFileSystem()->findFile("/images/font.png");
+		File*			font_file		= Engine::getInstance()->getAssetFileSystem()->findFile("/images/font.png");
 		Texture*		font_texture	= Texture::fromFile(font_file);
 		SpriteSheet*	font_ss			= new SpriteSheet(font_texture);
 
@@ -84,7 +100,7 @@ public:
 		label->setText("Hello Wiesel");
 		label->setPosition(center_x, 0.0f);
 		label->setPivot(0.5f, 0.0f);
-		label->setScale(screen.width / label->getContentSize().width * 0.95f);
+		label->setScale(screen_size.width / label->getContentSize().width * 0.95f);
 		label->retain();
 
 		Scene *scene = new Scene();
@@ -98,12 +114,36 @@ public:
 
 	virtual void onRun(float dt) {
 		Application::onRun(dt);
+
+		switch(screen->getState()) {
+			case Video_Uninitialized: {
+				// do nothing
+				break;
+			}
+
+			case Video_Suspended: {
+				// do nothing
+				break;
+			}
+
+			case Video_Background:
+			case Video_Active: {
+				if (screen && screen->getVideoDevice()) {
+					screen->getVideoDevice()->preRender();
+					this->onRender(screen->getVideoDevice());
+					screen->getVideoDevice()->postRender();
+				}
+
+				break;
+			}
+		}
+
 		return;
 	}
 
 
-	virtual void onRender() {
-		Application::onRender();
+	virtual void onRender(VideoDevice *video_device) {
+		Application::onRender(video_device);
 		return;
 	}
 
@@ -115,6 +155,8 @@ public:
 	}
 
 private:
+	Screen*			screen;
+
 	Texture*		texture;
 	wiesel::Font*	font;
 

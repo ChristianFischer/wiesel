@@ -1,4 +1,5 @@
 
+#include <wiesel/module_registry.h>
 #include "image_loader_libpng.h"
 
 

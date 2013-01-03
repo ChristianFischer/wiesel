@@ -19,37 +19,29 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
-#define __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+#ifndef __WIESEL_UTIL_LOG_WRITER_STDOUT_H__
+#define __WIESEL_UTIL_LOG_WRITER_STDOUT_H__
 
-#include <wiesel/io/databuffer.h>
-#include <wiesel/io/file.h>
-#include <wiesel/module.h>
-#include <wiesel/resources/graphics/image_loader.h>
-#include <wiesel/wiesel-sdl.def>
+#include <wiesel/wiesel-common.def>
+#include <wiesel/util/log_writer.h>
+#include <wiesel/util/log.h>
+
 
 
 namespace wiesel {
-namespace sdl {
 
-	class WIESEL_SDL_EXPORT SdlImageLoader : public IImageLoader
+	/**
+	 * @brief A log writer module to write log messages into stdout stream
+	 */
+	class WIESEL_COMMON_EXPORT LogWriterStdOut : public ILogWriter
 	{
-	private:
-		SdlImageLoader();
+	public:
+		LogWriterStdOut();
+		virtual ~LogWriterStdOut();
 
 	public:
-		static SdlImageLoader *create();
-		
-		virtual ~SdlImageLoader();
-
-
-		virtual Image *loadImage(DataSource *source);
-		virtual Image *loadPowerOfTwoImage(DataSource *source, dimension *pOriginal_size);
-		
-	private:
-		virtual Image *internal_loadImage(DataSource *source, dimension *pOriginalSize, bool pot);
+		virtual bool write(LogLevel level, const std::string &tag, const std::string &message);
 	};
-}
-}
 
-#endif // __WIESEL_SDL_LOADERS_SDLIMAGELOADER_H__
+} /* namespace wiesel */
+#endif /* __WIESEL_UTIL_LOG_WRITER_STDOUT_H__ */

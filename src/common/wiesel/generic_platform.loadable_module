@@ -1,0 +1,15 @@
+
+#include <wiesel/module_registry.h>
+#include "generic_platform.h"
+
+// add the module to the module registry
+namespace wiesel {
+	REGISTER_MODULE_SINGLETON(
+			Platform,
+			GenericPlatform,
+			&generic_create<GenericPlatform>,
+			"Generic",
+			0x01000000u,
+			IModuleLoader::PriorityLow
+	)
+}

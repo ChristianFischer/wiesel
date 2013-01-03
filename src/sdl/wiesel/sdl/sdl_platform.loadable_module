@@ -1,0 +1,17 @@
+
+#include <wiesel/module_registry.h>
+#include "sdl_platform.h"
+
+// add the module to the module registry
+namespace wiesel {
+	namespace sdl {
+		REGISTER_MODULE_SINGLETON(
+				wiesel::Platform,
+				SdlPlatform,
+				&generic_create<SdlPlatform>,
+				"SDL",
+				0x01020000u,
+				IModuleLoader::PriorityNormal
+		)
+	}
+}

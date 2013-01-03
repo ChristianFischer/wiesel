@@ -19,53 +19,29 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_SDL_ENGINE_H__
-#define __WIESEL_PLATFORM_SDL_ENGINE_H__
+#include "device_resource.h"
+#include "device.h"
 
-#include <wiesel/wiesel-core.def>
+#include <assert.h>
 
-#ifdef WIESEL_USE_LIBSDL
-
-#include "../../../wiesel/engine.h"
+using namespace wiesel;
 
 
-namespace wiesel {
-
-	class GenericFileSystem;
-
-
-	/**
-	 * @brief The SDL engine implementation.
-	 */
-	class WIESEL_CORE_EXPORT SdlEngine
-	: public Engine
-	{
-	public:
-		SdlEngine();
-		virtual ~SdlEngine();
-
-	// overridables
-	protected:
-		virtual bool onInit();
-		virtual void onShutdown();
-
-		virtual void onRunFirst();
-		virtual bool onRun();
-
-	public:
-		virtual FileSystem *getRootFileSystem();
-		virtual FileSystem *getAssetFileSystem();
-
-		virtual TouchHandler *getTouchHandler();
-
-	protected:
-		FileSystem*		root_fs;
-		FileSystem*		asset_fs;
-
-		TouchHandler*	touch_handler;
-	};
-
+DeviceResource::DeviceResource() : device(NULL) {
+	return;
 }
 
-#endif /* WIESEL_USE_LIBSDL */
-#endif /* __WIESEL_PLATFORM_SDL_ENGINE_H__ */
+
+DeviceResource::DeviceResource(Device *device) {
+	// device should be valid
+	assert(device);
+	
+	this->device = device;
+	
+	return;
+}
+
+
+DeviceResource::~DeviceResource() {
+	return;
+}

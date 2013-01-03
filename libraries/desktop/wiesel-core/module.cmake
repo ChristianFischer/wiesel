@@ -12,6 +12,9 @@ wiesel_module_add_dependency(wiesel-core wiesel-base)
 wiesel_module_add_dependency(wiesel-core glee third-party/glee)
 
 
+# TODO: remove when GL dependencies gets removed
+wiesel_target_add_compileflags(wiesel-core "-DWIESEL_USE_GLEE")
+
 
 # add libxml2 dependency
 include(FindLibXml2)
@@ -22,16 +25,4 @@ if(DEFINED LIBXML2_FOUND)
 	wiesel_target_add_compileflags(wiesel-core ${LIBXML2_DEFINITIONS})
 else()
 	message(FATAL_ERROR "required library libxml2 not found!")
-endif()
-
-
-# add SDL dependency
-include(FindSDL)
-
-if(DEFINED SDL_FOUND)
-	wiesel_target_add_includes(wiesel-core ${SDL_INCLUDE_DIR})
-	wiesel_target_add_libraries(wiesel-core ${SDL_LIBRARY})
-	wiesel_target_add_compileflags(wiesel-core "-DWIESEL_USE_LIBSDL")
-else()
-	message(FATAL_ERROR "required library SDL not found!")
 endif()

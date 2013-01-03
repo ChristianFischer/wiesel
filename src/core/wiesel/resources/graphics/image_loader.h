@@ -24,7 +24,7 @@
 
 #include <wiesel/wiesel-core.def>
 
-#include "wiesel/modules.h"
+#include "wiesel/module.h"
 #include "wiesel/io/datasource.h"
 #include "image.h"
 

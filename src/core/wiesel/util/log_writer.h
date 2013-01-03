@@ -19,46 +19,36 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_SDL_SCREEN_H__
-#define __WIESEL_PLATFORM_SDL_SCREEN_H__
+#ifndef __WIESEL_UTIL_LOG_WRITER_H__
+#define __WIESEL_UTIL_LOG_WRITER_H__
 
 #include <wiesel/wiesel-core.def>
+#include <wiesel/module.h>
 
-#if WIESEL_USE_LIBSDL
-
-#include "../../screen.h"
-#include "sdl_engine.h"
-
-#include <wiesel/geometry.h>
+#include "log.h"
 
 
 namespace wiesel {
 
 	/**
-	 * @brief The SDL Screen implementation.
+	 * @brief A module to write log messages into a stream or file
 	 */
-	class WIESEL_CORE_EXPORT SdlScreen
-	: public Screen
+	class WIESEL_CORE_EXPORT ILogWriter : public Module
 	{
-	private:
-		SdlScreen();
+	public:
+		ILogWriter();
+		virtual ~ILogWriter();
 
 	public:
-		SdlScreen(SdlEngine *engine);
-		virtual ~SdlScreen();
-
-		bool init();
-		bool release();
-
-		virtual void preRender();
-		virtual void postRender();
-
-	private:
-		SdlEngine*		engine;
+		/**
+		 * @brief Writes a message into the module's log.
+		 * @param level		the current logging level.
+		 * @param tag		the message's log tag.
+		 * @param message	the message to log.
+		 * @return \c true on success, \c false otherwise.
+		 */
+		virtual bool write(LogLevel level, const std::string &tag, const std::string &message) = 0;
 	};
 
-}
-
-#endif // WIESEL_USE_LIBSDL
-
-#endif /* __WIESEL_PLATFORM_SDL_SCREEN_H__ */
+} /* namespace wiesel */
+#endif /* __WIESEL_UTIL_LOG_WRITER_H__ */
