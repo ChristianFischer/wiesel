@@ -1,0 +1,17 @@
+
+#include <wiesel/module_registry.h>
+#include "android_platform.h"
+
+// add the module to the module registry
+namespace wiesel {
+	namespace android {
+		REGISTER_MODULE_SINGLETON(
+				Platform,
+				AndroidPlatform,
+				&generic_create<AndroidPlatform>,
+				"android",
+				0x01000000u,
+				IModuleLoader::PriorityNormal
+		)
+	}
+}

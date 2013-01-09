@@ -76,24 +76,6 @@ bool Engine::initialize(int argc, char* argv[]) {
 		}
 	}
 
-	// try to find a valid application object
-	if (this->application == NULL) {
-		std::vector<ModuleLoader<Application>*> loaders = ModuleRegistry::getInstance()->findModules<Application>();
-		for(std::vector<ModuleLoader<Application>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
-			Application *app = (*it)->create();
-			if (app) {
-				this->application = app;
-				this->application->retain();
-				this->application->onInit();
-			}
-		}
-
-		assert(application);
-		if (application == NULL) {
-			return false;
-		}
-	}
-
 	return true;
 }
 
@@ -127,13 +109,6 @@ FileSystem *Engine::getAssetFileSystem() {
 
 
 bool Engine::shutdown() {
-	// release the application object
-	if (application) {
-		application->onShutdown();
-		application->release();
-		application = NULL;
-	}
-
 	// release all platforms
 	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {
 		Platform *platform = *it;
@@ -149,6 +124,22 @@ bool Engine::shutdown() {
 
 
 void Engine::run() {
+	// try to find valid application objects
+	std::vector<ModuleLoader<Application>*> loaders = ModuleRegistry::getInstance()->findModules<Application>();
+	for(std::vector<ModuleLoader<Application>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
+		Application *app = (*it)->create();
+
+		// run the main loop with each selected application
+		if (app) {
+			run(app);
+		}
+	}
+
+	return;
+}
+
+
+void Engine::run(Application *app) {
 	// check, if a platform object is available
 	assert(platforms.empty() == false);
 	if (platforms.empty()) {
@@ -156,10 +147,21 @@ void Engine::run() {
 	}
 
 	// we need a valid application object to run
-	assert(application);
-	if (application == NULL) {
+	assert(app);
+	if (app == NULL) {
 		return;
 	}
+
+	// no other application should be active
+	assert(application == NULL);
+	if (application) {
+		return;
+	}
+
+	// initialize the application object
+	this->application = app;
+	this->application->retain();
+	this->application->onInit();
 
 	// reset the exit_requested flag before starting the main loop
 	exit_requested = false;
@@ -170,8 +172,8 @@ void Engine::run() {
 	}
 
 	// timers
-	clock_t last_t = clock();
-	clock_t now_t;
+	clock_t now_t = clock();
+	clock_t last_t;
 
 	bool done = false;
 	do {
@@ -224,6 +226,11 @@ void Engine::run() {
 		done |= exit_requested;
 	}
 	while(!done);
+
+	// release the application object
+	application->onShutdown();
+	application->release();
+	application = NULL;
 
 	return;
 }

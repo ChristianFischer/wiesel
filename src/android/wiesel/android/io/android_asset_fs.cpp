@@ -29,6 +29,7 @@
 
 
 using namespace wiesel;
+using namespace wiesel::android;
 using namespace std;
 
 

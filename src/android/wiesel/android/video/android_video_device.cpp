@@ -21,40 +21,30 @@
  */
 #ifdef __ANDROID__
 
-#include "android_screen.h"
+#include "android_video_device.h"
 #include <wiesel/gl/gl.h>
+#include <wiesel/ui/touchhandler.h>
 #include <wiesel/util/log.h>
 #include <assert.h>
 
 
 using namespace wiesel;
+using namespace wiesel::android;
+using namespace wiesel::video;
 
 
 
-AndroidScreen::AndroidScreen()
-: engine(NULL)
-, app(NULL)
-, display(EGL_NO_DISPLAY)
-, surface(EGL_NO_SURFACE)
-, context(EGL_NO_CONTEXT)
-{
+AndroidVideoDevice::AndroidVideoDevice(AndroidPlatform *platform, Screen *screen) : VideoDevice(screen) {
+	this->platform		= platform;
+	this->display		= EGL_NO_DISPLAY;
+	this->surface		= EGL_NO_SURFACE;
+	this->context		= EGL_NO_CONTEXT;
+	this->config		= NULL;
 	return;
 }
 
 
-AndroidScreen::AndroidScreen(AndroidEngine *engine, struct android_app *app)
-: engine(engine)
-, app(app)
-, display(EGL_NO_DISPLAY)
-, surface(EGL_NO_SURFACE)
-, context(EGL_NO_CONTEXT)
-, config (NULL)
-{
-	return;
-}
-
-
-AndroidScreen::~AndroidScreen() {
+AndroidVideoDevice::~AndroidVideoDevice() {
 	// check if the screen was released correctly
 	assert(display == EGL_NO_DISPLAY);
 	assert(surface == EGL_NO_SURFACE);
@@ -64,31 +54,38 @@ AndroidScreen::~AndroidScreen() {
 }
 
 
-bool AndroidScreen::init() {
+bool AndroidVideoDevice::init() {
 	// check if the screen is not already initialized
 	assert(display == EGL_NO_DISPLAY);
 	assert(surface == EGL_NO_SURFACE);
 	assert(context == EGL_NO_CONTEXT);
 	assert(config  == NULL);
 
-	if (!initContext()) {
-		return false;
+	if (
+			platform
+		&&	platform->getAndroidApp()
+		&&	platform->getAndroidApp()->window
+	) {
+		if (!initContext()) {
+			return false;
+		}
 	}
-
-	// log OpenGL information
-	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));
-	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Vendor:     %s", ((const char*)glGetString(GL_VENDOR)));
-	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Renderer:   %s", ((const char*)glGetString(GL_RENDERER)));
-	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Shader:     %s", ((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
-	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Extensions: %s", ((const char*)glGetString(GL_EXTENSIONS)));
-
-	CHECK_GL_ERROR;
+	else {
+		setState(Video_Uninitialized);
+	}
 
 	return true;
 }
 
-bool AndroidScreen::initContext() {
+bool AndroidVideoDevice::initContext() {
 	// initialize OpenGL ES and EGL
+
+	// get the android app object
+	assert(platform);
+	struct android_app *app = platform->getAndroidApp();
+	assert(app);
+
+	logmsg(LogLevel_Info, "TEST", "init context, window=%p", app->window);
 
 	EGLDisplay default_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 	if (this->display != EGL_NO_DISPLAY && this->display != default_display) {
@@ -163,11 +160,23 @@ bool AndroidScreen::initContext() {
 	// initialize the window's size
 	resize();
 
+	// video device is ready
+	setState(Video_Active);
+
+	// log OpenGL information
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Version:    %s", ((const char*)glGetString(GL_VERSION)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Vendor:     %s", ((const char*)glGetString(GL_VENDOR)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Renderer:   %s", ((const char*)glGetString(GL_RENDERER)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Shader:     %s", ((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+	logmsg(LogLevel_Info, WIESEL_GL_LOG_TAG, "OpenGL Extensions: %s", ((const char*)glGetString(GL_EXTENSIONS)));
+
+	CHECK_GL_ERROR;
+
 	return true;
 }
 
 
-bool AndroidScreen::resize() {
+bool AndroidVideoDevice::resize() {
 	EGLint w, h;
 
 	// get the display size
@@ -185,7 +194,7 @@ bool AndroidScreen::resize() {
 }
 
 
-bool AndroidScreen::releaseContext() {
+bool AndroidVideoDevice::releaseContext() {
 	if (display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
@@ -211,7 +220,7 @@ bool AndroidScreen::releaseContext() {
 }
 
 
-bool AndroidScreen::detachContext() {
+bool AndroidVideoDevice::detachContext() {
 	// detach the gl context
 	if (display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -227,12 +236,138 @@ bool AndroidScreen::detachContext() {
 }
 
 
-bool AndroidScreen::reattachContext() {
+bool AndroidVideoDevice::reattachContext() {
 	return initContext();
 }
 
 
-void AndroidScreen::preRender() {
+void AndroidVideoDevice::onAndroidCommand(int32_t cmd) {
+	switch(cmd) {
+		case APP_CMD_CONFIG_CHANGED: {
+			resize();
+			break;
+		}
+
+		case APP_CMD_WINDOW_RESIZED: {
+			resize();
+			break;
+		}
+
+		case APP_CMD_INIT_WINDOW: {
+			bool success = initContext();
+			assert(success);
+			break;
+		}
+
+		case APP_CMD_TERM_WINDOW: {
+			// The window is being hidden or closed, clean it up.
+			detachContext();
+			break;
+		}
+
+		case APP_CMD_GAINED_FOCUS: {
+			if (getScreen()) {
+				getScreen()->getTouchHandler()->releaseAllTouches();
+			}
+
+			setState(wiesel::video::Video_Active);
+
+			break;
+		}
+
+		case APP_CMD_LOST_FOCUS: {
+			if (getScreen()) {
+				getScreen()->getTouchHandler()->releaseAllTouches();
+			}
+
+			if (getState() == wiesel::video::Video_Active) {
+				setState(wiesel::video::Video_Background);
+			}
+
+			break;
+		}
+
+		case APP_CMD_PAUSE:
+		case APP_CMD_STOP: {
+			setState(wiesel::video::Video_Suspended);
+			break;
+		}
+
+		case APP_CMD_START:
+		case APP_CMD_RESUME: {
+			setState(wiesel::video::Video_Active);
+			break;
+		}
+
+		case APP_CMD_DESTROY: {
+			break;
+		}
+	}
+
+	return;
+}
+
+
+int32_t AndroidVideoDevice::onAndroidInputEvent(AInputEvent *event) {
+	wiesel::video::Screen *screen = getScreen();
+
+	if (
+			AInputEvent_getType(event)   == AINPUT_EVENT_TYPE_MOTION
+		&&	AInputEvent_getSource(event) == AINPUT_SOURCE_TOUCHSCREEN
+	) {
+		int action = AMotionEvent_getAction(event);
+
+		switch(action & AMOTION_EVENT_ACTION_MASK) {
+			case AMOTION_EVENT_ACTION_DOWN:
+			case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+				int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+				int id    = AMotionEvent_getPointerId(event, index);
+				int x     = AMotionEvent_getX(event, index);
+				int y     = AMotionEvent_getY(event, index);
+
+				if (screen) {
+					screen->getTouchHandler()->startTouch(id, x, y);
+				}
+
+				break;
+			}
+
+			case AMOTION_EVENT_ACTION_MOVE: {
+				for(int index=AMotionEvent_getPointerCount(event); --index>=0;) {
+					int id    = AMotionEvent_getPointerId(event, index);
+					int x     = AMotionEvent_getX(event, index);
+					int y     = AMotionEvent_getY(event, index);
+
+					if (screen) {
+						screen->getTouchHandler()->updateTouchLocation(id, x, y);
+					}
+				}
+
+				break;
+			}
+
+			case AMOTION_EVENT_ACTION_UP:
+			case AMOTION_EVENT_ACTION_CANCEL:
+			case AMOTION_EVENT_ACTION_POINTER_UP: {
+				int index = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+				int id    = AMotionEvent_getPointerId(event, index);
+
+				if (screen) {
+					screen->getTouchHandler()->releaseTouch(id);
+				}
+
+				break;
+			}
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+
+void AndroidVideoDevice::preRender() {
 	if (display == EGL_NO_DISPLAY) {
 		return;
 	}
@@ -246,7 +381,7 @@ void AndroidScreen::preRender() {
 }
 
 
-void AndroidScreen::postRender() {
+void AndroidVideoDevice::postRender() {
 	eglSwapBuffers(display, surface);
 	CHECK_GL_ERROR;
 	return;

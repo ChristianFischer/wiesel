@@ -21,15 +21,24 @@
  */
 #ifdef __ANDROID__
 
-#include <wiesel.h>
+#include "log_writer_android.h"
 #include <android/log.h>
 
 
 using namespace wiesel;
+using namespace wiesel::android;
 
+
+LogWriterAndroid::LogWriterAndroid() {
+	return;
+}
+
+LogWriterAndroid::~LogWriterAndroid() {
+	return;
+}
 
 // implementing the platform specific logging
-int _logmsg_impl(LogLevel level, const char *tag, const char *message) {
+bool LogWriterAndroid::write(LogLevel level, const std::string &tag, const std::string &message) {
 	android_LogPriority priority = ANDROID_LOG_INFO;
 
 	switch(level) {
@@ -39,7 +48,7 @@ int _logmsg_impl(LogLevel level, const char *tag, const char *message) {
 		case LogLevel_Error:	priority = ANDROID_LOG_ERROR;	break;
 	}
 
-	return __android_log_print(priority, tag, message);
+	return __android_log_print(priority, tag.c_str(), message.c_str());
 }
 
 #endif // __ANDROID__
