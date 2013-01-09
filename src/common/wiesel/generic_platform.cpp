@@ -26,7 +26,7 @@
 #include "wiesel/io/directory_filesystem.h"
 #include "wiesel/util/log.h"
 
-#include <sys/unistd.h>
+#include <unistd.h>
 #include <sys/param.h>
 #include <sstream>
 
@@ -38,6 +38,7 @@ using namespace std;
 GenericPlatform::GenericPlatform() {
 	// create file systems
 	root_fs = new GenericFileSystem();
+	asset_fs = NULL;
 
 	// get the current working directory
 	char working_dir_name[MAXPATHLEN];
@@ -55,19 +56,15 @@ GenericPlatform::GenericPlatform() {
 		}
 	}
 
-	stringstream ss;
-	ss << working_dir_name;
-	ss << "/resources/common";
+	if (working_dir_name) {
+		stringstream ss;
+		ss << working_dir_name;
+		ss << "/resources/common";
 
-	Directory *asset_root = root_fs->findDirectory(ss.str());
-	assert(asset_root);
-
-	if (asset_root) {
-		asset_fs = new DirectoryFileSystem(asset_root);
-	}
-	else {
-		// try another root file-system as a fallback
-		asset_fs = new GenericFileSystem();
+		Directory *asset_root = root_fs->findDirectory(ss.str());
+		if (asset_root) {
+			asset_fs = new DirectoryFileSystem(asset_root);
+		}
 	}
 
 	return;

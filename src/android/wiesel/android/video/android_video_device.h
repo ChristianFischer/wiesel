@@ -19,15 +19,16 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_ANDROID_SCREEN_H__
-#define __WIESEL_PLATFORM_ANDROID_SCREEN_H__
+#ifndef __WIESEL_ANDROID_VIDEO_DEVICE_H__
+#define __WIESEL_ANDROID_VIDEO_DEVICE_H__
 
-#include <wiesel/wiesel-core.def>
+#include <wiesel/wiesel-android.def>
 
 #ifdef __ANDROID__
 
-#include "../../screen.h"
-#include "android_engine.h"
+#include <wiesel/video/screen.h>
+#include <wiesel/video/video_device.h>
+#include <wiesel/android/android_platform.h>
 
 #include <wiesel/geometry.h>
 
@@ -38,43 +39,49 @@
 
 
 namespace wiesel {
+namespace android {
 
 	/**
-	 * @brief The android Screen implementation.
+	 * @brief The android VideoDevice implementation.
 	 */
-	class WIESEL_CORE_EXPORT AndroidScreen
-	: public Screen
+	class WIESEL_ANDROID_EXPORT AndroidVideoDevice :
+			public wiesel::video::VideoDevice,
+			public wiesel::android::IAndroidMessageReceiver
 	{
-	private:
-		AndroidScreen();
+	public:
+		AndroidVideoDevice(AndroidPlatform *platform, wiesel::video::Screen *screen);
+		virtual ~AndroidVideoDevice();
 
 	public:
-		AndroidScreen(AndroidEngine *engine, struct android_app *app);
-		virtual ~AndroidScreen();
-
 		bool init();
+
+	private:
 		bool initContext();
 		bool resize();
 		bool detachContext();
 		bool reattachContext();
 		bool releaseContext();
 
+		virtual void onAndroidCommand(int32_t cmd);
+		virtual int32_t onAndroidInputEvent(AInputEvent *event);
+
 		virtual void preRender();
 		virtual void postRender();
 
 	private:
-		struct android_app*	app;
-		AndroidEngine*		engine;
+		AndroidPlatform*	platform;
+		dimension			configured_size;
 
 		EGLint     format;
 		EGLConfig  config;
-	    EGLDisplay display;
-	    EGLSurface surface;
-	    EGLContext context;
+		EGLDisplay display;
+		EGLSurface surface;
+		EGLContext context;
 	};
 
+}
 }
 
 #endif // __ANDROID__
 
-#endif /* __WIESEL_PLATFORM_ANDROID_SCREEN_H__ */
+#endif /* __WIESEL_ANDROID_VIDEO_DEVICE_H__ */

@@ -19,8 +19,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_ANDROID_FILESUPPORT_ANDROID_ASSET_FS_H__
-#define __WIESEL_PLATFORM_ANDROID_FILESUPPORT_ANDROID_ASSET_FS_H__
+#ifndef __WIESEL_ANDROID_ASSET_FS_H__
+#define __WIESEL_ANDROID_ASSET_FS_H__
 
 #include <wiesel/wiesel-core.def>
 
@@ -30,6 +30,7 @@
 
 
 namespace wiesel {
+namespace android {
 
 	class AndroidAssetFileSystemDirectory;
 
@@ -96,5 +97,6 @@ namespace wiesel {
 		std::string		name;
 	};
 
+} /* namespace android */
 } /* namespace wiesel */
-#endif /* __WIESEL_PLATFORM_ANDROID_FILESUPPORT_ANDROID_ASSET_FS_H__ */
+#endif /* __WIESEL_ANDROID_ASSET_FS_H__ */

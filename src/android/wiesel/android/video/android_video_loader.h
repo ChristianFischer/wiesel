@@ -19,30 +19,33 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifdef __ANDROID__
+#ifndef __WIESEL_ANDROID_VIDEO_SDLVIDEOLOADER_H__
+#define __WIESEL_ANDROID_VIDEO_SDLVIDEOLOADER_H__
 
-#include "platform_main.h"
-#include "android_engine.h"
-#include "android_screen.h"
+#include <wiesel/wiesel-android.def>
 
-#include <android_native_app_glue.h>
-
-
-using namespace wiesel;
+#include <wiesel/video/screen.h>
+#include <wiesel/video/video_loader.h>
 
 
-void __internal_android_main(Application *app, struct ::android_app* state) {
-	// Make sure glue isn't stripped.
-	app_dummy();
+namespace wiesel {
+namespace android {
 
-	// create the android engine object
-	AndroidEngine *engine = new AndroidEngine(state);
-	Engine::install(engine);
-	Engine::run(app);
-	Engine::shutdown();
+	/**
+	 * @brief The Android video device implementation.
+	 */
+	class WIESEL_ANDROID_EXPORT AndroidVideoLoader :
+			public wiesel::video::IVideoLoader
+	{
+	public:
+		AndroidVideoLoader();
+		virtual ~AndroidVideoLoader();
 
-	return;
+	public:
+		virtual bool loadVideoDevice(video::Screen *screen, const dimension &resolution, unsigned int flags);
+	};
+
+}
 }
 
-
-#endif // __ANDROID__
+#endif // __WIESEL_ANDROID_VIDEO_SDLVIDEOLOADER_H__

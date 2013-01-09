@@ -110,9 +110,14 @@ namespace wiesel {
 		bool shutdown();
 
 		/**
-		 * @brief starts the main loop.
+		 * @brief starts the main loop with all existing applications.
 		 */
 		void run();
+
+		/**
+		 * @brief starts the main loop with a specific application class.
+		 */
+		void run(Application *app);
 
 		/**
 		 * @brief requests to stop the main loop after the current frame.

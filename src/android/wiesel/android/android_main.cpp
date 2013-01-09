@@ -19,25 +19,41 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_PLATFORM_ANDROID_PLATFORM_MAIN_H__
-#define __WIESEL_PLATFORM_ANDROID_PLATFORM_MAIN_H__
+#ifdef __ANDROID__
 
-#include <wiesel/wiesel-core.def>
+#include <wiesel/engine.h>
 
-#include "../../application.h"
+#include "android_platform.h"
 
-#if defined(__ANDROID__)
+#include <android_native_app_glue.h>
 
-/// application entry point macro
-#define	WIESEL_APPLICATION_SETUP(APPLICATION)						\
-	extern "C" void android_main(struct android_app* state) {		\
-		APPLICATION app = APPLICATION();							\
-		__internal_android_main(&app, state);						\
+
+using namespace wiesel;
+using namespace wiesel::android;
+
+
+extern "C" void android_main(struct android_app* state) {
+	// Make sure glue isn't stripped.
+	app_dummy();
+
+	// initialize the engine
+	Engine::getInstance()->initialize(0, NULL);
+
+	// find the android platform
+	const std::vector<Platform*> *platforms = Engine::getInstance()->getPlatforms();
+	for(std::vector<Platform*>::const_iterator it=platforms->begin(); it!=platforms->end(); it++) {
+		AndroidPlatform *platform = dynamic_cast<AndroidPlatform*>(*it);
+		if (platform) {
+			platform->initAndroidApp(state);
+		}
 	}
 
-/// delegate for the application entry point
-void WIESEL_CORE_EXPORT __internal_android_main(wiesel::Application *application, struct android_app* state);
+	// start the application
+	Engine::getInstance()->run();
+	Engine::getInstance()->shutdown();
 
-#endif // defined(__ANDROID__)
+	return;
+}
 
-#endif // __WIESEL_PLATFORM_ANDROID_PLATFORM_MAIN_H__
+
+#endif // __ANDROID__

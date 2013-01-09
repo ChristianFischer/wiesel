@@ -1,0 +1,17 @@
+
+#include <wiesel/module_registry.h>
+#include "log_writer_android.h"
+
+// add the module to the module registry
+namespace wiesel {
+	namespace android {
+		REGISTER_MODULE_SINGLETON(
+				ILogWriter,
+				LogWriterAndroid,
+				&generic_create<LogWriterAndroid>,
+				"android",
+				0x01000000u,
+				IModuleLoader::PriorityNormal
+		)
+	}
+}
