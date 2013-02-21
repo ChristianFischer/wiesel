@@ -26,7 +26,7 @@
 
 #include <wiesel/geometry.h>
 #include <wiesel/math/matrix.h>
-#include <wiesel/util/shared_object.h>
+#include <wiesel/device.h>
 
 namespace wiesel {
 
@@ -36,8 +36,8 @@ namespace wiesel {
 
 namespace video {
 
-	class VideoDevice;
 	class IVideoLoader;
+	class VideoDeviceDriver;
 
 
 
@@ -89,10 +89,8 @@ namespace video {
 	/**
 	 * @brief An abstract interface to the current screen.
 	 */
-	class WIESEL_CORE_EXPORT Screen : public virtual SharedObject
+	class WIESEL_CORE_EXPORT Screen : public Device
 	{
-	friend class IVideoLoader;
-
 	public:
 		Screen();
 		virtual ~Screen();
@@ -106,13 +104,13 @@ namespace video {
 		}
 
 		/// get the currently assigned video device
-		inline VideoDevice *getVideoDevice() {
-			return video_device;
+		inline VideoDeviceDriver *getVideoDeviceDriver() {
+			return video_device_driver;
 		}
 
 		/// get the currently assigned vicode device
-		inline const VideoDevice *getVideoDevice() const {
-			return video_device;
+		inline const VideoDeviceDriver *getVideoDeviceDriver() const {
+			return video_device_driver;
 		}
 
 	public:
@@ -123,10 +121,15 @@ namespace video {
 		 * @return				\c true on success.
 		 */
 		bool loadVideoDevice(const dimension &resolution, unsigned int flags);
+		/**
+		 * @brief Change the current driver of this video device.
+		 * Switching the driver will force all resources to be reloaded.
+		 */
+		void setVideoDeviceDriver(VideoDeviceDriver *driver);
 
 	protected:
-		TouchHandler*	touch_handler;
-		VideoDevice*	video_device;
+		TouchHandler*		touch_handler;
+		VideoDeviceDriver*	video_device_driver;
 	};
 
 }

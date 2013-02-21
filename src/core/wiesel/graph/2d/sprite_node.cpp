@@ -21,11 +21,13 @@
  */
 #include "sprite_node.h"
 #include "wiesel/engine.h"
-#include "wiesel/gl/shader/shaders.h"
-#include "wiesel/gl/texture/spriteframe.h"
-#include "wiesel/video/video_device.h"
+#include "wiesel/resources/graphics/spriteframe.h"
+#include "wiesel/video/render_context.h"
+#include "wiesel/video/shaders.h"
+#include "wiesel/video/video_driver.h"
 
 using namespace wiesel;
+using namespace wiesel::video;
 
 
 SpriteNode::SpriteNode() {
@@ -121,7 +123,7 @@ void SpriteNode::setTexture(Texture* texture) {
 }
 
 
-void SpriteNode::setShader(ShaderProgram* shader) {
+void SpriteNode::setShader(Shader* shader) {
 	if (this->shader) {
 		this->shader->release();
 		this->shader = NULL;
@@ -197,19 +199,18 @@ bool SpriteNode::hitBy(const vector2d& local) const {
 }
 
 
-void SpriteNode::onDraw(video::VideoDevice *video_device) {
+void SpriteNode::onDraw(video::RenderContext *render_context) {
 	if (texture) {
 		if (vbo_dirty) {
 			rebuildVertexBuffer();
 		}
 
-		shader->bind();
-		shader->setProjectionMatrix(video_device->getProjectionMatrix());
-		shader->setModelviewMatrix(getWorldTransform());
+		render_context->setShader(shader);
+		render_context->setModelviewMatrix(getWorldTransform());
+		render_context->prepareTextureLayers(1);
+		render_context->setTexture(0, texture);
 
-		vbo->bind(shader, texture);
-		vbo->render(VertexBuffer_RenderTriangleStrip);
-		vbo->unbind(shader);
+		render_context->draw(video::TriangleStrip, vbo);
 	}
 
 	return;

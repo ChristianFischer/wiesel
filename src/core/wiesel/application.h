@@ -82,7 +82,7 @@ namespace wiesel {
 		 * @brief called each frame to render graphics.
 		 * DUMMY - will be replaced by scene graph later.
 		 */
-		virtual void onRender(video::VideoDevice *video_device);
+		virtual void onRender(video::RenderContext *render_context);
 
 	// scene stack
 	public:

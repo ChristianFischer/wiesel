@@ -20,16 +20,18 @@
  * Boston, MA 02110-1301 USA
  */
 #include <wiesel/application_main.h>
-#include <wiesel/math/matrix.h>
-#include <wiesel/gl/shaders.h>
-#include <wiesel/gl/textures.h>
-#include <wiesel/gl/vbo.h>
-#include <wiesel/io/filesystem.h>
 #include <wiesel/graph/2d/sprite_node.h>
+#include <wiesel/io/filesystem.h>
+#include <wiesel/math/matrix.h>
+#include <wiesel/resources/graphics/spritesheet.h>
 #include <wiesel/ui/bitmapfont.h>
 #include <wiesel/ui/label_node.h>
+#include <wiesel/video/render_context.h>
 #include <wiesel/video/screen.h>
-#include <wiesel/video/video_device.h>
+#include <wiesel/video/shader.h>
+#include <wiesel/video/texture.h>
+#include <wiesel/video/vertexbuffer.h>
+#include <wiesel/video/video_driver.h>
 #include <wiesel.h>
 
 using namespace wiesel;
@@ -56,13 +58,16 @@ public:
 		screen->loadVideoDevice(dimension(640, 480), 0);
 		
 		// successful?
-		assert(screen->getVideoDevice());
-		if (!screen->getVideoDevice()) {
+		assert(screen->getVideoDeviceDriver());
+		if (!screen->getVideoDeviceDriver()) {
 			return false;
 		}
-		
+
+		// print video information
+		Log::info << *(screen->getVideoDeviceDriver()->getVideoInfo()) << std::endl;
+
 		// get the screen centre
-		const dimension &screen_size = screen->getVideoDevice()->getResolution();
+		const dimension &screen_size = screen->getVideoDeviceDriver()->getResolution();
 		float center_x = screen_size.width  / 2;
 		float center_y = screen_size.height / 2;
 		float size     = min(screen_size.width, screen_size.height);
@@ -73,6 +78,7 @@ public:
 			Log::info << "load texture from: " << tex_file->getFullPath() << std::endl;
 			texture = Texture::fromFile(tex_file);
 			texture->retain();
+			texture->loadContentFrom(screen);
 		}
 		else {
 			Log::info << "texture not found" << endl;
@@ -88,6 +94,9 @@ public:
 		File*			font_file		= Engine::getInstance()->getAssetFileSystem()->findFile("/images/font.png");
 		Texture*		font_texture	= Texture::fromFile(font_file);
 		SpriteSheet*	font_ss			= new SpriteSheet(font_texture);
+
+		// prepare the texture
+		font_texture->loadContentFrom(screen);
 
 		// configure the font
 		font_ss->createRasterFrames(16, 8,  0, 26, 'A');
@@ -128,10 +137,10 @@ public:
 
 			case Video_Background:
 			case Video_Active: {
-				if (screen && screen->getVideoDevice()) {
-					screen->getVideoDevice()->preRender();
-					this->onRender(screen->getVideoDevice());
-					screen->getVideoDevice()->postRender();
+				if (screen && screen->getVideoDeviceDriver()) {
+					screen->getVideoDeviceDriver()->preRender();
+					this->onRender(screen->getVideoDeviceDriver()->getCurrentRenderContext());
+					screen->getVideoDeviceDriver()->postRender();
 				}
 
 				break;
@@ -142,8 +151,8 @@ public:
 	}
 
 
-	virtual void onRender(VideoDevice *video_device) {
-		Application::onRender(video_device);
+	virtual void onRender(RenderContext *render_context) {
+		Application::onRender(render_context);
 		return;
 	}
 
@@ -151,6 +160,10 @@ public:
 	virtual void onShutdown() {
 		safe_release(texture);
 		safe_release(sprite);
+		safe_release(label);
+
+		safe_release(screen);
+
 		return;
 	}
 
@@ -158,7 +171,6 @@ private:
 	Screen*			screen;
 
 	Texture*		texture;
-	wiesel::Font*	font;
 
 	SpriteNode*		sprite;
 	LabelNode*		label;

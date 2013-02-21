@@ -21,9 +21,9 @@
  */
 #include "bitmapfont.h"
 
-#include "wiesel/gl/shaders.h"
-#include "wiesel/gl/texture/spritesheet.h"
 #include "wiesel/graph/2d/multisprite_node.h"
+#include "wiesel/resources/graphics/spritesheet.h"
+#include "wiesel/video/shaders.h"
 
 #include "wiesel/util/log.h"
 
@@ -76,7 +76,7 @@ void BitmapFont::setSpriteSheet(SpriteSheet* ss) {
 }
 
 
-void BitmapFont::setShader(ShaderProgram* shader) {
+void BitmapFont::setShader(video::Shader* shader) {
 	if (shader != this->shader) {
 		if (this->shader) {
 			this->shader->release();

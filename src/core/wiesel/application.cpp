@@ -44,10 +44,10 @@ void Application::onRun(float) {
 }
 
 
-void Application::onRender(video::VideoDevice *video_device) {
+void Application::onRender(video::RenderContext *render_context) {
 	// draw all scenes
 	for(SceneList::iterator it=scene_stack.begin(); it!=scene_stack.end(); it++) {
-		(*it)->render(video_device);
+		(*it)->render(render_context);
 	}
 
 	return;

@@ -26,8 +26,8 @@
 
 #include "node2d.h"
 #include "sprite_node.h"
-#include "wiesel/gl/texture/texture.h"
-#include "wiesel/gl/vbo/vertexbuffer.h"
+#include "wiesel/video/texture.h"
+#include "wiesel/video/vertexbuffer.h"
 #include "wiesel/geometry.h"
 
 #include <list>
@@ -63,7 +63,7 @@ namespace wiesel {
 		 * @brief Constructs a new MultiSpriteNode and assigns a texture to it.
 		 * @param texture	A valid texture.
 		 */
-		MultiSpriteNode(Texture *texture);
+		MultiSpriteNode(video::Texture *texture);
 
 		virtual ~MultiSpriteNode();
 
@@ -95,14 +95,14 @@ namespace wiesel {
 		/**
 		 * @brief Set the Shader to be used for rendering.
 		 */
-		void setShader(ShaderProgram *shader);
+		void setShader(video::Shader *shader);
 
 		/**
 		 * @brief Set the texture to be rendered.
 		 * NOTE: All frames must be within the same texture. When the texture is set to NULL
 		 * or to another texture, all sprite frames will be removed.
 		 */
-		void setTexture(Texture *texture);
+		void setTexture(video::Texture *texture);
 
 		/**
 		 * @brief Get the hit detection method, currently used by this sprite.
@@ -114,14 +114,14 @@ namespace wiesel {
 		/**
 		 * @brief Get the currently used shader.
 		 */
-		inline ShaderProgram *getShader() {
+		inline video::Shader *getShader() {
 			return shader;
 		}
 
 		/**
 		 * @brief Get the currently used texture.
 		 */
-		inline Texture *getTexture() {
+		inline video::Texture *getTexture() {
 			return texture;
 		}
 
@@ -168,22 +168,22 @@ namespace wiesel {
 
 	// overridables
 	protected:
-		virtual void onDraw(video::VideoDevice *video_device);
+		virtual void onDraw(video::RenderContext *render_context);
 
 		virtual void rebuildVertexBuffer();
 
 		virtual void updateBounds();
 
 	private:
-		SpriteHitDetection	hit_detection;
+		SpriteHitDetection		hit_detection;
 
-		EntryList			entries;
+		EntryList				entries;
 
-		Texture*			texture;
-		ShaderProgram*		shader;
-		IndexBuffer*		indices;
-		VertexBuffer*		vbo;
-		bool				vbo_dirty;
+		video::Texture*			texture;
+		video::Shader*			shader;
+		video::IndexBuffer*		indices;
+		video::VertexBuffer*	vbo;
+		bool					vbo_dirty;
 	};
 
 }

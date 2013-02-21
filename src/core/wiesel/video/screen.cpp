@@ -21,7 +21,7 @@
  */
 #include "screen.h"
 
-#include "video_device.h"
+#include "video_driver.h"
 #include "video_loader.h"
 
 #include "wiesel/ui/touchhandler.h"
@@ -32,7 +32,7 @@ using namespace wiesel::video;
 
 
 Screen::Screen() {
-	video_device  = NULL;
+	video_device_driver  = NULL;
 
 	touch_handler = new TouchHandler();
 	touch_handler->retain();
@@ -41,10 +41,7 @@ Screen::Screen() {
 }
 
 Screen::~Screen() {
-	if (video_device) {
-		video_device->release();
-		video_device = NULL;
-	}
+	setVideoDeviceDriver(NULL);
 
 	if (touch_handler) {
 		touch_handler->release();
@@ -55,8 +52,8 @@ Screen::~Screen() {
 
 
 VideoState Screen::getState() const {
-	if (getVideoDevice()) {
-		return getVideoDevice()->getState();
+	if (getVideoDeviceDriver()) {
+		return getVideoDeviceDriver()->getState();
 	}
 
 	return Video_Uninitialized;
@@ -78,5 +75,29 @@ bool Screen::loadVideoDevice(const dimension &resolution, unsigned int flags) {
 	}
 
 	return false;
+}
+
+
+void Screen::setVideoDeviceDriver(VideoDeviceDriver *driver) {
+	if (this->video_device_driver != driver) {
+		if (this->video_device_driver) {
+
+			// unload all resources
+			this->unloadAllResources();
+
+			this->video_device_driver->release();
+			this->video_device_driver = NULL;
+		}
+
+		if (driver) {
+			this->video_device_driver = driver;
+			this->video_device_driver->retain();
+
+			// load all resources from the new driver
+			this->loadAllResources();
+		}
+	}
+
+	return;
 }
 

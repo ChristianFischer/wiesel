@@ -20,7 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "sdl_video_loader.h"
-#include "sdl_video_device.h"
+#include "sdl_video_driver.h"
 
 #include <wiesel/video/video_loader.h>
 #include <wiesel/engine.h>
@@ -47,7 +47,7 @@ SdlVideoLoader *SdlVideoLoader::create() {
 }
 
 
-bool SdlVideoLoader::loadVideoDevice(Screen *screen, const dimension &resolution, unsigned int flags) {
+bool SdlVideoLoader::loadVideoDevice(wiesel::video::Screen *screen, const dimension &resolution, unsigned int flags) {
 	// try to find the sdl platform
 	SdlPlatform *platform = NULL;
 	const std::vector<Platform*> *platforms = Engine::getInstance()->getPlatforms();
@@ -65,15 +65,15 @@ bool SdlVideoLoader::loadVideoDevice(Screen *screen, const dimension &resolution
 	}
 
 	// create the new video device
-	SdlVideoDevice *device = new SdlVideoDevice(platform, screen);
+	SdlVideoDeviceDriver *device_driver = new SdlVideoDeviceDriver(platform, screen);
 
 	// inizialize the window
-	if (device->init(resolution, flags) == false) {
+	if (device_driver->init(resolution, flags) == false) {
 		return false;
 	}
 
 	// try to install the device into the screen
-	if (install(screen, device) == false) {
+	if (install(screen, device_driver) == false) {
 		return false;
 	}
 

@@ -25,16 +25,9 @@ include(${WIESEL_DIR}/build/build.cmake)
 
 wiesel_create_executable(HelloWiesel ./src)
 
-# TODO: remove when GL dependencies gets removed
-wiesel_target_add_compileflags(HelloWiesel "-DWIESEL_USE_GLEE")
-
-
 # add required libraries
 wiesel_module_add_dependency(HelloWiesel wiesel-base)
 wiesel_module_add_dependency(HelloWiesel wiesel-core)
 wiesel_module_add_dependency(HelloWiesel wiesel-common)
 wiesel_module_add_dependency(HelloWiesel wiesel-sdl)
 wiesel_module_add_dependency(HelloWiesel wiesel-mainproc)
-
-wiesel_target_add_compileflags(HelloWiesel "-DWIESEL_USE_LIBSDL")
-

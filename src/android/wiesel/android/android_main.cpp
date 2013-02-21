@@ -19,8 +19,6 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifdef __ANDROID__
-
 #include <wiesel/engine.h>
 
 #include "android_platform.h"
@@ -55,5 +53,3 @@ extern "C" void android_main(struct android_app* state) {
 	return;
 }
 
-
-#endif // __ANDROID__

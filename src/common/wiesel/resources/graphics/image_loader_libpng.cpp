@@ -27,6 +27,7 @@
 
 #include "wiesel/util/log.h"
 #include <inttypes.h>
+#include <malloc.h>
 #include <png.h>
 
 using namespace wiesel;

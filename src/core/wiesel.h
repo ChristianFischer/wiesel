@@ -26,7 +26,7 @@
 #include "wiesel/engine.h"
 
 // get the basic platform includes
-#include "wiesel/platform/platform_config.h"
+#include "wiesel/platform_config.h"
 
 // some useful default includes
 #include "wiesel/util/log.h"
