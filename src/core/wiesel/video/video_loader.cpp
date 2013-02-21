@@ -20,7 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "video_loader.h"
-#include "video_device.h"
+#include "video_driver.h"
 #include "screen.h"
 
 using namespace wiesel;
@@ -37,16 +37,14 @@ IVideoLoader::~IVideoLoader() {
 }
 
 
-bool IVideoLoader::install(Screen *screen, VideoDevice *video_device) {
+bool IVideoLoader::install(Screen *screen, VideoDeviceDriver *driver) {
 	assert(screen);
 
 	// cannot install a new device into a screen, which already contains a video device
-	assert(screen->video_device == NULL);
+	assert(screen->getVideoDeviceDriver() == NULL);
 
-	if (screen && screen->video_device==NULL) {
-		screen->video_device = video_device;
-		screen->video_device->retain();
-
+	if (screen && screen->getVideoDeviceDriver()==NULL) {
+		screen->setVideoDeviceDriver(driver);
 		return true;
 	}
 

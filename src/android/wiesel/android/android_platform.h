@@ -24,8 +24,6 @@
 
 #include <wiesel/wiesel-android.def>
 
-#ifdef __ANDROID__
-
 #include <wiesel/io/filesystem.h>
 #include <wiesel/platform.h>
 #include <android_native_app_glue.h>
@@ -35,7 +33,7 @@ namespace wiesel {
 namespace android {
 
 	class AndroidAssetFileSystem;
-	class AndroidVideoDevice;
+	class AndroidVideoDeviceDriver;
 	class IAndroidMessageReceiver;
 
 
@@ -120,5 +118,4 @@ namespace android {
 }
 }
 
-#endif /* __ANDROID__ */
 #endif /* __WIESEL_ANDROID_PLATFORM_H__ */

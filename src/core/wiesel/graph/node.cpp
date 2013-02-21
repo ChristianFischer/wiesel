@@ -22,7 +22,7 @@
 #include "node.h"
 
 #include "wiesel/engine.h"
-#include "wiesel/video/video_device.h"
+#include "wiesel/video/video_driver.h"
 
 #include <assert.h>
 #include <algorithm>
@@ -144,55 +144,51 @@ void Node::updateTransform() {
 }
 
 
-vector2d Node::convertScreenToLocal(video::VideoDevice *video_device, const vector2d& screen) {
-	// at first, convert into OpenGL coordinate space
-	vector2d transformed = vector2d(
-			+(screen.x / video_device->getResolution().width  - 0.5f) * 2,
-			-(screen.y / video_device->getResolution().height - 0.5f) * 2
-	);
-
-	// then use the projection- and modelview matrix to get the actual coordinate system
-	return
-			transformed
-		/	video_device->getProjectionMatrix()
-		/	this->getWorldTransform()
-	;
+vector2d Node::convertWorldToLocal(const vector2d& world) const {
+	// use the modelview matrix to get the actual coordinate system
+	return world / this->getWorldTransform();
 }
 
 
-void Node::render(video::VideoDevice *video_device) {
+vector3d Node::convertWorldToLocal(const vector3d& world) const {
+	// use the modelview matrix to get the actual coordinate system
+	return world / this->getWorldTransform();
+}
+
+
+void Node::render(video::RenderContext *render_context) {
 	bool this_drawn = false;
 
 	for(NodeList::iterator it=children.begin(); it!=children.end(); it++) {
 		Node *child = *it;
 
 		if (!this_drawn && child->getOrderKey() >= 0) {
-			render_this(video_device);
+			render_this(render_context);
 			this_drawn = true;
 		}
 
-		child->render(video_device);
+		child->render(render_context);
 	}
 
 	if (!this_drawn) {
-		render_this(video_device);
+		render_this(render_context);
 	}
 
 	return;
 }
 
 
-void Node::render_this(video::VideoDevice *video_device) {
+void Node::render_this(video::RenderContext *render_context) {
 	if (transform_dirty) {
 		updateTransform();
 	}
 
-	onDraw(video_device);
+	onDraw(render_context);
 
 	return;
 }
 
 
-void Node::onDraw(video::VideoDevice *video_device) {
+void Node::onDraw(video::RenderContext *render_context) {
 	return;
 }

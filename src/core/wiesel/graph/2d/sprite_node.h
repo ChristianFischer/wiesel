@@ -25,8 +25,8 @@
 #include <wiesel/wiesel-core.def>
 
 #include "node2d.h"
-#include "wiesel/gl/texture/texture.h"
-#include "wiesel/gl/vbo/vertexbuffer.h"
+#include "wiesel/video/texture.h"
+#include "wiesel/video/vertexbuffer.h"
 #include "wiesel/geometry.h"
 
 
@@ -71,7 +71,7 @@ namespace wiesel {
 		 * of a given texture and a default shader.
 		 * @param texture	A valid texture.
 		 */
-		SpriteNode(Texture *texture);
+		SpriteNode(video::Texture *texture);
 
 		/**
 		 * @brief Constructs a new SpriteNode containing the full image
@@ -79,7 +79,7 @@ namespace wiesel {
 		 * @param texture		A valid texture.
 		 * @param texture_rect	The area in the texture, which will be drawn.
 		 */
-		SpriteNode(Texture *texture, const rectangle &texture_rect);
+		SpriteNode(video::Texture *texture, const rectangle &texture_rect);
 
 		/**
 		 * @brief Constructs a new SpriteNode containing the full image
@@ -100,7 +100,7 @@ namespace wiesel {
 		/**
 		 * @brief Set the Shader to be used for rendering.
 		 */
-		void setShader(ShaderProgram *shader);
+		void setShader(video::Shader *shader);
 
 		/**
 		 * @brief Set a new sprite frame for this node.
@@ -110,7 +110,7 @@ namespace wiesel {
 		/**
 		 * @brief Set the texture to be rendered.
 		 */
-		void setTexture(Texture *texture);
+		void setTexture(video::Texture *texture);
 
 		/**
 		 * @brief Set the area within the texture, which will be drawn.
@@ -127,7 +127,7 @@ namespace wiesel {
 		/**
 		 * @brief Get the currently used shader.
 		 */
-		inline ShaderProgram *getShader() {
+		inline video::Shader *getShader() {
 			return shader;
 		}
 
@@ -141,7 +141,7 @@ namespace wiesel {
 		/**
 		 * @brief Get the currently used texture.
 		 */
-		inline Texture *getTexture() {
+		inline video::Texture *getTexture() {
 			return texture;
 		}
 
@@ -158,20 +158,20 @@ namespace wiesel {
 
 	// overridables
 	protected:
-		virtual void onDraw(video::VideoDevice *video_device);
+		virtual void onDraw(video::RenderContext *render_context);
 
 		virtual void rebuildVertexBuffer();
 
 	private:
-		SpriteHitDetection	hit_detection;
+		SpriteHitDetection		hit_detection;
 
-		SpriteFrame*		sprite;
-		Texture*			texture;
-		rectangle			texture_rect;
+		SpriteFrame*			sprite;
+		video::Texture*			texture;
+		rectangle				texture_rect;
 
-		ShaderProgram*		shader;
-		VertexBuffer*		vbo;
-		bool				vbo_dirty;
+		video::Shader*			shader;
+		video::VertexBuffer*	vbo;
+		bool					vbo_dirty;
 	};
 
 }

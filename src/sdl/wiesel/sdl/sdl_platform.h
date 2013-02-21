@@ -29,6 +29,9 @@
 #include <vector>
 
 
+#define WIESEL_SDL_LOG_TAG "SDL"
+
+
 namespace wiesel {
 namespace sdl {
 

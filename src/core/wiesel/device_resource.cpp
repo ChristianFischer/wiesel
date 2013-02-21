@@ -27,21 +27,67 @@
 using namespace wiesel;
 
 
-DeviceResource::DeviceResource() : device(NULL) {
-	return;
+DeviceResource::DeviceResource() {
+	this->device		= NULL;
+	this->is_requested	= false;
 }
-
-
-DeviceResource::DeviceResource(Device *device) {
-	// device should be valid
-	assert(device);
-	
-	this->device = device;
-	
-	return;
-}
-
 
 DeviceResource::~DeviceResource() {
 	return;
 }
+
+
+void DeviceResource::_assign(Device *device) {
+	if (getDevice() != device) {
+		if (getDevice() != NULL) {
+			getDevice()->removeResource(this);
+		}
+
+		if (device) {
+			device->addResource(this);
+		}
+	}
+
+	return;
+}
+
+
+void DeviceResource::setRequested(bool requested) {
+	this->is_requested = requested;
+}
+
+
+bool DeviceResource::isRequested() const {
+	return is_requested;
+}
+
+
+bool DeviceResource::loadContent() {
+	setRequested(true);
+
+	if (getDevice()) {
+		doLoadContent();
+	}
+
+	return isLoaded();
+}
+
+
+void DeviceResource::releaseContent() {
+	setRequested(false);
+	doUnloadContent();
+	return;
+}
+
+
+
+
+DeviceResourceContent::DeviceResourceContent() {
+	return;
+}
+
+DeviceResourceContent::~DeviceResourceContent() {
+	return;
+}
+
+

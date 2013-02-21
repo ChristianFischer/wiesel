@@ -9,11 +9,6 @@ wiesel_module_export_includes(wiesel-core ${WIESEL_SRC_DIR}/core)
 
 # add required modules
 wiesel_module_add_dependency(wiesel-core wiesel-base)
-wiesel_module_add_dependency(wiesel-core glee third-party/glee)
-
-
-# TODO: remove when GL dependencies gets removed
-wiesel_target_add_compileflags(wiesel-core "-DWIESEL_USE_GLEE")
 
 
 # add libxml2 dependency

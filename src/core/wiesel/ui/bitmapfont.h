@@ -32,7 +32,10 @@ namespace wiesel {
 
 	class SpriteFrame;
 	class SpriteSheet;
-	class ShaderProgram;
+
+	namespace video {
+		class Shader;
+	}
 
 
 
@@ -72,12 +75,12 @@ namespace wiesel {
 		 * @brief Set the preferred shader to be used for rendering.
 		 * Will be set for the target label node, if there is not already a shader configured.
 		 */
-		void setShader(ShaderProgram *shader);
+		void setShader(video::Shader *shader);
 
 		/**
 		 * @brief Get the preferred shader for this font.
 		 */
-		inline ShaderProgram *getShader() const {
+		inline video::Shader *getShader() const {
 			return shader;
 		}
 
@@ -130,7 +133,7 @@ namespace wiesel {
 
 	private:
 		SpriteSheet*		spritesheet;
-		ShaderProgram*		shader;
+		video::Shader*		shader;
 
 		float				char_spacing;
 		float				line_spacing;

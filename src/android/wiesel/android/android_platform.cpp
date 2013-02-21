@@ -23,13 +23,13 @@
 
 #include "android_platform.h"
 #include "io/android_asset_fs.h"
-#include "video/android_video_device.h"
+#include "video/android_video_driver.h"
 
 #include "wiesel/io/datasource.h"
 #include "wiesel/io/file.h"
 #include "wiesel/ui/touchhandler.h"
 #include "wiesel/util/log.h"
-#include "wiesel/video/video_device.h"
+#include "wiesel/video/video_driver.h"
 #include "wiesel/engine.h"
 
 #include <algorithm>

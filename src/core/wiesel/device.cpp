@@ -35,10 +35,12 @@ Device::Device() {
 Device::~Device() {
 	// free all device resources
 	for(DeviceResourceList::iterator it=resources.begin(); it!=resources.end(); it++) {
-		// there should be no more references when the device will be released
-		assert((*it)->getReferenceCount() == 1);
+		DeviceResource *resource = *it;
 
-		(*it)->release();
+		// the content should already be unloaded
+		assert(resource->isLoaded() == false);
+
+		resource->release();
 	}
 
 	return;
@@ -52,6 +54,7 @@ void Device::addResource(DeviceResource *resource) {
 
 	if (it == resources.end()) {
 		resources.push_back(resource);
+		resource->device = this;
 		resource->retain();
 	}
 
@@ -64,9 +67,50 @@ void Device::removeResource(DeviceResource *resource) {
 
 	if ((*it) == resource) {
 		resources.erase(it);
+
+		if (resource->device == this) {
+			resource->device = NULL;
+		}
+
 		(*it)->release();
 	}
 
 	return;
 }
 
+
+void Device::loadAllResources() {
+	for(DeviceResourceList::iterator it=resources.begin(); it!=resources.end(); it++) {
+		DeviceResource *resource = *it;
+		resource->loadContent();
+	}
+
+	return;
+}
+
+
+void Device::unloadAllResources() {
+	for(DeviceResourceList::iterator it=resources.begin(); it!=resources.end(); it++) {
+		DeviceResource *resource = *it;
+		resource->releaseContent();
+	}
+
+	return;
+}
+
+
+
+
+DeviceDriver::DeviceDriver() {
+	return;
+}
+
+
+DeviceDriver::DeviceDriver(Device *device) {
+	return;
+}
+
+
+DeviceDriver::~DeviceDriver() {
+	return;
+}

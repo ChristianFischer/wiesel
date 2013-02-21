@@ -20,7 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "android_video_loader.h"
-#include "android_video_device.h"
+#include "android_video_driver.h"
 
 #include <wiesel/video/video_loader.h>
 #include <wiesel/engine.h>
@@ -60,7 +60,7 @@ bool AndroidVideoLoader::loadVideoDevice(Screen *screen, const dimension &resolu
 	}
 
 	// create the new video device
-	AndroidVideoDevice *device = new AndroidVideoDevice(platform, screen);
+	AndroidVideoDeviceDriver *device = new AndroidVideoDeviceDriver(platform, screen);
 
 	// inizialize the window
 	if (device->init() == false) {

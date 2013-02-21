@@ -32,7 +32,7 @@ namespace wiesel {
 namespace video {
 
 	class Screen;
-	class VideoDevice;
+	class VideoDeviceDriver;
 
 	/**
 	 * @brief The SDL video device implementation.
@@ -45,7 +45,7 @@ namespace video {
 
 	public:
 		/**
-		 * @brief Tries to initialize the given screen object with a new \ref VideoDevice.
+		 * @brief Tries to initialize the given screen object with a new \ref VideoDeviceDriver.
 		 * @param screen		The screen object to be initialilize.
 		 * @param resolution	The requiested resolution of this device.
 		 * @param flags			A set of flags for the new video device.
@@ -55,12 +55,12 @@ namespace video {
 
 	protected:
 		/**
-		 * @brief Tries to install a created \ref VideoDevice into the given \ref Screen object.
+		 * @brief Tries to install a created \ref VideoDeviceDriver into the given \ref Screen object.
 		 * @param screen		The screen, the new video device will be installed to
-		 * @param video_device	The video device, which will installed.
+		 * @param driver		The video device, which will installed.
 		 * @return				\c true on success, \c false otherwise.
 		 */
-		virtual bool install(Screen *screen, VideoDevice *video_device);
+		virtual bool install(Screen *screen, VideoDeviceDriver *driver);
 	};
 
 }

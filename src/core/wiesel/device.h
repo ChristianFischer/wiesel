@@ -35,17 +35,20 @@ namespace wiesel {
 	// forward declarations
 	
 	class DeviceResource;
+	class DeviceResourceContent;
 	
 
 	/**
 	 * @brief An abstract baseclass for any device classes.
-	 * Device classes wwill be used as an interface layer between application
+	 * Device classes will be used as an interface layer between application
 	 * and various hardware and platform specific implementations, such as
 	 * video devices for rendering or input devices for pointer and key input.
 	 * A device can handle various \ref DeviceResource objects.
 	 */
 	class WIESEL_CORE_EXPORT Device : public virtual SharedObject
 	{
+	friend class DeviceResource;
+
 	protected:
 		Device();
 		
@@ -67,12 +70,41 @@ namespace wiesel {
 		 * their own set of functions to provide access to device resources.
 		 */
 		void removeResource(DeviceResource *resource);
+
+		/**
+		 * @brief Load all attached resources from the device's DeviceDriver.
+		 * The device needs a valid \ref DeviceDriver object.
+		 */
+		void loadAllResources();
+
+		/**
+		 * @brief Unloads the content of all attached resources.
+		 */
+		void unloadAllResources();
 		
 	protected:
 		/// type alias for resource lists
 		typedef std::vector<DeviceResource*>	DeviceResourceList;
 		
 		DeviceResourceList		resources;
+	};
+
+
+
+	/**
+	 * @brief The DeviceDriver class handles the hardware or platform dependent part
+	 * of any \ref Device object.
+	 */
+	class WIESEL_CORE_EXPORT DeviceDriver : public virtual SharedObject
+	{
+	private:
+		DeviceDriver();
+
+	protected:
+		DeviceDriver(Device *device);
+
+	public:
+		virtual ~DeviceDriver();
 	};
 
 }

@@ -27,6 +27,7 @@
 #include <wiesel/util/shared_object.h>
 #include <wiesel/math/matrix.h>
 #include <wiesel/math/vector2d.h>
+#include <wiesel/math/vector3d.h>
 
 #include <vector>
 
@@ -37,6 +38,7 @@ namespace wiesel {
 
 	namespace video {
 		class VideoDevice;
+		class RenderContext;
 	}
 
 
@@ -160,14 +162,28 @@ namespace wiesel {
 		 * @brief Converts a screen-location (for example the location of a touch event) into
 		 * the local coordinate system of this node.
 		 */
+		/*
 		vector2d convertScreenToLocal(video::VideoDevice *video_device, const vector2d &screen);
+		*/
+
+		/**
+		 * @brief Converts a position vector from world coordinates into
+		 * the local coordinate system of this node.
+		 */
+		vector2d convertWorldToLocal(const vector2d &world) const;
+
+		/**
+		 * @brief Converts a position vector from world coordinates into
+		 * the local coordinate system of this node.
+		 */
+		vector3d convertWorldToLocal(const vector3d &world) const;
 
 	// public functions
 	public:
 		/**
 		 * @brief Render this node including all it's children.
 		 */
-		virtual void render(video::VideoDevice *video_device);
+		virtual void render(video::RenderContext *render_context);
 
 	// overridables
 	protected:
@@ -175,14 +191,14 @@ namespace wiesel {
 		 * @brief Called to render this node.
 		 * This function should be the only place to put rendering code.
 		 */
-		virtual void onDraw(video::VideoDevice *video_device);
+		virtual void onDraw(video::RenderContext *render_context);
 
 	// private functions
 	private:
 		/**
 		 * @brief Render the current node.
 		 */
-		void render_this(video::VideoDevice *video_device);
+		void render_this(video::RenderContext *render_context);
 
 	// members available for subclasses
 	protected:
