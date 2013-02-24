@@ -163,6 +163,16 @@ void OpenGlRenderContext::setShader(Shader* shader) {
 }
 
 
+void OpenGlRenderContext::setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) {
+	if (active_shader_content) {
+		active_shader_content->setShaderValue(name, type, elements, pValue);
+	}
+
+	return;
+}
+
+
+
 void OpenGlRenderContext::setTexture(uint16_t index, Texture* texture) {
 	// check if the texture list is big enough.
 	// when this assert fails, there may be missing a prepareTextures call

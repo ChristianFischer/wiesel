@@ -69,6 +69,22 @@ namespace video {
 			Texture,
 		};
 
+		/**
+		 * @brief A list of valid types for shader attributes.
+		 */
+		enum ValueType {
+			TypeInt32,
+
+			TypeFloat,
+
+			TypeVector2f,
+			TypeVector3f,
+			TypeVector4f,
+
+			TypeMatrix4x4f,
+		};
+
+
 		/// Alias type for an indiced list of attribute names
 		typedef std::vector<std::string>				AttributeNamesByIndex;
 
@@ -178,6 +194,9 @@ namespace video {
 
 		/// set the projection matrix for the current shader
 		virtual bool setProjectionMatrix(const matrix4x4 &matrix) = 0;
+
+		/// set a uniform shader value, see ShaderTarget::setShaderValue
+		virtual bool setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) = 0;
 
 	private:
 		Shader*		shader;

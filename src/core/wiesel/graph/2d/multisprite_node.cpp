@@ -33,7 +33,6 @@ using namespace wiesel::video;
 
 MultiSpriteNode::MultiSpriteNode() {
 	this->texture		= NULL;
-	this->shader		= NULL;
 	this->indices		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
@@ -45,7 +44,6 @@ MultiSpriteNode::MultiSpriteNode() {
 
 MultiSpriteNode::MultiSpriteNode(Texture *texture) {
 	this->texture		= NULL;
-	this->shader		= NULL;
 	this->indices		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
@@ -89,21 +87,6 @@ void MultiSpriteNode::setTexture(Texture* texture) {
 			// we have to clear the sprite list
 			clear();
 		}
-	}
-
-	return;
-}
-
-
-void MultiSpriteNode::setShader(Shader* shader) {
-	if (this->shader) {
-		this->shader->release();
-		this->shader = NULL;
-	}
-
-	if (shader) {
-		this->shader = shader;
-		this->shader->retain();
 	}
 
 	return;
@@ -226,7 +209,7 @@ void MultiSpriteNode::onDraw(video::RenderContext *render_context) {
 			rebuildVertexBuffer();
 		}
 
-		render_context->setShader(shader);
+		applyShaderConfigTo(render_context);
 		render_context->setModelviewMatrix(getWorldTransform());
 		render_context->prepareTextureLayers(1);
 		render_context->setTexture(0, texture);
@@ -293,7 +276,7 @@ void MultiSpriteNode::rebuildVertexBuffer() {
 		}
 	}
 
-	if (shader == NULL) {
+	if (getShader() == NULL) {
 		setShader(Shaders::instance()->getShaderFor(vbo));
 	}
 
