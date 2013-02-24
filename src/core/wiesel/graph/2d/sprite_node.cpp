@@ -33,7 +33,6 @@ using namespace wiesel::video;
 SpriteNode::SpriteNode() {
 	this->sprite		= NULL;
 	this->texture		= NULL;
-	this->shader		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -45,7 +44,6 @@ SpriteNode::SpriteNode() {
 SpriteNode::SpriteNode(Texture *texture) {
 	this->sprite		= NULL;
 	this->texture		= NULL;
-	this->shader		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -62,7 +60,6 @@ SpriteNode::SpriteNode(Texture *texture, const rectangle &texture_rect) {
 
 	this->sprite		= NULL;
 	this->texture		= NULL;
-	this->shader		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -79,7 +76,6 @@ SpriteNode::SpriteNode(SpriteFrame *sprite) {
 
 	this->sprite		= NULL;
 	this->texture		= NULL;
-	this->shader		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -117,21 +113,6 @@ void SpriteNode::setTexture(Texture* texture) {
 	if (this->sprite) {
 		this->sprite->release();
 		this->sprite = NULL;
-	}
-
-	return;
-}
-
-
-void SpriteNode::setShader(Shader* shader) {
-	if (this->shader) {
-		this->shader->release();
-		this->shader = NULL;
-	}
-
-	if (shader) {
-		this->shader = shader;
-		this->shader->retain();
 	}
 
 	return;
@@ -205,7 +186,7 @@ void SpriteNode::onDraw(video::RenderContext *render_context) {
 			rebuildVertexBuffer();
 		}
 
-		render_context->setShader(shader);
+		this->applyShaderConfigTo(render_context);
 		render_context->setModelviewMatrix(getWorldTransform());
 		render_context->prepareTextureLayers(1);
 		render_context->setTexture(0, texture);
@@ -272,7 +253,7 @@ void SpriteNode::rebuildVertexBuffer() {
 		}
 	}
 
-	if (shader == NULL) {
+	if (getShader() == NULL) {
 		setShader(Shaders::instance()->getShaderFor(vbo));
 	}
 

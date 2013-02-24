@@ -92,39 +92,9 @@ namespace gl {
 		/// set the modelview matrix
 		virtual bool setModelviewMatrix(const matrix4x4 &matrix);
 
-#if 0
-	private:
-		/**
-		 * @brief bind all attributes configured in the shaders.
-		 */
-		void bindAttributes();
+		/// set a uniform shader value, see ShaderTarget::setShaderValue
+		virtual bool setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue);
 
-		/**
-		 * @brief get the OpenGL handle to a specific uniform parameter.
-		 */
-		GLint getUniformHandle(const std::string &name) const;
-
-		/**
-		 * @brief release the shader.
-		 */
-		void release_shader();
-
-	// private members
-	private:
-		std::vector<Shader*>	shaders;
-		GLuint					program;
-		bool					need_link;
-
-		GLint					uniform_handle_projection_matrix;
-		GLint					uniform_handle_modelview_matrix;
-		GLint					attrib_handle_vertex_position;
-		GLint					attrib_handle_vertex_normal;
-		GLint					attrib_handle_vertex_color;
-		std::vector<GLint>		attrib_handle_vertex_texcoords;
-		std::vector<GLint>		attrib_handle_vertex_textures;
-
-		std::map<std::string,GLint>	uniform_attributes;
-#endif
 	private:
 		/// Alias type for an indiced list of attribute names
 		typedef std::vector<GLint>						AttributeHandlesByIndex;

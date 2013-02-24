@@ -51,7 +51,7 @@ namespace wiesel {
 	 * This Node is designed to provide a very basic functionality, so each sprite can
 	 * have an individual offset, but no custom transformations like scaling or rotation.
 	 */
-	class WIESEL_CORE_EXPORT MultiSpriteNode : public Node2D
+	class WIESEL_CORE_EXPORT MultiSpriteNode : public Node2D, public video::ShaderTarget
 	{
 	public:
 		/**
@@ -93,11 +93,6 @@ namespace wiesel {
 		void setSpriteHitDetection(SpriteHitDetection hit);
 
 		/**
-		 * @brief Set the Shader to be used for rendering.
-		 */
-		void setShader(video::Shader *shader);
-
-		/**
 		 * @brief Set the texture to be rendered.
 		 * NOTE: All frames must be within the same texture. When the texture is set to NULL
 		 * or to another texture, all sprite frames will be removed.
@@ -109,13 +104,6 @@ namespace wiesel {
 		 */
 		inline SpriteHitDetection getSpriteHitDetection() const {
 			return hit_detection;
-		}
-
-		/**
-		 * @brief Get the currently used shader.
-		 */
-		inline video::Shader *getShader() {
-			return shader;
 		}
 
 		/**
@@ -180,7 +168,6 @@ namespace wiesel {
 		EntryList				entries;
 
 		video::Texture*			texture;
-		video::Shader*			shader;
 		video::IndexBuffer*		indices;
 		video::VertexBuffer*	vbo;
 		bool					vbo_dirty;

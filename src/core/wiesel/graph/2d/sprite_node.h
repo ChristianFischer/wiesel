@@ -25,6 +25,8 @@
 #include <wiesel/wiesel-core.def>
 
 #include "node2d.h"
+#include "wiesel/video/shader.h"
+#include "wiesel/video/shader_target.h"
 #include "wiesel/video/texture.h"
 #include "wiesel/video/vertexbuffer.h"
 #include "wiesel/geometry.h"
@@ -58,7 +60,7 @@ namespace wiesel {
 	/**
 	 * @brief A Node for displaying a single sprite.
 	 */
-	class WIESEL_CORE_EXPORT SpriteNode : public Node2D
+	class WIESEL_CORE_EXPORT SpriteNode : public Node2D, public video::ShaderTarget
 	{
 	public:
 		/**
@@ -98,11 +100,6 @@ namespace wiesel {
 		void setSpriteHitDetection(SpriteHitDetection hit);
 
 		/**
-		 * @brief Set the Shader to be used for rendering.
-		 */
-		void setShader(video::Shader *shader);
-
-		/**
 		 * @brief Set a new sprite frame for this node.
 		 */
 		void setSpriteFrame(SpriteFrame *sprite);
@@ -122,13 +119,6 @@ namespace wiesel {
 		 */
 		inline SpriteHitDetection getSpriteHitDetection() const {
 			return hit_detection;
-		}
-
-		/**
-		 * @brief Get the currently used shader.
-		 */
-		inline video::Shader *getShader() {
-			return shader;
 		}
 
 		/**
@@ -169,7 +159,6 @@ namespace wiesel {
 		video::Texture*			texture;
 		rectangle				texture_rect;
 
-		video::Shader*			shader;
 		video::VertexBuffer*	vbo;
 		bool					vbo_dirty;
 	};

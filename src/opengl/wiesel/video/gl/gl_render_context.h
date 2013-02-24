@@ -62,6 +62,7 @@ namespace gl {
 
 	public:
 		virtual void setShader(Shader *shader);
+		virtual void setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue);
 		virtual void setTexture(uint16_t index, Texture *texture);
 		virtual void prepareTextureLayers(uint16_t layers);
 		virtual void clearTextures();

@@ -24,6 +24,7 @@
 
 #include "wiesel/wiesel-core.def"
 #include "screen.h"
+#include "shader.h"
 #include "types.h"
 
 #include <wiesel/device.h>
@@ -106,6 +107,15 @@ namespace video {
 		 *					to clear the current shader.
 		 */
 		virtual void setShader(Shader *shader) = 0;
+
+		/**
+		 * @brief Set the uniform attribute for the current shader.
+		 * @param name		The unique name of the shader attribute.
+		 * @param type		The attribute's type.
+		 * @param elements	The number of elements within the parameter, to use an array of values.
+		 * @param pValue	Pointer to the value, which will be delivered to the shader.
+		 */
+		virtual void setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) = 0;
 
 		/**
 		 * @brief Set a texture for a specific texture unit.

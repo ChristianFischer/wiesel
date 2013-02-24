@@ -339,3 +339,63 @@ bool GlShaderContent::setModelviewMatrix(const matrix4x4& matrix) {
 
 	return false;
 }
+
+
+bool GlShaderContent::setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) {
+	std::map<std::string,GLint>::iterator it = uniform_attributes.find(name);
+
+	if (it != uniform_attributes.end() && it->second != -1) {
+		GLint attrib_handle = it->second;
+
+		switch(type) {
+			case Shader::TypeInt32: {
+				if (elements == 1) {
+					glUniform1i(attrib_handle, *(reinterpret_cast<GLint*>(pValue)));
+				}
+				else {
+					glUniform1iv(attrib_handle, elements, reinterpret_cast<GLint*>(pValue));
+				}
+
+				break;
+			}
+
+			case Shader::TypeFloat: {
+				if (elements == 1) {
+					glUniform1f(attrib_handle, *(reinterpret_cast<GLfloat*>(pValue)));
+				}
+				else {
+					glUniform1fv(attrib_handle, elements, reinterpret_cast<GLfloat*>(pValue));
+				}
+
+				break;
+			}
+
+			case Shader::TypeVector2f: {
+				glUniform2fv(attrib_handle, elements, reinterpret_cast<GLfloat*>(pValue));
+				break;
+			}
+
+			case Shader::TypeVector3f: {
+				glUniform3fv(attrib_handle, elements, reinterpret_cast<GLfloat*>(pValue));
+				break;
+			}
+
+			case Shader::TypeVector4f: {
+				glUniform4fv(attrib_handle, elements, reinterpret_cast<GLfloat*>(pValue));
+				break;
+			}
+
+			case Shader::TypeMatrix4x4f: {
+				glUniformMatrix4fv(attrib_handle, elements, false, reinterpret_cast<GLfloat*>(pValue));
+				break;
+			}
+		}
+
+		CHECK_GL_ERROR;
+
+		return true;
+	}
+
+	return false;
+}
+
