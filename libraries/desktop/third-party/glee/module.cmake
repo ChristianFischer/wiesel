@@ -11,7 +11,7 @@ wiesel_module_export_includes(glee ${WIESEL_SRC_DIR}/third-party/glee-5.4)
 # add opengl dependency
 include(FindOpenGL)
 
-if(DEFINED OPENGL_FOUND)
+if(OPENGL_FOUND)
 	wiesel_module_export_includes(glee ${WIESEL_SRC_DIR}/third-party/glee-5.4)
 	wiesel_target_add_libraries(glee ${OPENGL_LIBRARIES})
 	wiesel_target_add_includes(glee ${OPENGL_INCLUDE_DIR})
