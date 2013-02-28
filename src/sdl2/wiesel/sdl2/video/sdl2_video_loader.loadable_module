@@ -1,0 +1,17 @@
+
+#include <wiesel/module_registry.h>
+#include "sdl2_video_loader.h"
+
+// add the module to the module registry
+namespace wiesel {
+	namespace sdl2 {
+		REGISTER_MODULE_SINGLETON(
+				wiesel::video::IVideoLoader,
+				Sdl2VideoLoader,
+				&Sdl2VideoLoader::create,
+				"SDL",
+				0x02000000u,
+				IModuleLoader::PriorityNormal
+		)
+	}
+}

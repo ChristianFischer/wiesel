@@ -16,19 +16,19 @@ wiesel_module_add_dependency(wiesel-sdl wiesel-opengl)
 # add SDL dependency
 include(FindSDL)
 
-if(DEFINED SDL_FOUND)
+if(SDL_FOUND)
 	wiesel_target_add_includes(wiesel-sdl ${SDL_INCLUDE_DIR})
 	wiesel_target_add_libraries(wiesel-sdl ${SDL_LIBRARY})
-else()
+else(SDL_FOUND)
 	message(FATAL_ERROR "required library SDL not found!")
-endif()
+endif(SDL_FOUND)
 
 
 # add SDL_image dependency
 include(FindSDL_image)
 
-if(DEFINED SDLIMAGE_FOUND)
+if(SDLIMAGE_FOUND)
 	wiesel_target_add_libraries(wiesel-sdl ${SDLIMAGE_LIBRARY})
-else()
+else(SDLIMAGE_FOUND)
 	message(FATAL_ERROR "required library SDL_image not found!")
-endif()
+endif(SDLIMAGE_FOUND)
