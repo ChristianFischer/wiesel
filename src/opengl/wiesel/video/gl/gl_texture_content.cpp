@@ -112,6 +112,10 @@ bool GlTextureContent::createHardwareTexture() {
 			image_type     = GL_UNSIGNED_BYTE;
 			break;
 		}
+
+		case PixelFormat_Unknown: {
+			return false;
+		}
 	}
 
 	// create the hardware texture

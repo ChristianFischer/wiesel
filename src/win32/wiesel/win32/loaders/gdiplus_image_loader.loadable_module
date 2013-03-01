@@ -1,0 +1,17 @@
+
+#include <wiesel/module_registry.h>
+#include "gdiplus_image_loader.h"
+
+// add the module to the module registry
+namespace wiesel {
+namespace win32 {
+	REGISTER_MODULE_SINGLETON(
+			IImageLoader,
+			GdiPlusImageLoader,
+			&GdiPlusImageLoader::create,
+			"GDI+",
+			0x01000000u,
+			IModuleLoader::PriorityNormal
+	)
+}
+}
