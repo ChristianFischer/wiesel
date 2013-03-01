@@ -19,37 +19,22 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "imageutils.h"
+#ifndef __WIESEL_WIN32_DEF_H__
+#define __WIESEL_WIN32_DEF_H__
+
+/**
+ * some defines and flags specially for the wiesel-win32 library
+ */
+
+#if defined(_WIN32)
+	#if defined(wiesel_win32_EXPORTS)
+		#define WIESEL_WIN32_EXPORT		__declspec(dllexport)
+	#else
+		#define WIESEL_WIN32_EXPORT		__declspec(dllimport)
+	#endif
+#else
+		#define WIESEL_WIN32_EXPORT
+#endif
 
 
-namespace wiesel {
-
-	unsigned int getNextPowerOfTwo(unsigned int num) {
-		unsigned int out_num = 1;
-		for(; out_num<num; out_num<<=1) { }
-
-		return out_num;
-	}
-
-
-
-	size_t getBytesPerPixel(PixelFormat pixel_format) {
-		switch(pixel_format) {
-			case PixelFormat_Unknown: {
-				break;
-			}
-
-			case PixelFormat_RGB_888: {
-				return 3;
-			}
-
-			case PixelFormat_RGBA_8888: {
-				return 4;
-			}
-		}
-
-		return 0;
-	}
-
-} // namespace wiesel
-
+#endif // __WIESEL_WIN32_DEF_H__

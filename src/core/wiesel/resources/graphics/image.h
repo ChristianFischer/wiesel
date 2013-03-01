@@ -36,6 +36,8 @@ namespace wiesel {
 	 * @brief Describes color components and their order for each pixel of an image.
 	 */
 	enum PixelFormat {
+		PixelFormat_Unknown,
+
 		PixelFormat_RGB_888,
 		PixelFormat_RGBA_8888,
 	};
