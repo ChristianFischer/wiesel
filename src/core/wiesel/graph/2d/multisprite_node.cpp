@@ -249,9 +249,13 @@ void MultiSpriteNode::rebuildVertexBuffer() {
 			indices->setBytesPerElement(2);
 		}
 
+		float texture_w = texture->getSize().width;
+		float texture_h = texture->getSize().height;
+
 		for (EntryList::const_iterator it=entries.begin(); it!=entries.end(); it++) {
 			SpriteFrame *frame = it->sprite;
 
+			const SpriteFrame::TextureCoords &tex_coords = frame->getTextureCoordinates();
 			float sprite_x = frame->getInnerRect().position.x + it->offset.x;
 			float sprite_y = frame->getInnerRect().position.y + it->offset.y;
 			float sprite_w = frame->getInnerRect().size.width;
@@ -262,10 +266,10 @@ void MultiSpriteNode::rebuildVertexBuffer() {
 			VertexBuffer::index_t idx2 = vbo->addVertex(sprite_x + sprite_w, sprite_y + sprite_h);
 			VertexBuffer::index_t idx3 = vbo->addVertex(sprite_x + sprite_w, sprite_y           );
 
-			vbo->setVertexTextureCoordinate(idx0, frame->getTextureCoordinates().tl);
-			vbo->setVertexTextureCoordinate(idx1, frame->getTextureCoordinates().bl);
-			vbo->setVertexTextureCoordinate(idx2, frame->getTextureCoordinates().tr);
-			vbo->setVertexTextureCoordinate(idx3, frame->getTextureCoordinates().br);
+			vbo->setVertexTextureCoordinate(idx0, tex_coords.tl.u/texture_w, tex_coords.tl.v/texture_h);
+			vbo->setVertexTextureCoordinate(idx1, tex_coords.bl.u/texture_w, tex_coords.bl.v/texture_h);
+			vbo->setVertexTextureCoordinate(idx2, tex_coords.tr.u/texture_w, tex_coords.tr.v/texture_h);
+			vbo->setVertexTextureCoordinate(idx3, tex_coords.br.u/texture_w, tex_coords.br.v/texture_h);
 
 			indices->addIndex(idx0);
 			indices->addIndex(idx1);

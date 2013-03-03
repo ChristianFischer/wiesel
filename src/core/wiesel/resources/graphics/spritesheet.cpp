@@ -257,9 +257,6 @@ public:
 				sprite_outer_h = sprite_texture_h;
 			}
 
-			float texture_w = texture->getSize().width;
-			float texture_h = texture->getSize().height;
-
 			rectangle texture_rect(
 						sprite_texture_x,
 						sprite_texture_y,
@@ -274,10 +271,10 @@ public:
 						sprite_texture_h
 			);
 			
-			float texcoord_l = texture_rect.getMinX() / texture_w;
-			float texcoord_r = texture_rect.getMaxX() / texture_w;
-			float texcoord_t = texture_rect.getMinY() / texture_h;
-			float texcoord_b = texture_rect.getMaxY() / texture_h;
+			float texcoord_l = texture_rect.getMinX();
+			float texcoord_r = texture_rect.getMaxX();
+			float texcoord_t = texture_rect.getMinY();
+			float texcoord_b = texture_rect.getMaxY();
 
 			switch(rotation) {
 				case 90: {
