@@ -213,6 +213,10 @@ void SpriteNode::rebuildVertexBuffer() {
 			float sprite_w = getSpriteFrame()->getInnerRect().size.width;
 			float sprite_h = getSpriteFrame()->getInnerRect().size.height;
 
+			const SpriteFrame::TextureCoords &tex_coords = getSpriteFrame()->getTextureCoordinates();
+			float texture_w = texture->getSize().width;
+			float texture_h = texture->getSize().height;
+
 			vbo->clear();
 			vbo->setupVertexPositions(2);
 			vbo->setupTextureLayer(0);
@@ -221,10 +225,10 @@ void SpriteNode::rebuildVertexBuffer() {
 			vbo->addVertex(sprite_x + sprite_w, sprite_y + sprite_h);
 			vbo->addVertex(sprite_x + sprite_w, sprite_y           );
 
-			vbo->setVertexTextureCoordinate(0, getSpriteFrame()->getTextureCoordinates().tl);
-			vbo->setVertexTextureCoordinate(1, getSpriteFrame()->getTextureCoordinates().bl);
-			vbo->setVertexTextureCoordinate(2, getSpriteFrame()->getTextureCoordinates().tr);
-			vbo->setVertexTextureCoordinate(3, getSpriteFrame()->getTextureCoordinates().br);
+			vbo->setVertexTextureCoordinate(0, tex_coords.tl.u/texture_w, tex_coords.tl.v/texture_h);
+			vbo->setVertexTextureCoordinate(1, tex_coords.bl.u/texture_w, tex_coords.bl.v/texture_h);
+			vbo->setVertexTextureCoordinate(2, tex_coords.tr.u/texture_w, tex_coords.tr.v/texture_h);
+			vbo->setVertexTextureCoordinate(3, tex_coords.br.u/texture_w, tex_coords.br.v/texture_h);
 		}
 		else {
 			float sprite_x   = 0.0f;

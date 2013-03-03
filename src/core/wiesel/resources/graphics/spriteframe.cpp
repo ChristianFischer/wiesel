@@ -45,13 +45,10 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture)
 		this->inner_rect  = rectangle(texture->getOriginalSize());
 		this->sprite_size = texture->getOriginalSize();
 		
-		float texture_w  = texture->getSize().width;
-		float texture_h  = texture->getSize().height;
-		
-		float texcoord_l = inner_rect.getMinX() / texture_w;
-		float texcoord_t = inner_rect.getMinY() / texture_h;
-		float texcoord_r = inner_rect.getMaxX() / texture_w;
-		float texcoord_b = inner_rect.getMaxY() / texture_h;
+		float texcoord_l = inner_rect.getMinX();
+		float texcoord_t = inner_rect.getMinY();
+		float texcoord_r = inner_rect.getMaxX();
+		float texcoord_b = inner_rect.getMaxY();
 		
 		texture_coordinates.tl = vector2d(texcoord_l, texcoord_t);
 		texture_coordinates.tr = vector2d(texcoord_r, texcoord_t);
@@ -75,13 +72,10 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture, const rectan
 
 		sprite_size = texture_rect.size;
 
-		float texture_w  = texture->getSize().width;
-		float texture_h  = texture->getSize().height;
-
-		float texcoord_l = texture_rect.getMinX() / texture_w;
-		float texcoord_t = texture_rect.getMinY() / texture_h;
-		float texcoord_r = texture_rect.getMaxX() / texture_w;
-		float texcoord_b = texture_rect.getMaxY() / texture_h;
+		float texcoord_l = texture_rect.getMinX();
+		float texcoord_t = texture_rect.getMinY();
+		float texcoord_r = texture_rect.getMaxX();
+		float texcoord_b = texture_rect.getMaxY();
 
 		texture_coordinates.tl = vector2d(texcoord_l, texcoord_t);
 		texture_coordinates.tr = vector2d(texcoord_r, texcoord_t);
