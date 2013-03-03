@@ -1,0 +1,19 @@
+
+#include <wiesel/module_registry.h>
+#include "tinyxml2_parser.h"
+
+#if WIESEL_SUPPORTS_LIBTINYXML2
+
+	// add the module to the module registry
+	namespace wiesel {
+		REGISTER_MODULE(
+				IXmlParser,
+				LibTinyXml2Parser,
+				&generic_create<LibTinyXml2Parser>,
+				"libTinyXML2",
+				0x01000000u,
+				IModuleLoader::PriorityNormal
+		)
+	}
+
+#endif // WIESEL_SUPPORTS_LIBTINYXML2

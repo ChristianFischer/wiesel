@@ -12,6 +12,20 @@ wiesel_module_add_dependency(wiesel-common wiesel-base)
 wiesel_module_add_dependency(wiesel-common wiesel-core)
 
 
+# check if libpng is available
+include(FindPNG)
+
+if(PNG_FOUND)
+	wiesel_target_add_includes(wiesel-common ${PNG_INCLUDE_DIRS})
+	wiesel_target_add_libraries(wiesel-common ${PNG_LIBRARIES})
+	wiesel_target_add_compileflags(wiesel-common ${PNG_DEFINITIONS})
+
+	set(WIESEL_SUPPORTS_LIBPNG		TRUE)
+else()
+	set(WIESEL_SUPPORTS_LIBPNG		FALSE)
+endif()
+
+
 # add libxml2 dependency
 include(FindLibXml2)
 
@@ -26,18 +40,23 @@ else(LIBXML2_FOUND)
 endif(LIBXML2_FOUND)
 
 
-# check if libpng is available
-include(FindPNG)
+# add tinyxml2 library
+include(wiesel-FindTinyXML2)
 
-if(PNG_FOUND)
-	wiesel_target_add_includes(wiesel-common ${PNG_INCLUDE_DIRS})
-	wiesel_target_add_libraries(wiesel-common ${PNG_LIBRARIES})
-	wiesel_target_add_compileflags(wiesel-common ${PNG_DEFINITIONS})
+if (TINYXML2_FOUND)
+	if (DEFINED TINYXML2_DEPENDENCY)
+		add_dependencies(wiesel-common ${TINYXML2_DEPENDENCY})
+	endif(DEFINED TINYXML2_DEPENDENCY)
 
-	set(WIESEL_SUPPORTS_LIBPNG		TRUE)
-else()
-	set(WIESEL_SUPPORTS_LIBPNG		FALSE)
-endif()
+	wiesel_target_add_includes(wiesel-common ${TINYXML2_INCLUDE_DIR})
+	wiesel_target_add_libraries(wiesel-common ${TINYXML2_LIBRARIES})
+	wiesel_target_add_compileflags(wiesel-common ${TINYXML2_DEFINITIONS})
+
+	set(WIESEL_SUPPORTS_LIBTINYXML2		TRUE)
+else(TINYXML2_FOUND)
+	set(WIESEL_SUPPORTS_LIBTINYXML2		FALSE)
+endif(TINYXML2_FOUND)
+
 
 
 # finally, create the config file

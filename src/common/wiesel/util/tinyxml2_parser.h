@@ -19,18 +19,35 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_COMMON_CONFIG_H__
-#define __WIESEL_COMMON_CONFIG_H__
+#ifndef __WIESEL_UTIL_LIBTINYXML2_PARSER_H__
+#define __WIESEL_UTIL_LIBTINYXML2_PARSER_H__
+
+#include <wiesel/wiesel-common.def>
+#include <wiesel/wiesel-common-config.h>
+
+#include <wiesel/util/xml_parser.h>
 
 
-// enables support for libpng
-#cmakedefine01 WIESEL_SUPPORTS_LIBPNG
+#if WIESEL_SUPPORTS_LIBTINYXML2
 
-// enables support for libxml2
-#cmakedefine01 WIESEL_SUPPORTS_LIBXML2
+namespace wiesel {
 
-// enables support for libtinyxml2
-#cmakedefine01 WIESEL_SUPPORTS_LIBTINYXML2
+	// predeclarations
+
+	class DataBuffer;
+	class DataSource;
+	class File;
 
 
-#endif // __WIESEL_COMMON_CONFIG_H__
+	class WIESEL_COMMON_EXPORT LibTinyXml2Parser : public IXmlParser
+	{
+	public:
+		LibTinyXml2Parser();
+		virtual ~LibTinyXml2Parser();
+
+		virtual bool parse(DataSource *source, XmlParserCallback *callback);
+	};
+
+} /* namespace wiesel */
+#endif /* WIESEL_SUPPORTS_LIBTINYXML2 */
+#endif /* __WIESEL_UTIL_LIBTINYXML2_PARSER_H__ */
