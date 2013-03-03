@@ -1,0 +1,19 @@
+
+#include <wiesel/module_registry.h>
+#include "libxml_sax_parser.h"
+
+#if WIESEL_SUPPORTS_LIBXML2
+
+	// add the module to the module registry
+	namespace wiesel {
+		REGISTER_MODULE_SINGLETON(
+				IXmlParser,
+				LibXml2SaxParser,
+				&generic_create<LibXml2SaxParser>,
+				"libXML2",
+				0x02080000u,
+				IModuleLoader::PriorityLow
+		)
+	}
+
+#endif // WIESEL_SUPPORTS_LIBXML2

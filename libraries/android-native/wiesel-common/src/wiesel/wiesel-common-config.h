@@ -26,5 +26,11 @@
 // enables support for libpng
 #define WIESEL_SUPPORTS_LIBPNG 1
 
+// enables support for libxml2
+#define WIESEL_SUPPORTS_LIBXML2 1
+
+// enables support for tinyxml2
+#define WIESEL_SUPPORTS_LIBTINYXML2 0
+
 
 #endif // __WIESEL_COMMON_CONFIG_H__

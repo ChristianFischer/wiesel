@@ -47,7 +47,7 @@ enum SpriteSheetParser_State {
 };
 
 
-class SpriteSheetParser : public XmlSaxParser
+class SpriteSheetParser : public XmlParserCallback
 {
 public:
 	Directory*					parent_dir;
@@ -68,14 +68,22 @@ public:
 	}
 
 public:
-	virtual void onElementStarted(const string &element, const Attributes &attributes) {
+	virtual void onDocumentStarted(const XmlDocumentState *docstate) {
+		return;
+	}
+
+	virtual void onDocumentFinished(const XmlDocumentState *docstate) {
+		return;
+	}
+
+	virtual void onElementStarted(const XmlDocumentState *docstate, const string &element, const XmlParser::Attributes &attributes) {
 		switch(state) {
 			case SpriteSheetParser_Null: {
 				if (element == "TextureAtlas") {
 					state = SpriteSheetParser_SimpleXml_TextureAtlas;
 
 					if (spritesheet == NULL) {
-						Attributes::const_iterator texture_path = attributes.find("imagePath");
+						XmlParser::Attributes::const_iterator texture_path = attributes.find("imagePath");
 						Texture *texture = NULL;
 
 						if (texture_path != attributes.end() && parent_dir) {
@@ -98,7 +106,7 @@ public:
 			case SpriteSheetParser_SimpleXml_TextureAtlas: {
 				if (element == "sprite") {
 					if (spritesheet) {
-						SpriteFrame *sprite = parseSimpleXml_Sprite(attributes);
+						SpriteFrame *sprite = parseSimpleXml_Sprite(docstate, attributes);
 
 						if (sprite) {
 							spritesheet->add(sprite);
@@ -117,7 +125,7 @@ public:
 		return;
 	}
 
-	virtual void onElementClosed(const string &element) {
+	virtual void onElementClosed(const XmlDocumentState *docstate, const string &element) {
 		switch(state) {
 			case SpriteSheetParser_SimpleXml_TextureAtlas: {
 				if (element == "TextureAtlas") {
@@ -149,7 +157,7 @@ public:
 
 
 
-	SpriteFrame *parseSimpleXml_Sprite(const Attributes &attributes) {
+	SpriteFrame *parseSimpleXml_Sprite(const XmlDocumentState *docstate, const XmlParser::Attributes &attributes) {
 		string	sprite_name			= "";
 
 		// the actual coordinates within the texture which will result in texture coordinates
@@ -168,7 +176,7 @@ public:
 
 		int		rotation			= 0;
 
-		for(Attributes::const_iterator it=attributes.begin(); it!=attributes.end(); it++) {
+		for(XmlParser::Attributes::const_iterator it=attributes.begin(); it!=attributes.end(); it++) {
 			if (it->first == "n") {
 				sprite_name = it->second;
 				continue;
@@ -361,12 +369,20 @@ SpriteSheet::~SpriteSheet() {
 
 
 SpriteSheet *SpriteSheet::fromFile(File* file) {
-	SpriteSheetParser parser(file->getParent());
-	if (parser.parse(file)) {
-		return parser.spritesheet;
+	SpriteSheetParser *parser = new SpriteSheetParser(file->getParent());
+	SpriteSheet *result = NULL;
+	parser->retain();
+	
+	// start parsing the spritesheet
+	bool success = XmlParser::parse(file->asDataSource(), parser);
+
+	if (success) {
+		result = parser->spritesheet;
 	}
 
-	return NULL;
+	parser->release();
+
+	return result;
 }
 
 

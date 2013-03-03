@@ -12,6 +12,20 @@ wiesel_module_add_dependency(wiesel-common wiesel-base)
 wiesel_module_add_dependency(wiesel-common wiesel-core)
 
 
+# add libxml2 dependency
+include(FindLibXml2)
+
+if (LIBXML2_FOUND)
+	wiesel_target_add_includes(wiesel-common ${LIBXML2_INCLUDE_DIR})
+	wiesel_target_add_libraries(wiesel-common ${LIBXML2_LIBRARIES})
+	wiesel_target_add_compileflags(wiesel-common ${LIBXML2_DEFINITIONS})
+
+	set(WIESEL_SUPPORTS_LIBXML2		TRUE)
+else(LIBXML2_FOUND)
+	set(WIESEL_SUPPORTS_LIBXML2		FALSE)
+endif(LIBXML2_FOUND)
+
+
 # check if libpng is available
 include(FindPNG)
 

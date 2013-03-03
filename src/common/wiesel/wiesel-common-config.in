@@ -26,5 +26,8 @@
 // enables support for libpng
 #cmakedefine01 WIESEL_SUPPORTS_LIBPNG
 
+// enables support for libxml2
+#cmakedefine01 WIESEL_SUPPORTS_LIBXML2
+
 
 #endif // __WIESEL_COMMON_CONFIG_H__
