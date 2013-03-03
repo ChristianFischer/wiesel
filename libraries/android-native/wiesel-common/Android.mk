@@ -19,7 +19,7 @@ LOCAL_MODULE               := wiesel-common
 LOCAL_MODULE_FILENAME      := libwieselcommon
 LOCAL_CFLAGS               := -Werror
 LOCAL_LDLIBS               := 
-LOCAL_STATIC_LIBRARIES     := libpng-static wiesel-base wiesel-core
+LOCAL_STATIC_LIBRARIES     := libpng-static libxml2-static wiesel-base wiesel-core
 LOCAL_SRC_FILES            := $(MY_FILES)
 LOCAL_C_INCLUDES           := $(MY_LOCAL_FOLDERS)
 LOCAL_EXPORT_C_INCLUDES    := $(MY_LOCAL_FOLDERS)
@@ -34,3 +34,4 @@ $(call import-module,wiesel-core)
 
 # External third-party modules
 $(call import-module,third-party/libpng)
+$(call import-module,third-party/libxml)

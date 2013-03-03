@@ -24,6 +24,9 @@
 
 #include <wiesel/wiesel-core.def>
 
+#include <wiesel/util/shared_object.h>
+#include <wiesel/module.h>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -35,45 +38,123 @@ namespace wiesel {
 
 	class DataBuffer;
 	class DataSource;
-	class File;
+
+	class XmlParser;
+	class XmlParserCallback;
+	class XmlDocumentState;
+
 
 
 	/**
 	 * @brief An utility class to create XML-Parsers for custom XML formats.
-	 * An implementation will extend this class and use the callback methods
-	 * to read the XML content.
 	 */
-	class WIESEL_CORE_EXPORT XmlSaxParser
+	class WIESEL_CORE_EXPORT XmlParser : public virtual SharedObject
 	{
 	public:
-		/**
-		 * @brief Creates a new parser object.
-		 */
-		XmlSaxParser();
+		/// an alias type for the stack containing all recent XML elements.
+		typedef std::vector<std::string>			ElementStack;
 
-		virtual ~XmlSaxParser();
+		/// an alias type for an element's attributes.
+		typedef std::map<std::string,std::string>	Attributes;
+
+	private:
+		XmlParser();
+
+	public:
+		XmlParser(XmlParserCallback *callback);
+		virtual ~XmlParser();
 
 	public:
 		/**
-		 * @brief Parse XML-Data from a DataBuffer object.
-		 * @param buffer	The DataBuffer to read from.
+		 * @brief Parse XML-Data from a DataSource object.
+		 * @param source	The DataSource to read from.
+		 * @param callback	A callback object which will receive the XML data.
 		 * @returns \c true on success.
 		 */
-		bool parse(DataBuffer *buffer);
+		static bool parse(DataSource *source, XmlParserCallback *callback);
+
+	public:
+		/// start parsing the xml data
+		void start();
+
+		/// finish parsing.
+		void finish();
+
+		/// a new XML element started.
+		void startElement(const std::string &element, const Attributes &attributes);
+
+		/// closes the current XML element. \c name should be the same as the top-level element.
+		void closeElement(const std::string &element);
+
+		/// add text content for the current XML element
+		void addTextContent(const std::string &text);
+
+	private:
+		XmlParserCallback*		callback;
+		XmlDocumentState*		state;
+	};
+
+
+
+	/**
+	 * @brief A module to implement an XML parser,
+	 * which sends its results to the given callback object.
+	 */
+	class WIESEL_CORE_EXPORT IXmlParser : public Module
+	{
+	public:
+		IXmlParser();
+		virtual ~IXmlParser();
 
 		/**
 		 * @brief Parse XML-Data from a DataSource object.
 		 * @param source	The DataSource to read from.
+		 * @param callback	A callback object which will receive the XML data.
 		 * @returns \c true on success.
 		 */
-		bool parse(DataSource *source);
+		virtual bool parse(DataSource *source, XmlParserCallback *callback) = 0;
+	};
 
-		/**
-		 * @brief Parse XML-Data from a File object..
-		 * @param file	The file to read from.
-		 * @returns \c true on success.
-		 */
-		bool parse(File *file);
+
+
+	/**
+	 * @brief An object which stores the current state of a document during parsing.
+	 */
+	class WIESEL_CORE_EXPORT XmlDocumentState : public virtual SharedObject
+	{
+	friend class XmlParser;
+
+	public:
+		XmlDocumentState();
+		virtual ~XmlDocumentState();
+
+	public:
+
+	public:
+		/// get the tag-name of the current XML element.
+		std::string getCurrentElement() const;
+
+		/// get the stack with the current XML element and all of it's parents.
+		const XmlParser::ElementStack *getElementStack() const;
+
+	private:
+		XmlParser::ElementStack			stack;
+	};
+
+
+
+	/**
+	 * @brief The callback class to implement a parser for custom XML formats.
+	 * An implementation will extend this class and use the callback methods
+	 * to read the XML content.
+	 */
+	class WIESEL_CORE_EXPORT XmlParserCallback : public virtual SharedObject
+	{
+	protected:
+		XmlParserCallback();
+
+	public:
+		virtual ~XmlParserCallback();
 
 	protected:
 		/**
@@ -83,36 +164,39 @@ namespace wiesel {
 
 	// SAX handler callbacks
 	public:
-		/// an alias type for an element's attributes.
-		typedef std::map<std::string,std::string>	Attributes;
+		/**
+		 * @brief Started parsing a new XML Document.
+		 * @param state			The state of the new XML document.
+		 */
+		virtual void onDocumentStarted(const XmlDocumentState *state);
 
-		/// an alias type for the stack containing all recent XML elements.
-		typedef std::vector<std::string>			ElementStack;
+		/**
+		 * @brief Parsing the current document has been finished.
+		 * @param state			The state of the new XML document.
+		 */
+		virtual void onDocumentFinished(const XmlDocumentState *state);
 
 		/**
 		 * @brief A new XML element hast started. Will be followed by an onElementClosed event.
+		 * @param state			The current state of the parsed XML document.
 		 * @param element		The name of the closed element.
 		 * @param attributes	A list containing all attributes of this element.
 		 */
-		virtual void onElementStarted(const std::string &element, const Attributes &attributes);
+		virtual void onElementStarted(const XmlDocumentState *state, const std::string &element, const XmlParser::Attributes &attributes);
 
 		/**
 		 * @brief A previously started element was closed.
+		 * @param state			The current state of the parsed XML document.
 		 * @param element		The name of the closed element.
 		 */
-		virtual void onElementClosed(const std::string &element);
+		virtual void onElementClosed(const XmlDocumentState *state, const std::string &element);
 
 		/**
 		 * @brief Delivers the text-content of the current element.
+		 * @param state			The current state of the parsed XML document.
 		 * @param text			The current element's text content.
 		 */
-		virtual void onTextContent(const std::string &text);
-
-	public:
-		const ElementStack *getElementStack() const;
-
-	private:
-		ElementStack	stack;
+		virtual void onTextContent(const XmlDocumentState *state, const std::string &text);
 	};
 
 } /* namespace wiesel */

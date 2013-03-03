@@ -20,137 +20,55 @@
  * Boston, MA 02110-1301 USA
  */
 #include "xml_parser.h"
-#include "wiesel/io/datasource.h"
-#include "wiesel/io/file.h"
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <libxml/xmlmemory.h>
-#include <libxml/xmlversion.h>
-
-#include <algorithm>
-
-
+#include <wiesel/io/datasource.h>
+#include <wiesel/io/file.h>
+#include <wiesel/module_registry.h>
 
 using namespace wiesel;
 
 
 
-struct ParserData {
-	XmlSaxParser				*callbacks;
-	XmlSaxParser::ElementStack	*stack;
-};
-
-
-static void handle_startElement(void *user_data, const xmlChar *name, const xmlChar **attribs) {
-	ParserData *parser = reinterpret_cast<ParserData*>(user_data);
-	XmlSaxParser::Attributes attribute_list;
-	std::string element = reinterpret_cast<const char*>(name);
-
-	// get all the attributes
-	while(attribs && attribs[0]) {
-		std::string attr_name  = reinterpret_cast<const char*>(attribs[0]);
-		std::string attr_value = reinterpret_cast<const char*>(attribs[1]);
-
-		attribute_list[attr_name] = attr_value;
-
-		attribs += 2;
-	}
-
-	// push the new element to the stack
-	parser->stack->push_back(element);
-
-	// invoke callback
-	parser->callbacks->onElementStarted(element, attribute_list);
-
+XmlParser::XmlParser() {
+	this->callback	= NULL;
+	this->state		= NULL;
 	return;
 }
 
 
-static void handle_endElement(void *user_data, const xmlChar *name) {
-	ParserData *parser = reinterpret_cast<ParserData*>(user_data);
-	std::string element = reinterpret_cast<const char*>(name);
+XmlParser::XmlParser(XmlParserCallback *callback) {
+	this->callback	= callback;
+	this->state		= NULL;
 
-	// does the element name match the stack?
-	assert(parser->stack->back() == element);
-
-	// invoke callback
-	parser->callbacks->onElementClosed(element);
-
-	// remove this element from the stack
-	if (parser->stack->size() && parser->stack->back() == element) {
-		parser->stack->pop_back();
+	assert(callback);
+	if (callback) {
+		callback->retain();
 	}
 
 	return;
 }
 
 
-static void handle_text(void *user_data, const xmlChar *chars, int len) {
-	ParserData *parser = reinterpret_cast<ParserData*>(user_data);
-	std::string text(reinterpret_cast<const char*>(chars), len);
+XmlParser::~XmlParser() {
+	assert(state == NULL); // parsing was not finished?
 
-	// invoke callback
-	parser->callbacks->onTextContent(text);
-
-	return;
-}
-
-
-
-static void init_sax_handler(xmlSAXHandler &handler) {
-	handler.startElement		= &handle_startElement;
-	handler.endElement			= &handle_endElement;
-	handler.characters			= &handle_text;
+	safe_release(callback);
+	safe_release(state);
 
 	return;
 }
 
 
+bool XmlParser::parse(DataSource *source, XmlParserCallback *callback) {
+	std::vector<ModuleLoader<IXmlParser>*> loaders = ModuleRegistry::getInstance()->findModules<IXmlParser>();
+	for(std::vector<ModuleLoader<IXmlParser>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
+		IXmlParser *parser = (*it)->create();
 
-XmlSaxParser::XmlSaxParser() {
-	return;
-}
-
-
-XmlSaxParser::~XmlSaxParser() {
-	return;
-}
-
-
-bool XmlSaxParser::parse(DataBuffer *buffer) {
-	assert(buffer);
-	if (buffer == NULL) {
-		return false;
-	}
-
-	LIBXML_TEST_VERSION
-	clear();
-
-	ParserData parser_data = { this, &this->stack };
-	xmlSAXHandler handler = {0};
-	init_sax_handler(handler);
-
-	// start parsing
-	int result = xmlSAXUserParseMemory(&handler, &parser_data, buffer->getDataAsCharPtr(), buffer->getSize());
-
-	// cleanup
-	xmlCleanupParser();
-	xmlMemoryDump();
-
-	return result == 0;
-}
-
-
-bool XmlSaxParser::parse(DataSource *source) {
-	FileDataSource *fds = dynamic_cast<FileDataSource*>(source);
-	if (fds) {
-		return parse(fds->getFile());
-	}
-	else {
-		DataBuffer *buffer = source->getDataBuffer();
-		if (buffer) {
-			return parse(buffer);
+		if (parser) {
+			bool success = parser->parse(source, callback);
+			if (success) {
+				return true;
+			}
 		}
 	}
 
@@ -158,52 +76,151 @@ bool XmlSaxParser::parse(DataSource *source) {
 }
 
 
-bool XmlSaxParser::parse(File* file) {
-	std::string native_path = file->getNativePath();
-	if (native_path.empty() == false) {
-		LIBXML_TEST_VERSION
-		clear();
+void XmlParser::start() {
+	assert(state == NULL); // last parsing was not finished?
 
-		ParserData parser_data = { this, &this->stack };
-		xmlSAXHandler handler = {0};
-		init_sax_handler(handler);
+	if (state) {
+		safe_release(state);
+	}
 
-		// start parsing
-		int result = xmlSAXUserParseFile(&handler, &parser_data, native_path.c_str());
+	state = new XmlDocumentState();
+	state->retain();
 
-		// cleanup
-		xmlCleanupParser();
-		xmlMemoryDump();
+	if (callback) {
+		callback->onDocumentStarted(state);
+	}
 
-		if (result == 0) {
-			return true;
+	return;
+}
+
+
+void XmlParser::finish() {
+	assert(state);					// parsing not started?
+	assert(state->stack.empty());	// mismatch between opening and closing tags?
+
+	if (state) {
+		if (callback) {
+			callback->onDocumentFinished(state);
+		}
+
+		safe_release(state);
+	}
+
+	return;
+}
+
+
+void XmlParser::startElement(const std::string &element, const Attributes &attributes) {
+	assert(state);
+
+	if (state) {
+		state->stack.push_back(element);
+
+		if (callback) {
+			callback->onElementStarted(state, element, attributes);
 		}
 	}
-	
-	// when file parsing fails... there's still a DataBuffer...
-	DataBuffer *buffer = file->asDataSource()->getDataBuffer();
-	if (buffer) {
-		return parse(buffer);
+
+	return;
+}
+
+
+void XmlParser::closeElement(const std::string &element) {
+	assert(state);
+
+	if (state) {
+		assert(state->getCurrentElement() == element);
+
+		if (state->getCurrentElement() == element) {
+			state->stack.pop_back();
+		}
+
+		if (callback) {
+			callback->onElementClosed(state, element);
+		}
 	}
 
-	return false;
-}
-
-
-void XmlSaxParser::clear() {
-	stack.clear();
-}
-
-
-void XmlSaxParser::onElementStarted(const std::string&, const Attributes&) {
 	return;
 }
 
-void XmlSaxParser::onElementClosed(const std::string&) {
+
+void XmlParser::addTextContent(const std::string &text) {
+	assert(state);
+
+	if (state) {
+		if (callback) {
+			callback->onTextContent(state, text);
+		}
+	}
+
 	return;
 }
 
-void XmlSaxParser::onTextContent(const std::string&) {
+
+
+
+
+XmlDocumentState::XmlDocumentState() {
+	return;
+}
+
+XmlDocumentState::~XmlDocumentState() {
+	return;
+}
+
+
+std::string XmlDocumentState::getCurrentElement() const {
+	if (stack.size()) {
+		return stack.back();
+	}
+
+	return "";
+}
+
+
+const XmlParser::ElementStack *XmlDocumentState::getElementStack() const {
+	return &stack;
+}
+
+
+
+
+IXmlParser::IXmlParser() {
+	return;
+}
+
+IXmlParser::~IXmlParser() {
+	return;
+}
+
+
+
+
+XmlParserCallback::XmlParserCallback() {
+	return;
+}
+
+XmlParserCallback::~XmlParserCallback() {
+	return;
+}
+
+void XmlParserCallback::onDocumentStarted(const XmlDocumentState*) {
+	return;
+}
+
+void XmlParserCallback::onDocumentFinished(const XmlDocumentState*) {
+	return;
+}
+
+void XmlParserCallback::onElementStarted(const XmlDocumentState*, const std::string&, const XmlParser::Attributes&) {
+	return;
+}
+
+void XmlParserCallback::onElementClosed(const XmlDocumentState*, const std::string&) {
+	return;
+}
+
+void XmlParserCallback::onTextContent(const XmlDocumentState*, const std::string&) {
 	return;
 }
 

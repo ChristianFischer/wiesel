@@ -1,5 +1,6 @@
 
 #include "wiesel/resources/graphics/image_loader_libpng.loadable_module"
+#include "wiesel/util/libxml_sax_parser.loadable_module"
 #include "wiesel/generic_platform.loadable_module"
 
 #include "wiesel/android/util/log_writer_android.loadable_module"
