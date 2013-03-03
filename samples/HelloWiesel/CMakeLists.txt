@@ -25,9 +25,6 @@ include(${WIESEL_DIR}/build/build.cmake)
 
 wiesel_create_executable(HelloWiesel ./src)
 
-# add required libraries
-wiesel_module_add_dependency(HelloWiesel wiesel-base)
-wiesel_module_add_dependency(HelloWiesel wiesel-core)
-wiesel_module_add_dependency(HelloWiesel wiesel-common)
-wiesel_module_add_dependency(HelloWiesel wiesel-sdl)
-wiesel_module_add_dependency(HelloWiesel wiesel-mainproc)
+# default setup for the project
+include(wiesel-default-setup)
+wiesel_default_project_setup(HelloWiesel)

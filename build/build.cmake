@@ -48,14 +48,3 @@ if (WIESEL_BUILD_WARN_ALL)
 	set(CMAKE_CXX_FLAGS "-g -Wall")
 	set(CMAKE_C_FLAGS "-g -Wall")
 endif(WIESEL_BUILD_WARN_ALL)
-
-
-
-
-# on win32 we may need to copy all SDL DLL's to our binary directory
-if (WIN32)
-	if (DEFINED EXTRALIBS_PATH)
-		file(GLOB DLLS_TO_COPY ${EXTRALIBS_PATH}/bin/*.dll)
-		file(COPY ${DLLS_TO_COPY} DESTINATION .)
-	endif()
-endif()
