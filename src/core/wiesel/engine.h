@@ -42,19 +42,6 @@ namespace wiesel {
 
 
 	/**
-	 * @brief manages the current state of the application.
-	 */
-	enum EngineState
-	{
-		Engine_Uninitialized,		//<! The initial state of the engine before initialization.
-		Engine_Running,				//<! The engine was initialized and is running.
-		Engine_Background,			//<! The engine is running in background
-		Engine_Suspended,			//<! The engine was suspended - no update or render calls will be invoked.
-	};
-
-
-
-	/**
 	 * @brief An interface to the game engine.
 	 */
 	class WIESEL_CORE_EXPORT Engine {
@@ -136,49 +123,6 @@ namespace wiesel {
 		 */
 		void unregisterUpdateable(IUpdateable *updateable);
 
-	// public methods
-	public:
-		/**
-		 * @brief get the engine's current state.
-		 */
-		inline EngineState getState() const {
-			return state;
-		}
-
-	// application control
-	protected:
-		/**
-		 * @brief start the application, when application state is \ref Application_Uninitialized.
-		 * Fails, if no application is available.
-		 * In other states, this method will have no effect.
-		 */
-		void startApp();
-
-		/**
-		 * @brief the application will enter the background.
-		 */
-		void enterBackground();
-
-		/**
-		 * @brief the application will enter the foreground.
-		 */
-		void enterForeground();
-
-		/**
-		 * @brief suspends a running application.
-		 * Fails, if no application is available.
-		 * In other states, this method will have no effect.
-		 */
-		void suspendApp();
-
-		/**
-		 * @brief resumes a suspended application.
-		 * Fails, if no application is available.
-		 * In other states, this method will have no effect.
-		 * After resuming, the application is in the Background state.
-		 */
-		void resumeSuspendedApp();
-
 	// static members
 	private:
 		static WIESEL_CORE_EXPORT Engine	instance;
@@ -187,7 +131,6 @@ namespace wiesel {
 	private:
 		std::vector<IUpdateable*>		updateables;
 
-		EngineState						state;
 		bool							exit_requested;
 
 		std::vector<Platform*>			platforms;
