@@ -42,7 +42,6 @@ Engine		Engine::instance;
 
 
 Engine::Engine() {
-	state				= Engine_Uninitialized;
 	exit_requested		= false;
 	application			= NULL;
 
@@ -189,30 +188,9 @@ void Engine::run(Application *app) {
 		now_t  = clock();
 		float dt = (float(now_t - last_t) / CLOCKS_PER_SEC);
 
-		switch(getState()) {
-			case Engine_Uninitialized: {
-				// do nothing
-				break;
-			}
-
-			case Engine_Suspended: {
-				// do nothing
-				break;
-			}
-
-			case Engine_Background: {
-				// do nothing
-				break;
-			}
-
-			case Engine_Running: {
-				// run all updateable objects
-				for(int i=updateables.size(); --i>=0;) {
-					updateables.at(i)->update(dt);
-				}
-
-				break;
-			}
+		// run all updateable objects
+		for(int i=updateables.size(); --i>=0;) {
+			updateables.at(i)->update(dt);
 		}
 
 		// the application's onRun will be invoked every frame
@@ -263,126 +241,3 @@ void Engine::unregisterUpdateable(IUpdateable* updateable) {
 	return;
 }
 
-
-
-
-
-void Engine::startApp() {
-	assert(application != NULL);
-
-	switch(getState()) {
-		case Engine_Uninitialized: {
-			if (application) {
-				application->onInit();
-			}
-
-			state = Engine_Background;
-
-			break;
-		}
-
-		default: {
-			break;
-		}
-	}
-
-	return;
-}
-
-
-void Engine::enterBackground() {
-	assert(application != NULL);
-
-	switch(getState()) {
-		case Engine_Running: {
-			if (application != NULL) {
-				application->onEnterBackground();
-			}
-
-			state = Engine_Background;
-
-			break;
-		}
-
-		default: {
-			break;
-		}
-	}
-
-	return;
-}
-
-
-void Engine::enterForeground() {
-	assert(application != NULL);
-
-	switch(getState()) {
-		case Engine_Background: {
-			if (application != NULL) {
-				application->onEnterForeground();
-			}
-
-			state = Engine_Running;
-
-			break;
-		}
-
-		default: {
-			break;
-		}
-	}
-
-	return;
-}
-
-
-void Engine::suspendApp() {
-	assert(application != NULL);
-
-	switch(getState()) {
-		case Engine_Running: {
-			enterBackground();
-
-			// NOBR
-		}
-
-		case Engine_Background: {
-			if (application) {
-				application->onSuspend();
-			}
-
-			state = Engine_Suspended;
-
-			break;
-		}
-
-		default: {
-			break;
-		}
-	}
-
-	return;
-}
-
-
-void Engine::resumeSuspendedApp() {
-	assert(application != NULL);
-
-	switch(getState()) {
-		case Engine_Suspended: {
-			if (application) {
-				application->onResumeSuspended();
-			}
-
-			state = Engine_Background;
-
-			break;
-		}
-
-		default: {
-			break;
-		}
-	}
-
-	return;
-}
