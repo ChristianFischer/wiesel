@@ -25,8 +25,8 @@
 #include <wiesel/util/log.h>
 #include <wiesel/module_registry.h>
 
+#include <stdint.h>
 #include <string>
-#include <windows.h>
 
 
 using namespace wiesel;

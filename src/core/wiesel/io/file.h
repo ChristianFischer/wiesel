@@ -122,7 +122,7 @@ namespace wiesel {
 		/**
 		 * @brief Sort a list of files by their names.
 		 */
-		static WIESEL_CORE_EXPORT void sortByName(FileList &list, bool asc=true);
+		static void sortByName(FileList &list, bool asc=true);
 
 	private:
 		Directory*	parent;

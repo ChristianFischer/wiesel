@@ -71,17 +71,17 @@ namespace wiesel {
 		virtual ~Log();
 
 	public:
-		static WIESEL_CORE_EXPORT Log err;		//!< error log level for critical error messages.
-		static WIESEL_CORE_EXPORT Log warn;		//!< warning log level for minor errors and warnings.
-		static WIESEL_CORE_EXPORT Log info;		//!< info log level for simple program information.
-		static WIESEL_CORE_EXPORT Log debug;	//!< detailed log level for detailed program information, not relevant for productive usage.
+		static Log err;			//!< error log level for critical error messages.
+		static Log warn;		//!< warning log level for minor errors and warnings.
+		static Log info;		//!< info log level for simple program information.
+		static Log debug;		//!< detailed log level for detailed program information, not relevant for productive usage.
 
 
 		/**
 		 * @brief set the current \ref LogLevel.
 		 * All messages with a higher level than the currently configured level will be discarded.
 		 */
-		static WIESEL_CORE_EXPORT void setLevel(LogLevel level);
+		static void setLevel(LogLevel level);
 
 		/**
 		 * @brief get the current \ref LogLevel.
@@ -93,7 +93,7 @@ namespace wiesel {
 		/**
 		 * @brief checks, if a specific combination of log tag and \ref LogLevel will be included in the log messages.
 		 */
-		static WIESEL_CORE_EXPORT bool isLogged(LogLevel level, const char *tag);
+		static bool isLogged(LogLevel level, const char *tag);
 
 		/**
 		 * @brief checks, if a specific combination of log tag and \ref LogLevel will be included in the log messages.
@@ -103,7 +103,7 @@ namespace wiesel {
 		}
 
 	private:
-		static WIESEL_CORE_EXPORT LogLevel		current_log_level;
+		static LogLevel		current_log_level;
 	};
 
 } /* namespace wiesel */

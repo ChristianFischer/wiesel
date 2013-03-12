@@ -176,10 +176,10 @@ namespace wiesel {
 
 	public:
 		/// the identity matrix
-		static WIESEL_BASE_EXPORT const matrix4x4 identity;
+		static const matrix4x4 identity;
 
 		/// the zero matrix
-		static WIESEL_BASE_EXPORT const matrix4x4 zero;
+		static const matrix4x4 zero;
 	};
 
 

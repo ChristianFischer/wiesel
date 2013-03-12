@@ -31,12 +31,12 @@ namespace wiesel {
 	/**
 	 * @brief converts a degree angle into radians.
 	 */
-	float deg2rad(float deg);
+	float WIESEL_BASE_EXPORT deg2rad(float deg);
 
 	/**
 	 * @brief converts a radians angle into degrees.
 	 */
-	float rad2deg(float rad);
+	float WIESEL_BASE_EXPORT rad2deg(float rad);
 
 	/**
 	 * @brief A helper class to compare if two floats are almost equal.

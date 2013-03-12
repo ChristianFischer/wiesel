@@ -30,7 +30,7 @@
 #include <wiesel/device.h>
 #include <wiesel/geometry.h>
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <string>
 
 

@@ -22,7 +22,7 @@
 #include "wiesel.h"
 #include "generic_root_fs.h"
 #include "wiesel/util/log.h"
-#include <dirent.h>
+#include <direct.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sstream>
@@ -30,6 +30,12 @@
 #if WIESEL_PLATFORM_WINDOWS && !WIESEL_PLATFORM_CYGWIN
 #include "windows.h"
 #endif
+
+#if defined(_MSC_VER)
+#else
+#include <dirent.h>
+#endif
+
 
 
 using namespace wiesel;
@@ -114,38 +120,57 @@ DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 	}
 	#endif // windows
 
-	DirectoryList directories;
-	struct dirent *dirp;
-	struct stat fileinfo;
-	DIR *dp;
-
+	GenericFileSystem *fs = dynamic_cast<GenericFileSystem*>(getFileSystem());
 	string fullpath = (getFullPath() + "/");
+	DirectoryList directories;
 
-	if ((dp = opendir(fullpath.c_str())) != NULL) {
-		while ((dirp = readdir(dp)) != NULL) {
-			string newdirname = dirp->d_name;
-			string fullpath = getFullPath() + "/" + newdirname;
+	#if defined(_MSC_VER)
+		HANDLE hFind;
+		WIN32_FIND_DATA ffd;
 
-			// get entry fileinfo
-			if (stat(fullpath.c_str(), &fileinfo) < 0) {
-				continue;
+		if ((hFind = FindFirstFile(fullpath.c_str(), &ffd)) != INVALID_HANDLE_VALUE){
+			do {
+				if((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+					continue;
+				}
+
+				directories.push_back(new GenericFileSystemDirectory(fs, this, ffd.cFileName));
 			}
+			while(FindNextFile(hFind, &ffd));
 
-			// skip, if is no directory
-			if (S_ISDIR(fileinfo.st_mode) == false) {
-				continue;
-			}
-
-			// skip "current" and "parent" directory entries
-			if (newdirname == "." || newdirname == "..") {
-				continue;
-			}
-
-			directories.push_back(new GenericFileSystemDirectory((GenericFileSystem*)(getFileSystem()), this, newdirname));
+			FindClose(hFind);
 		}
+	#else
+		struct dirent *dirp;
+		struct stat fileinfo;
+		DIR *dp;
 
-		closedir(dp);
-	}
+		if ((dp = opendir(fullpath.c_str())) != NULL) {
+			while ((dirp = readdir(dp)) != NULL) {
+				string newdirname = dirp->d_name;
+				string fullpath = getFullPath() + "/" + newdirname;
+
+				// get entry fileinfo
+				if (stat(fullpath.c_str(), &fileinfo) < 0) {
+					continue;
+				}
+
+				// skip, if is no directory
+				if (S_ISDIR(fileinfo.st_mode) == false) {
+					continue;
+				}
+
+				// skip "current" and "parent" directory entries
+				if (newdirname == "." || newdirname == "..") {
+					continue;
+				}
+
+				directories.push_back(new GenericFileSystemDirectory(fs, this, newdirname));
+			}
+
+			closedir(dp);
+		}
+	#endif
 
 	return directories;
 }
@@ -153,30 +178,49 @@ DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 
 FileList GenericFileSystemDirectory::getFiles() {
 	FileList files;
-	struct dirent *dirp;
-	struct stat fileinfo;
-	DIR *dp;
 
-	if ((dp = opendir((getFullPath() + "/").c_str())) != NULL) {
-		while ((dirp = readdir(dp)) != NULL) {
-			string newfilename = dirp->d_name;
-			string fullpath = getFullPath() + "/" + newfilename;
+	#if defined(_MSC_VER)
+		HANDLE hFind;
+		WIN32_FIND_DATA ffd;
 
-			// get entry fileinfo
-			if (stat(fullpath.c_str(), &fileinfo) < 0) {
-				continue;
+		if ((hFind = FindFirstFile((getFullPath() + "/").c_str(), &ffd)) != INVALID_HANDLE_VALUE){
+			do {
+				if((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+					continue;
+				}
+
+				files.push_back(new GenericFileSystemFile(this, ffd.cFileName));
 			}
+			while(FindNextFile(hFind, &ffd));
 
-			// skip, if not a file
-			if (S_ISREG(fileinfo.st_mode) == false) {
-				continue;
-			}
-
-			files.push_back(new GenericFileSystemFile(this, newfilename));
+			FindClose(hFind);
 		}
+	#else
+		struct dirent *dirp;
+		struct stat fileinfo;
+		DIR *dp;
 
-		closedir(dp);
-	}
+		if ((dp = opendir((getFullPath() + "/").c_str())) != NULL) {
+			while ((dirp = readdir(dp)) != NULL) {
+				string newfilename = dirp->d_name;
+				string fullpath = getFullPath() + "/" + newfilename;
+
+				// get entry fileinfo
+				if (stat(fullpath.c_str(), &fileinfo) < 0) {
+					continue;
+				}
+
+				// skip, if not a file
+				if (S_ISREG(fileinfo.st_mode) == false) {
+					continue;
+				}
+
+				files.push_back(new GenericFileSystemFile(this, newfilename));
+			}
+
+			closedir(dp);
+		}
+	#endif
 
 	return files;
 }

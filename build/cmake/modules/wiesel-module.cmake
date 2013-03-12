@@ -118,7 +118,7 @@ function(wiesel_target_add_includes target)
 	
 	# modify compiler flags
 	foreach(incl ${ARGN})
-		wiesel_target_add_compileflags(${target} -I${incl})
+		wiesel_target_add_compileflags(${target} -I"${incl}")
 	endforeach()
 
 	# also add the include to the according test target

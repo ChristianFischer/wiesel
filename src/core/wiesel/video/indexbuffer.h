@@ -23,6 +23,7 @@
 #define __WIESEL_GL_VBO_INDEXBUFFER_H__
 
 #include <wiesel/wiesel-core.def>
+#include <wiesel/video/screen.h>
 #include <wiesel/device_resource.h>
 
 #include "shader.h"
@@ -35,7 +36,6 @@ namespace wiesel {
 namespace video {
 
 	class IndexBufferContent;
-	class Screen;
 
 
 	

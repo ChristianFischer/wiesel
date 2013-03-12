@@ -19,22 +19,22 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_H__
-#define __WIESEL_H__
+#ifndef __WIESEL_MAINPROC_DEF_H__
+#define __WIESEL_MAINPROC_DEF_H__
 
-#include "wiesel/application.h"
-#include "wiesel/engine.h"
+/**
+ * some defines and flags specially for the wiesel-mainproc library
+ */
 
-// get the basic platform includes
-#include "wiesel/platform_config.h"
+#if defined(_WIN32)
+	#if defined(wiesel_mainproc_EXPORTS)
+		#define WIESEL_MAINPROC_EXPORT		__declspec(dllexport)
+	#else
+		#define WIESEL_MAINPROC_EXPORT		__declspec(dllimport)
+	#endif
+#else
+		#define WIESEL_MAINPROC_EXPORT
+#endif
 
-// some useful default includes
-#include "wiesel/util/log.h"
-#include "wiesel/util/shared_object.h"
 
-// should be useful for most applications
-#include <assert.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#endif // __WIESEL_H__
+#endif // __WIESEL_MAINPROC_DEF_H__

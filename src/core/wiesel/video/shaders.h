@@ -47,20 +47,20 @@ namespace video {
 	// singleton
 	public:
 		/// get the singleton instance
-		static WIESEL_CORE_EXPORT Shaders *instance();
+		static Shaders *instance();
 
 	// shader variable names
 	public:
-		WIESEL_CORE_EXPORT static const char *ATTRIBUTE_VERTEX_POSITION;
-		WIESEL_CORE_EXPORT static const char *ATTRIBUTE_VERTEX_NORMAL;
-		WIESEL_CORE_EXPORT static const char *ATTRIBUTE_VERTEX_COLOR;
-		WIESEL_CORE_EXPORT static const char *ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
-		WIESEL_CORE_EXPORT static const char *UNIFORM_PROJECTION_MATRIX;
-		WIESEL_CORE_EXPORT static const char *UNIFORM_MODELVIEW_MATRIX;
-		WIESEL_CORE_EXPORT static const char *UNIFORM_TEXTURE;
-		WIESEL_CORE_EXPORT static const char *VARYING_COLOR;
-		WIESEL_CORE_EXPORT static const char *VARYING_NORMAL;
-		WIESEL_CORE_EXPORT static const char *VARYING_TEXTURE_COORDINATE;
+		static const char *ATTRIBUTE_VERTEX_POSITION;
+		static const char *ATTRIBUTE_VERTEX_NORMAL;
+		static const char *ATTRIBUTE_VERTEX_COLOR;
+		static const char *ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
+		static const char *UNIFORM_PROJECTION_MATRIX;
+		static const char *UNIFORM_MODELVIEW_MATRIX;
+		static const char *UNIFORM_TEXTURE;
+		static const char *VARYING_COLOR;
+		static const char *VARYING_NORMAL;
+		static const char *VARYING_TEXTURE_COORDINATE;
 
 	// public types
 	public:

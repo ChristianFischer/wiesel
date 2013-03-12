@@ -28,7 +28,7 @@
 #include <wiesel/math/vector2d.h>
 #include <wiesel/math/vector3d.h>
 
-#include <inttypes.h>
+#include <stdint.h>
 
 
 namespace wiesel {

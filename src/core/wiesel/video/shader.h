@@ -28,8 +28,9 @@
 #include <wiesel/math/vector2d.h>
 #include <wiesel/math/vector3d.h>
 #include <wiesel/io/datasource.h>
+#include <wiesel/video/screen.h>
 #include <wiesel/device_resource.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -40,7 +41,6 @@ namespace wiesel {
 namespace video {
 
 
-	class Screen;
 	class Shader;
 	class ShaderContent;
 

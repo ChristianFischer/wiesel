@@ -27,6 +27,7 @@
 #include <wiesel/geometry.h>
 #include <wiesel/io/datasource.h>
 #include <wiesel/io/file.h>
+#include <wiesel/video/screen.h>
 #include <wiesel/device_resource.h>
 
 #include <string>
@@ -35,7 +36,6 @@
 namespace wiesel {
 namespace video {
 
-	class Screen;
 	class TextureContent;
 
 
@@ -51,12 +51,12 @@ namespace video {
 		/**
 		 * @brief load a texture from a \ref File.
 		 */
-		static WIESEL_CORE_EXPORT Texture *fromFile(File *filename);
+		static Texture *fromFile(File *filename);
 
 		/**
 		 * @brief load a texture from a \ref DataSource.
 		 */
-		static WIESEL_CORE_EXPORT Texture *fromDataSource(DataSource *data);
+		static Texture *fromDataSource(DataSource *data);
 
 		/**
 		 * @brief Get the datasource, where we get the texture's data from.

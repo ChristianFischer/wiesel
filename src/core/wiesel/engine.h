@@ -125,7 +125,7 @@ namespace wiesel {
 
 	// static members
 	private:
-		static WIESEL_CORE_EXPORT Engine	instance;
+		static Engine					instance;
 	
 	// instance members
 	private:
