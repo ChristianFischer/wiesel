@@ -20,13 +20,14 @@
  * Boston, MA 02110-1301 USA
  */
 #include "wiesel/engine.h"
+#include "wiesel-mainproc.def"
 
 #include <stdlib.h>
 
 using namespace wiesel;
 
 
-int main(int argc, char* argv[]) {
+int WIESEL_MAINPROC_EXPORT main(int argc, char* argv[]) {
 	Engine::getInstance()->initialize(argc, argv);
 	Engine::getInstance()->run();
 	Engine::getInstance()->shutdown();

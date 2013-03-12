@@ -87,7 +87,7 @@ namespace wiesel {
 
 	public:
 		/// a null-vector
-		static WIESEL_BASE_EXPORT vector2d zero;
+		static vector2d zero;
 	};
 
 

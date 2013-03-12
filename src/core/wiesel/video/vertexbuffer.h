@@ -29,6 +29,7 @@
 
 #include <wiesel/math/vector2d.h>
 #include <wiesel/math/vector3d.h>
+#include <wiesel/video/screen.h>
 #include <wiesel/device_resource.h>
 
 #include <vector>
@@ -42,7 +43,6 @@ namespace video {
 	// predeclarations
 
 	class IndexBuffer;
-	class Screen;
 	class VertexBufferContent;
 
 

@@ -26,13 +26,10 @@
 
 #include <wiesel/util/shared_object.h>
 
+#include "device.h"
 
 
 namespace wiesel {
-
-	// forward declarations
-	
-	class Device;
 
 
 	/**

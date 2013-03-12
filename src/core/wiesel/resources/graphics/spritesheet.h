@@ -65,7 +65,7 @@ namespace wiesel {
 		 * @brief Load a spritesheet from a file.
 		 * @param file	A file containing the spritesheet.
 		 */
-		static WIESEL_CORE_EXPORT SpriteSheet* fromFile(File *file);
+		static SpriteSheet* fromFile(File *file);
 
 		virtual ~SpriteSheet();
 

@@ -26,8 +26,8 @@
 #include "wiesel/io/directory_filesystem.h"
 #include "wiesel/util/log.h"
 
-#include <unistd.h>
-#include <sys/param.h>
+#include <direct.h>
+#include <string.h>
 #include <sstream>
 
 
@@ -41,12 +41,13 @@ GenericPlatform::GenericPlatform() {
 	asset_fs = NULL;
 
 	// get the current working directory
-	char working_dir_name[MAXPATHLEN];
-	getcwd(working_dir_name, MAXPATHLEN);
+	const int max_path_len = 4096;
+	char working_dir_name[max_path_len];
+	_getcwd(working_dir_name, max_path_len);
 
 	// replace backslashes with normal slashes, as the file system API
 	// cannot handle backslashes as separators yet.
-	for(int i=0; i<MAXPATHLEN; i++) {
+	for(int i=0; i<max_path_len; i++) {
 		if (working_dir_name[i] == '\0') {
 			break;
 		}
@@ -56,7 +57,7 @@ GenericPlatform::GenericPlatform() {
 		}
 	}
 
-	if (working_dir_name) {
+	if (strlen(working_dir_name)) {
 		stringstream ss;
 		ss << working_dir_name;
 		ss << "/resources/common";
