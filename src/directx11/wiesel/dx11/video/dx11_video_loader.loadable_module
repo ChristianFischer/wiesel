@@ -1,0 +1,19 @@
+
+#include <wiesel/module_registry.h>
+#include "dx11_video_loader.h"
+
+// add the module to the module registry
+namespace wiesel {
+	namespace dx11 {
+		namespace video {
+			REGISTER_MODULE_SINGLETON(
+					wiesel::video::IVideoLoader,
+					Dx11VideoLoader,
+					&generic_create<Dx11VideoLoader>,
+					"DirectX",
+					0x11000000u,
+					IModuleLoader::PriorityNormal
+			)
+		}
+	}
+}

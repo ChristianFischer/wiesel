@@ -177,6 +177,16 @@ matrix4x4 matrix4x4::inverted() const {
 }
 
 
+matrix4x4 matrix4x4::transposed() const {
+	return matrix4x4(
+			m11, m21, m31, m41,
+			m12, m22, m32, m42,
+			m13, m23, m33, m43,
+			m14, m24, m34, m44
+	);
+}
+
+
 
 
 

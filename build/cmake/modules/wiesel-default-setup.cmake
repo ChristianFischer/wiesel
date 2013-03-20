@@ -1,10 +1,12 @@
-set(WIESEL_ADD_MODULE_SDL_DEFAULT		ON)
-set(WIESEL_ADD_MODULE_SDL2_DEFAULT		OFF)
-set(WIESEL_ADD_MODULE_WIN32_DEFAULT		OFF)
+set(WIESEL_ADD_MODULE_SDL_DEFAULT				ON)
+set(WIESEL_ADD_MODULE_SDL2_DEFAULT				OFF)
+set(WIESEL_ADD_MODULE_DIRECTX11_DEFAULT			OFF)
+set(WIESEL_ADD_MODULE_WIN32_DEFAULT				OFF)
 
 
 if (WIN32)
-	set(WIESEL_ADD_MODULE_WIN32_DEFAULT		ON)
+	set(WIESEL_ADD_MODULE_DIRECTX11_DEFAULT		ON)
+	set(WIESEL_ADD_MODULE_WIN32_DEFAULT			ON)
 endif(WIN32)
 
 
@@ -19,6 +21,12 @@ option(
 		WIESEL_ADD_MODULE_SDL2
 		"Add the SDL module for libSDL version 2 to the project. The SDL provides an OpenGL based renderer, so this will also include the OpenGL module. It does not provide image loading modules like the SDL 1.x module."
 		${WIESEL_ADD_MODULE_SDL2_DEFAULT}
+)
+
+option(
+		WIESEL_ADD_MODULE_DIRECTX11
+		"Add the DirectX11 backend module for rendering to the project."
+		${WIESEL_ADD_MODULE_DIRECTX11_DEFAULT}
 )
 
 option(
@@ -47,6 +55,11 @@ function(wiesel_default_project_setup target)
 		set(MAINPROC_REQUIRED TRUE)
 	endif(WIESEL_ADD_MODULE_SDL2)
 	
+	if (WIESEL_ADD_MODULE_DIRECTX11)
+		wiesel_module_add_dependency(${target} wiesel-directx11)
+		set(MAINPROC_REQUIRED TRUE)
+	endif(WIESEL_ADD_MODULE_DIRECTX11)
+
 	if (WIESEL_ADD_MODULE_WIN32)
 		wiesel_module_add_dependency(${target} wiesel-win32)
 	endif(WIESEL_ADD_MODULE_WIN32)

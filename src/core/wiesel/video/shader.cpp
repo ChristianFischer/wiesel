@@ -35,6 +35,9 @@ using namespace std;
 const char* Shader::GLSL_VERTEX_SHADER		= "glsl.vert";
 const char* Shader::GLSL_FRAGMENT_SHADER	= "glsl.frag";
 
+const char* Shader::HLSL_VERTEX_SHADER		= "hlsl.vert";
+const char* Shader::HLSL_FRAGMENT_SHADER	= "hlsl.pixel";
+
 
 
 Shader::Shader() {

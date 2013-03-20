@@ -54,6 +54,8 @@ Shaders::~Shaders() {
 	// release all cached shaders
 	getGlslVertexShaderCache()->releaseAllObjects();
 	getGlslFragmentShaderCache()->releaseAllObjects();
+	getHlslVertexShaderCache()->releaseAllObjects();
+	getHlslFragmentShaderCache()->releaseAllObjects();
 
 	return;
 }
@@ -72,15 +74,25 @@ Shader *Shaders::getShaderFor(VertexBuffer* vbo) {
 	Shader *shader = getShaderCache()->get(key);
 	if (shader == NULL) {
 		shader = new Shader();
-		DataSource *src_vert = getGlslVertexShaderSourceFor(shader, vbo);
-		DataSource *src_frag = getGlslFragmentShaderSourceFor(shader, vbo);
+		DataSource *src_vert_glsl = getGlslVertexShaderSourceFor(shader, vbo);
+		DataSource *src_frag_glsl = getGlslFragmentShaderSourceFor(shader, vbo);
+		DataSource *src_vert_hlsl = getHlslVertexShaderSourceFor(shader, vbo);
+		DataSource *src_pixl_hlsl = getHlslFragmentShaderSourceFor(shader, vbo);
 
-		if (src_vert) {
-			shader->setSource(Shader::GLSL_VERTEX_SHADER,   src_vert);
+		if (src_vert_glsl) {
+			shader->setSource(Shader::GLSL_VERTEX_SHADER,   src_vert_glsl);
 		}
 
-		if (src_frag) {
-			shader->setSource(Shader::GLSL_FRAGMENT_SHADER, src_frag);
+		if (src_frag_glsl) {
+			shader->setSource(Shader::GLSL_FRAGMENT_SHADER, src_frag_glsl);
+		}
+
+		if (src_vert_hlsl) {
+			shader->setSource(Shader::HLSL_VERTEX_SHADER,   src_vert_hlsl);
+		}
+
+		if (src_pixl_hlsl) {
+			shader->setSource(Shader::HLSL_FRAGMENT_SHADER, src_pixl_hlsl);
 		}
 
 		getShaderCache()->add(key, shader);
@@ -263,6 +275,235 @@ DataSource *Shaders::getGlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 
 		// cache this object
 		getGlslFragmentShaderCache()->add(key, data_source);
+	}
+
+	if (shader) {
+		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+			stringstream tex_attr;
+			tex_attr << UNIFORM_TEXTURE;
+			tex_attr << i;
+			shader->setAttributeName(Shader::Texture, i, tex_attr.str());
+		}
+	}
+
+	return data_source;
+}
+
+
+
+
+DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* vbo) {
+	string key = vbo->getDefaultShaderName();
+
+	// check, if there's already an shader in the vertex shader cache
+	DataSource *data_source = getHlslVertexShaderCache()->get(key);
+	if (data_source == NULL) {
+		stringstream ss;
+
+		// matrix buffer
+		ss << "cbuffer MatrixBuffer {" << endl;
+		ss << "  matrix " << UNIFORM_MODELVIEW_MATRIX << ';' << endl;
+		ss << "  matrix " << UNIFORM_PROJECTION_MATRIX << ';' << endl;
+		ss << "};" << endl << endl;
+
+		// vertex shader input
+		{
+			ss << "struct VertexInputStruct {" << endl;
+
+			// vertex position attribute
+			ss << "    float4 " << ATTRIBUTE_VERTEX_POSITION << " : POSITION;" << endl;
+
+			// color attribute
+			if (vbo->hasColors()) {
+				ss << "    float4 " << ATTRIBUTE_VERTEX_COLOR << " : COLOR;" << endl;
+			}
+
+			ss << "};" << endl << endl;
+		}
+
+		// pixel shader input
+		{
+			ss << "struct PixelInputStruct {" << endl;
+
+			// vertex position attribute
+			ss << "    float4 " << ATTRIBUTE_VERTEX_POSITION << " : SV_POSITION;" << endl;
+
+			// color attribute
+			if (vbo->hasColors()) {
+				ss << "    float4 " << VARYING_COLOR << " : COLOR;" << endl;
+			}
+
+			ss << "};" << endl << endl;
+		}
+
+/*
+		// texture coordinate and varying
+		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+			ss << "attribute vec2 " << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE << i << ';' << endl;
+			ss << "varying   vec2 " << VARYING_TEXTURE_COORDINATE << i << ';' << endl;
+			ss << "uniform   sampler2D " << UNIFORM_TEXTURE << i << ';' << endl;
+		}
+*/
+
+		// start the main func
+		ss << "PixelInputStruct VertexShaderMain(VertexInputStruct input) {" << endl;
+		ss << "    input." << ATTRIBUTE_VERTEX_POSITION << ".w = 1.0f;" << endl;
+		ss << "    PixelInputStruct output;" << endl;
+		ss << "    output." << ATTRIBUTE_VERTEX_POSITION << " = mul(input." << ATTRIBUTE_VERTEX_POSITION << ", " << UNIFORM_MODELVIEW_MATRIX << ");" << endl;
+		ss << "    output." << ATTRIBUTE_VERTEX_POSITION << " = mul(output." << ATTRIBUTE_VERTEX_POSITION << ", " << UNIFORM_PROJECTION_MATRIX << ");" << endl;
+
+		// color value will be assigned to the color varying
+		if (vbo->hasColors()) {
+			ss << "    output." << VARYING_COLOR << " = input." << ATTRIBUTE_VERTEX_COLOR << ';' << endl;
+		}
+
+/*
+		// also assign each texture coordinate to it's varying
+		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+			ss << "    " << VARYING_TEXTURE_COORDINATE << i;
+			ss << " = "  << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE << i << ';' << endl;
+		}
+*/
+
+		// end the main func
+		ss << "    return output;" << endl;
+		ss << "}" << endl;
+
+		// create the data source
+		DataBuffer *buffer = ExclusiveDataBuffer::createCopyOf(ss.str());
+		data_source = new BufferDataSource(buffer);
+
+		// cache this object
+		getHlslVertexShaderCache()->add(key, data_source);
+	}
+
+	// when given a shader, configure all data members
+	if (shader) {
+		shader->setAttributeName(Shader::ProjectionMatrix, 0, UNIFORM_PROJECTION_MATRIX);
+		shader->setAttributeName(Shader::ModelviewMatrix,  0, UNIFORM_MODELVIEW_MATRIX);
+		shader->setAttributeName(Shader::VertexPosition,   0, ATTRIBUTE_VERTEX_POSITION);
+
+		if (vbo->hasNormals()) {
+			shader->setAttributeName(Shader::VertexNormal, 0, ATTRIBUTE_VERTEX_NORMAL);
+		}
+
+		if (vbo->hasColors()) {
+			shader->setAttributeName(Shader::VertexColor,  0, ATTRIBUTE_VERTEX_COLOR);
+		}
+
+		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+			stringstream tex_attr;
+			tex_attr << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
+			tex_attr << i;
+			shader->setAttributeName(Shader::VertexTextureCoordinate, i, tex_attr.str());
+		}
+	}
+
+	return data_source;
+}
+
+
+DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer* vbo) {
+	string key = vbo->getDefaultShaderName();
+
+	// check, if there's already an shader in the vertex shader cache
+	DataSource *data_source = getHlslFragmentShaderCache()->get(key);
+	if (data_source == NULL) {
+		stringstream ss;
+		int color_sources = 0;
+
+		// pixel shader input
+		{
+			ss << "struct PixelInputStruct {" << endl;
+
+			// vertex position attribute
+			ss << "    float4 " << ATTRIBUTE_VERTEX_POSITION << " : SV_POSITION;" << endl;
+
+			// color attribute
+			if (vbo->hasColors()) {
+				ss << "    float4 " << VARYING_COLOR << " : COLOR;" << endl;
+				++color_sources;
+			}
+
+			ss << "};" << endl << endl;
+		}
+
+/*
+		// texture varying and uniform
+		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+			ss << "varying vec2 " << VARYING_TEXTURE_COORDINATE << i << ';' << endl;
+			ss << "uniform sampler2D " << UNIFORM_TEXTURE << i << ';' << endl;
+			++color_sources;
+		}
+*/
+
+		// start the main func
+		ss << "float4 PixelShaderMain(PixelInputStruct input) : SV_TARGET {" << endl;
+
+		switch(color_sources) {
+			// when no color source is available, set the color of the fragment to a pretty pink
+			case 0: {
+				ss << "    return float4(1, 0, 1, 1);" << endl;
+				break;
+			}
+
+			// when just one color source is available, return it directly
+			case 1: {
+				ss << "    return ";
+
+				if (vbo->hasColors()) {
+					ss << "input." << VARYING_COLOR;
+				}
+
+/*
+				if (vbo->hasTextures()) {
+					ss << "texture2D(";
+					ss << UNIFORM_TEXTURE << '0' << ", ";
+					ss << VARYING_TEXTURE_COORDINATE << '0';
+					ss << ')';
+				}
+*/
+
+				ss << ';' << endl;
+
+				break;
+			}
+
+			// multiple color sources will be multiplied
+			default: {
+				ss << "    float color = float4(1, 1, 1, 1);" << endl;
+
+				// apply the vertex color
+				if (vbo->hasColors()) {
+					ss << "    color = mul(color, input." << VARYING_COLOR << ');' << endl;
+				}
+
+				// apply all texture colors
+/*
+				for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+					ss << "    color *= texture2D(";
+					ss << UNIFORM_TEXTURE << i << ", ";
+					ss << VARYING_TEXTURE_COORDINATE << i;
+					ss << ");" << endl;
+				}
+*/
+
+				// assign the multiplied value to gl_FragColor
+				ss << "    return color;" << endl;
+
+				break;
+			}
+		}
+
+		// end the main func
+		ss << "}" << endl;
+
+		// create the data source
+		DataBuffer *buffer = ExclusiveDataBuffer::createCopyOf(ss.str());
+		data_source = new BufferDataSource(buffer);
+
+		// cache this object
+		getHlslFragmentShaderCache()->add(key, data_source);
 	}
 
 	if (shader) {

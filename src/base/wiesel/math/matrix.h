@@ -102,6 +102,9 @@ namespace wiesel {
 		/// get the inverted matrix
 		matrix4x4 inverted() const;
 
+		/// get the transposed matrix
+		matrix4x4 transposed() const;
+
 
 	// operations
 	public:
