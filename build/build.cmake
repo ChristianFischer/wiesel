@@ -48,3 +48,39 @@ if (WIESEL_BUILD_WARN_ALL)
 	set(CMAKE_CXX_FLAGS "-g -Wall")
 	set(CMAKE_C_FLAGS "-g -Wall")
 endif(WIESEL_BUILD_WARN_ALL)
+
+
+# try to add a symlink to the resources folder into the current build dir
+option(WIESEL_BUILD_ADD_RESOURCES_SYMLINK "Tries to add a smbolic link to the project's resources folder into the binary directory" ON)
+if (WIESEL_BUILD_ADD_RESOURCES_SYMLINK)
+	if (WIN32)
+	# the nice windows symlink does not work yet
+	# it seems, normal users needs a special permissions to create links
+	# but usually our build script won't run with administrator privileges
+	#	if (NOT ${CMAKE_SYSTEM_VERSION} LESS "6.0")
+	#		# windows >= vista supports symlinks
+	#		add_custom_target(
+	#					copy-resources
+	#					COMMAND			cmd /S /C \"mklink /D 
+	#										\"${CMAKE_CURRENT_BINARY_DIR}/resources\"
+	#										\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"
+	#									\"
+	#		)
+	#	else()
+			# no symlinks - just copy
+			add_custom_target(
+						copy-resources
+						COMMAND			${CMAKE_COMMAND} -E copy_directory 
+											"${CMAKE_CURRENT_SOURCE_DIR}/resources"
+											"${CMAKE_CURRENT_BINARY_DIR}/resources"
+			)
+	#	endif()
+	elseif(UNIX)
+		add_custom_target(
+					copy-resources
+					COMMAND			${CMAKE_COMMAND} -E create_symlink 
+										"${CMAKE_CURRENT_SOURCE_DIR}/resources"
+										"${CMAKE_CURRENT_BINARY_DIR}/resources"
+		)
+	endif(WIN32)
+endif(WIESEL_BUILD_ADD_RESOURCES_SYMLINK)
