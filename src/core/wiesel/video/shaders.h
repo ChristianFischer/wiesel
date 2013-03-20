@@ -82,6 +82,16 @@ namespace video {
 			return &cached_glsl_fragment_shaders;
 		}
 
+		/// get the cache for vertex shader data sources
+		inline DataSourceCache *getHlslVertexShaderCache() {
+			return &cached_hlsl_vertex_shaders;
+		}
+
+		/// get the cache for fragment shader data sources
+		inline DataSourceCache *getHlslFragmentShaderCache() {
+			return &cached_hlsl_fragment_shaders;
+		}
+
 		/// get the cache for shaders
 		inline ShaderCache *getShaderCache() {
 			return &cached_shaders;
@@ -98,9 +108,19 @@ namespace video {
 		/// get a suitable fragment shader source for a given \ref VertexBuffer.
 		DataSource *getGlslFragmentShaderSourceFor(Shader *shader, VertexBuffer *vbo);
 
+		/// get a suitable vertex shader source for a given \ref VertexBuffer.
+		DataSource *getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer *vbo);
+
+		/// get a suitable fragment shader source for a given \ref VertexBuffer.
+		DataSource *getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer *vbo);
+
 	private:
 		DataSourceCache			cached_glsl_vertex_shaders;
 		DataSourceCache			cached_glsl_fragment_shaders;
+
+		DataSourceCache			cached_hlsl_vertex_shaders;
+		DataSourceCache			cached_hlsl_fragment_shaders;
+
 		ShaderCache				cached_shaders;
 	};
 

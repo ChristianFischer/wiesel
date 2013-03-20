@@ -121,10 +121,10 @@ DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 	#endif // windows
 
 	GenericFileSystem *fs = dynamic_cast<GenericFileSystem*>(getFileSystem());
-	string fullpath = (getFullPath() + "/");
 	DirectoryList directories;
 
 	#if defined(_MSC_VER)
+		string fullpath = (getFullPath() + "/*");
 		HANDLE hFind;
 		WIN32_FIND_DATA ffd;
 
@@ -141,6 +141,7 @@ DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 			FindClose(hFind);
 		}
 	#else
+		string fullpath = (getFullPath() + "/");
 		struct dirent *dirp;
 		struct stat fileinfo;
 		DIR *dp;
@@ -183,7 +184,7 @@ FileList GenericFileSystemDirectory::getFiles() {
 		HANDLE hFind;
 		WIN32_FIND_DATA ffd;
 
-		if ((hFind = FindFirstFile((getFullPath() + "/").c_str(), &ffd)) != INVALID_HANDLE_VALUE){
+		if ((hFind = FindFirstFile((getFullPath() + "/*").c_str(), &ffd)) != INVALID_HANDLE_VALUE){
 			do {
 				if((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
 					continue;

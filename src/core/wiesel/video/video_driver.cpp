@@ -106,7 +106,7 @@ void VideoDeviceDriver::setState(VideoState state) {
 
 void VideoDeviceDriver::updateScreenSize(float w, float h) {
 	size = dimension(w, h);
-	projection = matrix4x4::ortho(0, w, 0, h, 0, 1000);
+	projection = matrix4x4::ortho(0, w, 0, h, -1, +1);
 	return;
 }
 

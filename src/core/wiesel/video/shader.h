@@ -54,6 +54,8 @@ namespace video {
 		static const char* GLSL_VERTEX_SHADER;		//!< Source type for GLSL vertex shaders.
 		static const char* GLSL_FRAGMENT_SHADER;	//!< Source type for GLSL fragment shaders.
 
+		static const char* HLSL_VERTEX_SHADER;		//!< Source type for HLSL vertex shaders.
+		static const char* HLSL_FRAGMENT_SHADER;	//!< Source type for HLSL fragment shaders.
 		/**
 		 * @brief A list of various shader attributes.
 		 */
