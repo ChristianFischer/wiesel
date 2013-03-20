@@ -21,13 +21,15 @@ option(
 
 if (WIESEL_BUILD_SDL2)
 	# required for FindHg, which was added with 2.8.10
-	cmake_minimum_required(VERSION 2.8.10)
+	#cmake_minimum_required(VERSION 2.8.10)
 
 	include(ExternalProject)
 	find_package(Hg)
 
-	#set(WIESEL_BUILD_SDL2_DOWNLOAD_URL		"")
-	#set(WIESEL_BUILD_SDL2_DOWNLOAD_MD5		"")
+	# NOTE: no MD5 hash provided, since the download archive is a snapshot of 
+	# the repository, which will chance very oftern
+	set(WIESEL_BUILD_SDL2_DOWNLOAD_URL		"http://www.libsdl.org/tmp/SDL-2.0.zip")
+	#set(WIESEL_BUILD_SDL2_DOWNLOAD_MD5		"")	
 	set(WIESEL_BUILD_SDL2_HG_CHECKOUT_URL	"http://hg.libsdl.org/SDL")
 	set(WIESEL_BUILD_SDL2_HG_CHECKOUT_TAG	"tip")
 
@@ -65,11 +67,32 @@ if (WIESEL_BUILD_SDL2)
 				# cmake config
 				CMAKE_GENERATOR		"${CMAKE_GENERATOR}"
 				CMAKE_ARGS			${WIESEL_BUILD_SDL2_CMAKE_ARGS}
+				
+				# disable update
+				UPDATE_COMMAND		""
 
 				# skip installation
 				INSTALL_COMMAND 	""
 		)
+	else(HG_FOUND)
+		ExternalProject_Add(
+				libSDL2
+				PREFIX				libSDL2
+				URL					${WIESEL_BUILD_SDL2_DOWNLOAD_URL}
 
+				# cmake config
+				CMAKE_GENERATOR		"${CMAKE_GENERATOR}"
+				CMAKE_ARGS			${WIESEL_BUILD_SDL2_CMAKE_ARGS}
+				
+				# disable update
+				UPDATE_COMMAND		""
+
+				# skip installation
+				INSTALL_COMMAND 	""
+		)
+	endif(HG_FOUND)
+
+	if (TARGET libSDL2)
 		# get SDL directories
 		ExternalProject_Get_Property(libSDL2 SOURCE_DIR)
 		ExternalProject_Get_Property(libSDL2 BINARY_DIR)
@@ -89,12 +112,12 @@ if (WIESEL_BUILD_SDL2)
 					MAIN_DEPENDENCY	${BINARY_DIR}/${SDL2_LIBRARY_NAME}
 		)
 
-	else(HG_FOUND)
+	else(TARGET libSDL2)
 		message(
 				FATAL_ERROR 
-				"Missing mercurial executable, which is required for downloading the SDL source."
+				"Error at downloading the libSDL2 source."
 		)
-	endif(HG_FOUND)
+	endif(TARGET libSDL2)
 
 else(WIESEL_BUILD_SDL2)
 	message(

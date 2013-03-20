@@ -12,7 +12,7 @@
 # When enabled, the TinyXML2 library will be downloaded and compiled
 # otherwise, we try to find libTinyXML2 in the system 
 option(
-		WIESEL_BUILD_TINYXML
+		WIESEL_BUILD_TINYXML2
 		"Download and compile the TinyXML2 library from source instead of searching in the system for it."
 		OFF
 )
@@ -22,7 +22,9 @@ if (WIESEL_BUILD_TINYXML2)
 	include(ExternalProject)
 	find_package(Git)
 
-	#set(WIESEL_BUILD_TINYXML2_DOWNLOAD_URL		"")
+	# NOTE: no MD5 hash provided, since the download archive is a snapshot of 
+	# the repository, which will chance very oftern
+	set(WIESEL_BUILD_TINYXML2_DOWNLOAD_URL		"https://github.com/leethomason/tinyxml2/archive/master.zip")
 	#set(WIESEL_BUILD_TINYXML2_DOWNLOAD_MD5		"")
 	set(WIESEL_BUILD_TINYXML2_GIT_CHECKOUT_URL	"https://github.com/leethomason/tinyxml2.git")
 	set(WIESEL_BUILD_TINYXML2_GIT_CHECKOUT_TAG	"HEAD")
@@ -51,9 +53,32 @@ if (WIESEL_BUILD_TINYXML2)
 				CMAKE_GENERATOR		"${CMAKE_GENERATOR}"
 				CMAKE_ARGS			${WIESEL_BUILD_TINYXML2_CMAKE_ARGS}
 
+				# disable update
+				UPDATE_COMMAND		""
+
 				# skip installation
 				INSTALL_COMMAND 	""
 		)
+	else(GIT_FOUND)
+		# try downloading from URL
+		ExternalProject_Add(
+				libTinyXML2
+				PREFIX				libTinyXML2
+				URL					${WIESEL_BUILD_TINYXML2_DOWNLOAD_URL}
+
+				# cmake config
+				CMAKE_GENERATOR		"${CMAKE_GENERATOR}"
+				CMAKE_ARGS			${WIESEL_BUILD_TINYXML2_CMAKE_ARGS}
+
+				# disable update
+				UPDATE_COMMAND		""
+
+				# skip installation
+				INSTALL_COMMAND 	""
+		)
+	endif(GIT_FOUND)
+
+	if (TARGET libTinyXML2)
 
 		# get build directories
 		ExternalProject_Get_Property(libTinyXML2 SOURCE_DIR)
@@ -74,12 +99,14 @@ if (WIESEL_BUILD_TINYXML2)
 					MAIN_DEPENDENCY	${BINARY_DIR}/${TINYXML2_LIBRARY_NAME}
 		)
 
-	else(GIT_FOUND)
+	else(TARGET libTinyXML2)
+
 		message(
 				FATAL_ERROR 
-				"Missing git executable, which is required for downloading the TinyXML2 source."
+				"Error at downloading the TinyXML2 source."
 		)
-	endif(GIT_FOUND)
+
+	endif(TARGET libTinyXML2)
 
 else(WIESEL_BUILD_TINYXML2)
 	set(TINYXML2_FOUND			FALSE)
