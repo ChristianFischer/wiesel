@@ -39,12 +39,12 @@ File::~File() {
 }
 
 
-string File::getFullPath() {
+string File::getFullPath() const {
 	return getParent()->getFullPath() + "/" + getName();
 }
 
 
-string File::getNativePath() {
+string File::getNativePath() const {
 	return "";
 }
 

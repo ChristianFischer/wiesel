@@ -129,6 +129,26 @@ FileList AndroidAssetFileSystemDirectory::getFiles() {
 }
 
 
+bool AndroidAssetFileSystemDirectory::canRead() const {
+	return true;
+}
+
+
+bool AndroidAssetFileSystemDirectory::canWrite() const {
+	return false;
+}
+
+
+Directory *AndroidAssetFileSystemDirectory::doCreateDirectory(const string &name) {
+	return NULL;
+}
+
+
+File *AndroidAssetFileSystemDirectory::doCreateFile(const string &name) {
+	return NULL;
+}
+
+
 
 
 
@@ -179,5 +199,16 @@ DataBuffer *AndroidAssetFileSystemFile::getContent() {
 
 	return NULL;
 }
+
+
+bool AndroidAssetFileSystemFile::canRead() const {
+	return true;
+}
+
+
+bool AndroidAssetFileSystemFile::canWrite() const {
+	return false;
+}
+
 
 #endif // __ANDROID__

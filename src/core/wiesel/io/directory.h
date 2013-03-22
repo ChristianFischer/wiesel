@@ -67,7 +67,7 @@ namespace wiesel {
 		/**
 		 * @brief Get the full path of this directory.
 		 */
-		virtual std::string getFullPath();
+		virtual std::string getFullPath() const;
 
 		/**
 		 * @brief get the directory's full path on the platform's native file system.
@@ -75,12 +75,12 @@ namespace wiesel {
 		 * file system, this function will return an empty string.
 		 * @return the native path or an empty string, if there is no real filesystem.
 		 */
-		virtual std::string getNativePath();
+		virtual std::string getNativePath() const;
 
 		/**
 		 * @brief get the \ref FileSystem, this directory is in.
 		 */
-		inline FileSystem* getFileSystem() {
+		inline FileSystem* getFileSystem() const {
 			return fs;
 		}
 
@@ -88,7 +88,7 @@ namespace wiesel {
 		 * @brief get the parent-directory of this directory.
 		 * The root-directory will return \c NULL.
 		 */
-		inline Directory* getParent() {
+		inline Directory* getParent() const {
 			return parent;
 		}
 
@@ -130,6 +130,48 @@ namespace wiesel {
 		 * To ensure platform compatibility, directories should be seperated by '/' characters, even on windows.
 		 */
 		virtual File *findFile(const std::string &name);
+
+		/**
+		 * @brief Tries to create a directory relative to the current one.
+		 * It's possible to create multiple subdirectories at once.
+		 * When successful, the new directory will be returned. If the directory
+		 * already exists, the existing directory will be returned.
+		 * On failure, \c NULL will be returned.
+		 */
+		virtual Directory *createDirectory(const std::string &name);
+
+		/**
+		 * @brief Tries to create a file relative to the current directory.
+		 * When successful, the new file will be returned. If the file
+		 * already exists, the existing file object will be returned.
+		 * When the file's directory does not exist, it will NOT be created.
+		 * On failure, \c NULL will be returned.
+		 */
+		virtual File *createFile(const std::string &name);
+
+		/**
+		 * @brief Checks if we have read-access to this directory.
+		 * Without read-access it's not possible to get a listing of this directory.
+		 */
+		virtual bool canRead() const = 0;
+
+		/**
+		 * @breif Checks if we have write-access to this directory.
+		 * Without write-access we cannot create files or subdirectories here.
+		 */
+		virtual bool canWrite() const = 0;
+
+	// to be implemented by subclasses
+	protected:
+		/**
+		 * @brief Try to create a specific directory.
+		 */
+		virtual Directory *doCreateDirectory(const std::string &name) = 0;
+
+		/**
+		 * @brief Try to create a specific file.
+		 */
+		virtual File *doCreateFile(const std::string &name) = 0;
 
 	// sort utilities
 	public:
