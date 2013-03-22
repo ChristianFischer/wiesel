@@ -39,6 +39,12 @@ GenericFileSystem::GenericFileSystem() {
 	return;
 }
 
+GenericFileSystem::GenericFileSystem(const std::string &root_path) {
+	root = new GenericFileSystemDirectory(this, NULL, root_path);
+	root->retain();
+	return;
+}
+
 GenericFileSystem::~GenericFileSystem() {
 	root->release();
 	return;

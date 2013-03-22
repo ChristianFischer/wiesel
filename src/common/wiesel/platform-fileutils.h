@@ -34,6 +34,9 @@
 
 #if WIESEL_PLATFORM_UNIX || WIESEL_PLATFORM_CYGWIN
 	#include <unistd.h>
+
+	#include <sys/types.h>
+	#include <pwd.h>
 #endif
 
 #if !defined(_MSC_VER)

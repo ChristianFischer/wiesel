@@ -26,6 +26,8 @@
 #include "video/android_video_driver.h"
 
 #include "wiesel/io/datasource.h"
+#include "wiesel/io/directory_filesystem.h"
+#include "wiesel/io/generic_root_fs.h"
 #include "wiesel/io/file.h"
 #include "wiesel/ui/touchhandler.h"
 #include "wiesel/util/log.h"
@@ -46,6 +48,8 @@ using namespace std;
 AndroidPlatform::AndroidPlatform() {
 	this->app					= NULL;
 	this->asset_fs				= NULL;
+	this->data_fs				= NULL;
+	this->data_ext_fs			= NULL;
 	this->window_initialized	= false;
 
 	return;
@@ -55,6 +59,16 @@ AndroidPlatform::~AndroidPlatform() {
 	if (asset_fs) {
 		delete asset_fs;
 		asset_fs = NULL;
+	}
+
+	if (data_fs) {
+		delete data_fs;
+		data_fs = NULL;
+	}
+
+	if (data_ext_fs) {
+		delete data_ext_fs;
+		data_ext_fs = NULL;
 	}
 
 	return;
@@ -99,6 +113,19 @@ void wiesel::android::platform_handle_cmd(struct android_app* app, int32_t cmd) 
 void AndroidPlatform::initAndroidApp(struct android_app *app) {
 	this->app		= app;
 	this->asset_fs	= new AndroidAssetFileSystem(app->activity->assetManager);
+
+	FileSystem *root_fs = Engine::getInstance()->getRootFileSystem();
+	if (app && app->activity && root_fs) {
+		// TODO: There's a known bug, that internalDataPath and externalDataPath are both NULL
+		//       on Android 2.3 and we need a workaround for this case.
+		if (app->activity->internalDataPath) {
+			data_fs = new GenericFileSystem(app->activity->internalDataPath);
+		}
+
+		if (app->activity->externalDataPath) {
+			data_ext_fs = new GenericFileSystem(app->activity->externalDataPath);
+		}
+	}
 
 	app->userData     = this;
 	app->onAppCmd     = platform_handle_cmd;
@@ -348,6 +375,20 @@ FileSystem *AndroidPlatform::getRootFileSystem() {
 
 FileSystem *AndroidPlatform::getAssetFileSystem() {
 	return asset_fs;
+}
+
+
+FileSystem *AndroidPlatform::getDataFileSystem(const std::string &subdir) {
+	return data_fs;
+}
+
+
+FileSystem *AndroidPlatform::getExternalDataFileSystem(const std::string &subdir) {
+	if (data_ext_fs) {
+		return data_ext_fs;
+	}
+
+	return getDataFileSystem(subdir);
 }
 
 

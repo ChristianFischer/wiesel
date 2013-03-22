@@ -90,7 +90,7 @@ string DirectoryFileSystemDirectory::getName() const {
 }
 
 
-string DirectoryFileSystemDirectory::getNativePath() {
+string DirectoryFileSystemDirectory::getNativePath() const {
 	return getEnclosedDirectory()->getNativePath();
 }
 
@@ -235,7 +235,7 @@ string DirectoryFileSystemFile::getName() const {
 }
 
 
-string DirectoryFileSystemFile::getNativePath() {
+string DirectoryFileSystemFile::getNativePath() const {
 	return getEnclosedFile()->getNativePath();
 }
 

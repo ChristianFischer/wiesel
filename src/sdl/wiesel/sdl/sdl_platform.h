@@ -68,6 +68,8 @@ namespace sdl {
 	public:
 		virtual FileSystem *getRootFileSystem();
 		virtual FileSystem *getAssetFileSystem();
+		virtual FileSystem *getDataFileSystem(const std::string &subdir);
+		virtual FileSystem *getExternalDataFileSystem(const std::string &subdir);
 
 	private:
 		std::vector<ISdlMessageReceiver*>	receivers;

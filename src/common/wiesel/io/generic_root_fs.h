@@ -37,6 +37,7 @@ namespace wiesel {
 	{
 	public:
 		GenericFileSystem();
+		GenericFileSystem(const std::string &root_path);
 		virtual ~GenericFileSystem();
 
 		virtual Directory *getRootDirectory();
