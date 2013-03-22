@@ -19,7 +19,7 @@ LOCAL_MODULE                  := wiesel-android
 LOCAL_MODULE_FILENAME         := libwieselandroid
 LOCAL_CFLAGS                  := -Werror
 LOCAL_LDLIBS                  := 
-LOCAL_STATIC_LIBRARIES        := wiesel-base wiesel-core wiesel-opengl
+LOCAL_STATIC_LIBRARIES        := wiesel-base wiesel-core wiesel-common wiesel-opengl
 LOCAL_WHOLE_STATIC_LIBRARIES  := android_native_app_glue
 LOCAL_SRC_FILES               := $(MY_FILES)
 LOCAL_C_INCLUDES              := $(MY_LOCAL_FOLDERS)
@@ -32,6 +32,7 @@ include $(BUILD_STATIC_LIBRARY)
 # import all required modules
 $(call import-module,wiesel-base)
 $(call import-module,wiesel-core)
+$(call import-module,wiesel-common)
 $(call import-module,wiesel-opengl)
 
 # NativeActivity stuff
