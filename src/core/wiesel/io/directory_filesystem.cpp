@@ -132,6 +132,57 @@ FileList DirectoryFileSystemDirectory::getFiles() {
 }
 
 
+bool DirectoryFileSystemDirectory::canRead() const {
+	if (enclosed_directory) {
+		return enclosed_directory->canRead();
+	}
+
+	return false;
+}
+
+
+bool DirectoryFileSystemDirectory::canWrite() const {
+	if (enclosed_directory) {
+		return enclosed_directory->canWrite();
+	}
+
+	return false;
+}
+
+
+
+Directory *DirectoryFileSystemDirectory::doCreateDirectory(const string &name) {
+	// no nested directories allowed
+	assert(name.find('/') == string::npos);
+
+	if (enclosed_directory) {
+		Directory *native_dir = enclosed_directory->createDirectory(name);
+		if (native_dir) {
+			DirectoryFileSystem *fs = dynamic_cast<DirectoryFileSystem*>(getFileSystem());
+			return new DirectoryFileSystemDirectory(fs, this, native_dir);
+		}
+	}
+
+	return NULL;
+}
+
+
+File *DirectoryFileSystemDirectory::doCreateFile(const string &name) {
+	// no nested directories allowed
+	assert(name.find('/') == string::npos);
+
+	if (enclosed_directory) {
+		File *native_file = enclosed_directory->createFile(name);
+		if (native_file) {
+			return new DirectoryFileSystemFile(this, native_file);
+		}
+	}
+
+	return NULL;
+}
+
+
+
 
 
 
@@ -193,3 +244,20 @@ DataBuffer *DirectoryFileSystemFile::getContent() {
 	return getEnclosedFile()->getContent();
 }
 
+
+bool DirectoryFileSystemFile::canRead() const {
+	if (enclosed_file) {
+		return enclosed_file->canRead();
+	}
+
+	return false;
+}
+
+
+bool DirectoryFileSystemFile::canWrite() const {
+	if (enclosed_file) {
+		return enclosed_file->canWrite();
+	}
+
+	return false;
+}

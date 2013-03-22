@@ -19,56 +19,27 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#include "filesystem.h"
+#ifndef __WIESEL_PLATFORM_FILEUTILS_H__
+#define __WIESEL_PLATFORM_FILEUTILS_H__
 
-using namespace wiesel;
-using namespace std;
+#include "wiesel/platform_config.h"
 
+#if WIESEL_PLATFORM_WINDOWS && !WIESEL_PLATFORM_CYGWIN
+	#include "windows.h"
+#endif
 
-FileSystem::FileSystem() {
-	return;
-}
+#if WIESEL_PLATFORM_WINDOWS
+	#include <direct.h>
+#endif
 
-FileSystem::~FileSystem() {
-	return;
-}
+#if WIESEL_PLATFORM_UNIX || WIESEL_PLATFORM_CYGWIN
+	#include <unistd.h>
+#endif
 
+#if !defined(_MSC_VER)
+	#include <dirent.h>
+#endif
 
-Directory *FileSystem::findDirectory(const std::string &name) {
-	Directory *root = getRootDirectory();
-	if (root) {
-		return root->findDirectory(name);
-	}
+#include <sys/stat.h>
 
-	return NULL;
-}
-
-
-File *FileSystem::findFile(const std::string &name) {
-	Directory *root = getRootDirectory();
-	if (root) {
-		return root->findFile(name);
-	}
-
-	return NULL;
-}
-
-
-Directory *FileSystem::createDirectory(const std::string &name) {
-	Directory *root = getRootDirectory();
-	if (root) {
-		return root->createDirectory(name);
-	}
-
-	return NULL;
-}
-
-
-File *FileSystem::createFile(const std::string &name) {
-	Directory *root = getRootDirectory();
-	if (root) {
-		return root->createFile(name);
-	}
-
-	return NULL;
-}
+#endif // __WIESEL_PLATFORM_FILEUTILS_H__

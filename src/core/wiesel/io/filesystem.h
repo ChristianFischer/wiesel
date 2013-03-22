@@ -67,6 +67,24 @@ namespace wiesel {
 		 * To ensure platform compatibility, directories should be seperated by '/' characters, even on windows.
 		 */
 		virtual File *findFile(const std::string &name);
+
+		/**
+		 * @brief Tries to create a directory relative to the current one.
+		 * It's possible to create multiple subdirectories at once.
+		 * When successful, the new directory will be returned. If the directory
+		 * already exists, the existing directory will be returned.
+		 * On failure, \c NULL will be returned.
+		 */
+		virtual Directory *createDirectory(const std::string &name);
+
+		/**
+		 * @brief Tries to create a file relative to the current directory.
+		 * When successful, the new file will be returned. If the file
+		 * already exists, the existing file object will be returned.
+		 * When the file's directory does not exist, it will NOT be created.
+		 * On failure, \c NULL will be returned.
+		 */
+		virtual File *createFile(const std::string &name);
 	};
 
 } /* namespace wiesel */

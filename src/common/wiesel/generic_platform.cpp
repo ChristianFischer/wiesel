@@ -21,12 +21,12 @@
  */
 #include "generic_platform.h"
 #include "wiesel/io/generic_root_fs.h"
+#include "wiesel/platform-fileutils.h"
 
 #include "wiesel/io/datasource.h"
 #include "wiesel/io/directory_filesystem.h"
 #include "wiesel/util/log.h"
 
-#include <direct.h>
 #include <string.h>
 #include <sstream>
 
@@ -43,7 +43,12 @@ GenericPlatform::GenericPlatform() {
 	// get the current working directory
 	const int max_path_len = 4096;
 	char working_dir_name[max_path_len];
-	_getcwd(working_dir_name, max_path_len);
+
+	#if WIESEL_PLATFORM_WINDOWS
+		_getcwd(working_dir_name, max_path_len);
+	#else
+		getcwd(working_dir_name, max_path_len);
+	#endif
 
 	// replace backslashes with normal slashes, as the file system API
 	// cannot handle backslashes as separators yet.
