@@ -34,6 +34,7 @@ namespace dx11 {
 namespace video {
 
 	class DirectX11RenderContext;
+	class Dx11TextureContent;
 
 	/**
 	 * @brief DirectX11 backend for shader objects.
@@ -86,7 +87,7 @@ namespace video {
 		bool bind(DirectX11RenderContext *render_context);
 
 		/// bind the given vertex_buffer to this shader
-		bool bind(DirectX11RenderContext *render_context, const wiesel::video::VertexBuffer *vertex_buffer);
+		bool bind(DirectX11RenderContext *render_context, const wiesel::video::VertexBuffer *vertex_buffer, const std::vector<Dx11TextureContent*> &textures);
 
 	private:
 		typedef std::map<std::string, ID3D10Blob*>			ShaderBufferMap;

@@ -40,6 +40,7 @@ DirectX11RenderContext::DirectX11RenderContext(Screen *screen) : RenderContext(s
 	d3d_device_context				= NULL;
 	swap_chain						= NULL;
 	render_target_view				= NULL;
+	blendstate_enabled				= NULL;
 
 	this->active_shader				= NULL;
 	this->active_shader_content		= NULL;
@@ -341,7 +342,7 @@ DirectX11RenderContext *DirectX11RenderContext::createContextWithWindowHandle(HW
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 	depthStencilDesc.DepthEnable					= true;
 	depthStencilDesc.DepthWriteMask					= D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc						= D3D11_COMPARISON_LESS;
+	depthStencilDesc.DepthFunc						= D3D11_COMPARISON_LESS_EQUAL;
 
 	depthStencilDesc.StencilEnable					= true;
 	depthStencilDesc.StencilReadMask				= 0xFF;
@@ -404,6 +405,24 @@ DirectX11RenderContext *DirectX11RenderContext::createContextWithWindowHandle(HW
 		return false;
 	}
 
+	// create a blend state description
+	D3D11_BLEND_DESC blendstate_enabled_desc;
+	ZeroMemory(&blendstate_enabled_desc, sizeof(D3D11_BLEND_DESC));
+	blendstate_enabled_desc.RenderTarget[0].BlendEnable				= TRUE;
+	blendstate_enabled_desc.RenderTarget[0].SrcBlend				= D3D11_BLEND_SRC_ALPHA;
+	blendstate_enabled_desc.RenderTarget[0].DestBlend				= D3D11_BLEND_INV_SRC_ALPHA;
+	blendstate_enabled_desc.RenderTarget[0].BlendOp					= D3D11_BLEND_OP_ADD;
+	blendstate_enabled_desc.RenderTarget[0].SrcBlendAlpha			= D3D11_BLEND_ONE;
+	blendstate_enabled_desc.RenderTarget[0].DestBlendAlpha			= D3D11_BLEND_ZERO;
+	blendstate_enabled_desc.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
+	blendstate_enabled_desc.RenderTarget[0].RenderTargetWriteMask	= 0x0f;
+ 
+	result = context->d3d_device->CreateBlendState(&blendstate_enabled_desc, &context->blendstate_enabled);
+	if (FAILED(result)) {
+		delete context;
+		return false;
+	}
+
 	// Now set the rasterizer state.
 	context->d3d_device_context->RSSetState(context->raster_state);		
 
@@ -431,6 +450,11 @@ void DirectX11RenderContext::releaseContext() {
 	if (raster_state) {
 		raster_state->Release();
 		raster_state = NULL;
+	}
+
+	if (blendstate_enabled) {
+		blendstate_enabled->Release();
+		blendstate_enabled = NULL;
 	}
 
 	if (depth_stencil_view) {
@@ -497,6 +521,14 @@ void DirectX11RenderContext::preRender() {
 
 	d3d_device_context->ClearRenderTargetView(render_target_view, clear_color);
 	d3d_device_context->ClearDepthStencilView(depth_stencil_view, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	// enable alpha blending
+	float blendFactor[4];
+	blendFactor[0] = 0.0f;
+	blendFactor[1] = 0.0f;
+	blendFactor[2] = 0.0f;
+	blendFactor[3] = 0.0f;
+	d3d_device_context->OMSetBlendState(blendstate_enabled, blendFactor, 0xffffffff);
 
 	return;
 }
@@ -599,7 +631,6 @@ void DirectX11RenderContext::setShaderValue(const std::string &name, Shader::Val
 
 
 void DirectX11RenderContext::setTexture(uint16_t index, Texture* texture) {
-/*
 	// check if the texture list is big enough.
 	// when this assert fails, there may be missing a prepareTextures call
 	assert(index < active_textures.size());
@@ -636,14 +667,12 @@ void DirectX11RenderContext::setTexture(uint16_t index, Texture* texture) {
 		active_textures[index]         = active_texture;
 		active_textures_content[index] = active_texture_content;
 	}
-*/
 
 	return;
 }
 
 
 void DirectX11RenderContext::prepareTextureLayers(uint16_t layers) {
-/*
 	if (active_textures.size() < layers) {
 		active_textures.resize(layers, NULL);
 		active_textures_content.resize(layers, NULL);
@@ -654,7 +683,6 @@ void DirectX11RenderContext::prepareTextureLayers(uint16_t layers) {
 			setTexture(l, NULL);
 		}
 	}
-*/
 
 	return;
 }
@@ -736,7 +764,7 @@ void DirectX11RenderContext::draw(Primitive primitive, const VertexBuffer *verti
 
 
 bool DirectX11RenderContext::bind(const IndexBuffer* index_buffer) {
-	if (index_buffer && index_buffer->getContent()) {
+	if (index_buffer) {
 		// create the hardware buffer on demand
 		if(!index_buffer->isLoaded()) {
 			const_cast<IndexBuffer*>(index_buffer)->loadContentFrom(getScreen());
@@ -799,7 +827,7 @@ void DirectX11RenderContext::unbind(const IndexBuffer *index_buffer) {
 bool DirectX11RenderContext::bind(const VertexBuffer* vertex_buffer) {
 	if (vertex_buffer && active_shader_content) {
 		// try to bind this vertex buffer to the current shader
-		if (active_shader_content->bind(this, vertex_buffer) == false) {
+		if (active_shader_content->bind(this, vertex_buffer, active_textures_content) == false) {
 			return false;
 		}
 

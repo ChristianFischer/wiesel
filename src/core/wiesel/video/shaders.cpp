@@ -36,6 +36,7 @@ const char *Shaders::ATTRIBUTE_VERTEX_NORMAL					= "vNormal";
 const char *Shaders::ATTRIBUTE_VERTEX_COLOR						= "vColor";
 const char *Shaders::ATTRIBUTE_VERTEX_TEXTURE_COORDINATE		= "vTexCoord";
 const char *Shaders::UNIFORM_TEXTURE							= "texture";
+const char *Shaders::UNIFORM_TEXTURE_SAMPLER					= "sampler";
 const char *Shaders::UNIFORM_PROJECTION_MATRIX					= "mProjection";
 const char *Shaders::UNIFORM_MODELVIEW_MATRIX					= "mModelview";
 const char *Shaders::VARYING_COLOR								= "my_color";
@@ -318,6 +319,11 @@ DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 				ss << "    float4 " << ATTRIBUTE_VERTEX_COLOR << " : COLOR;" << endl;
 			}
 
+			// texture coordinate and varying
+			for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+				ss << "    float2 " << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE << i << " : TEXCOORD" << i << ';' << endl;
+			}
+
 			ss << "};" << endl << endl;
 		}
 
@@ -333,17 +339,13 @@ DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 				ss << "    float4 " << VARYING_COLOR << " : COLOR;" << endl;
 			}
 
+			// texture coordinate and varying
+			for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+				ss << "    float2 " << VARYING_TEXTURE_COORDINATE << i << " : TEXCOORD" << i << ';' << endl;
+			}
+
 			ss << "};" << endl << endl;
 		}
-
-/*
-		// texture coordinate and varying
-		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
-			ss << "attribute vec2 " << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE << i << ';' << endl;
-			ss << "varying   vec2 " << VARYING_TEXTURE_COORDINATE << i << ';' << endl;
-			ss << "uniform   sampler2D " << UNIFORM_TEXTURE << i << ';' << endl;
-		}
-*/
 
 		// start the main func
 		ss << "PixelInputStruct VertexShaderMain(VertexInputStruct input) {" << endl;
@@ -357,13 +359,11 @@ DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 			ss << "    output." << VARYING_COLOR << " = input." << ATTRIBUTE_VERTEX_COLOR << ';' << endl;
 		}
 
-/*
 		// also assign each texture coordinate to it's varying
 		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
-			ss << "    " << VARYING_TEXTURE_COORDINATE << i;
-			ss << " = "  << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE << i << ';' << endl;
+			ss << "    output." << VARYING_TEXTURE_COORDINATE << i;
+			ss << " = input." << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE << i << ';' << endl;
 		}
-*/
 
 		// end the main func
 		ss << "    return output;" << endl;
@@ -412,6 +412,16 @@ DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 		stringstream ss;
 		int color_sources = 0;
 
+		// texture coordinate and varying
+		if (vbo->getNumberOfTextureLayers() > 0) {
+			for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+				ss << "Texture2D    " << UNIFORM_TEXTURE << i << ';' << endl;
+				ss << "SamplerState " << UNIFORM_TEXTURE_SAMPLER << i << ';' << endl;
+			}
+			
+			ss << std::endl;
+		}
+
 		// pixel shader input
 		{
 			ss << "struct PixelInputStruct {" << endl;
@@ -422,6 +432,12 @@ DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 			// color attribute
 			if (vbo->hasColors()) {
 				ss << "    float4 " << VARYING_COLOR << " : COLOR;" << endl;
+				++color_sources;
+			}
+
+			// texture coordinate and varying
+			for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
+				ss << "    float2 " << VARYING_TEXTURE_COORDINATE << i << " : TEXCOORD" << i << ';' << endl;
 				++color_sources;
 			}
 
@@ -455,14 +471,12 @@ DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 					ss << "input." << VARYING_COLOR;
 				}
 
-/*
 				if (vbo->hasTextures()) {
-					ss << "texture2D(";
-					ss << UNIFORM_TEXTURE << '0' << ", ";
+					ss << UNIFORM_TEXTURE << '0' << ".Sample(";
+					ss << UNIFORM_TEXTURE_SAMPLER << '0' << ", input.";
 					ss << VARYING_TEXTURE_COORDINATE << '0';
 					ss << ')';
 				}
-*/
 
 				ss << ';' << endl;
 
@@ -479,14 +493,13 @@ DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 				}
 
 				// apply all texture colors
-/*
 				for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
-					ss << "    color *= texture2D(";
-					ss << UNIFORM_TEXTURE << i << ", ";
+					ss << "    color *= ";
+					ss << UNIFORM_TEXTURE << i << ".Sample(";
+					ss << UNIFORM_TEXTURE_SAMPLER << i << ", input.";
 					ss << VARYING_TEXTURE_COORDINATE << i;
 					ss << ");" << endl;
 				}
-*/
 
 				// assign the multiplied value to gl_FragColor
 				ss << "    return color;" << endl;

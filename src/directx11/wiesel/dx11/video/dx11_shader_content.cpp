@@ -246,6 +246,9 @@ void Dx11ShaderContent::releaseShader() {
 
 
 bool Dx11ShaderContent::bindAttributes(DirectX11RenderContext *context) {
+	const Shader::AttributeList *attributes = getShader()->getAttributes();
+	HRESULT result;
+
 	// prepare the matrix búffer
 	this->matrix_buffer_content.resize(2);
 	this->matrix_buffer_size = matrix_buffer_content.size() * sizeof(matrix4x4);
@@ -259,7 +262,7 @@ bool Dx11ShaderContent::bindAttributes(DirectX11RenderContext *context) {
 	matrixBufferDesc.StructureByteStride	= 0;
 
 	// create the constant buffer
-	HRESULT result = context->getD3DDevice()->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer);
+	result = context->getD3DDevice()->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -338,28 +341,26 @@ bool Dx11ShaderContent::bind(DirectX11RenderContext *render_context) {
 
 
 static bool configureInputElement(D3D11_INPUT_ELEMENT_DESC *layout, size_t *size, const VertexBuffer::component &comp) {
+	(*size) = comp.size;
+
 	switch(comp.fields) {
 		case 1: {
 			layout->Format = DXGI_FORMAT_R32_FLOAT;
-			(*size) = 4;
 			break;
 		}
 
 		case 2: {
 			layout->Format = DXGI_FORMAT_R32G32_FLOAT;
-			(*size) = 8;
 			break;
 		}
 
 		case 3: {
 			layout->Format = DXGI_FORMAT_R32G32B32_FLOAT;
-			(*size) = 12;
 			break;
 		}
 
 		case 4: {
 			layout->Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			(*size) = 16;
 			break;
 		}
 
@@ -372,7 +373,7 @@ static bool configureInputElement(D3D11_INPUT_ELEMENT_DESC *layout, size_t *size
 }
 
 
-bool Dx11ShaderContent::bind(DirectX11RenderContext *render_context, const VertexBuffer *vertex_buffer) {
+bool Dx11ShaderContent::bind(DirectX11RenderContext *render_context, const VertexBuffer *vertex_buffer, const std::vector<Dx11TextureContent*> &textures) {
 	std::string vertex_buffer_key = vertex_buffer->getDefaultShaderName();
 	PolygonLayoutMap::iterator layout_it = polygon_layouts.find(vertex_buffer_key);
 
@@ -438,6 +439,22 @@ bool Dx11ShaderContent::bind(DirectX11RenderContext *render_context, const Verte
 						break;
 					}
 
+					case Shader::VertexTextureCoordinate: {
+						layout.SemanticName		= "TEXCOORD";
+
+						if (vertex_buffer->getNumberOfTextureLayers() <= index) {
+							valid_element = false;
+						}
+
+						valid_element &= configureInputElement(
+													&layout,
+													&current_size,
+													vertex_buffer->getTextureDescription(index)
+						);
+
+						break;
+					}
+
 					default: {
 						valid_element = false;
 						break;
@@ -477,10 +494,28 @@ bool Dx11ShaderContent::bind(DirectX11RenderContext *render_context, const Verte
 		}
 	}
 
-	if (layout_it != polygon_layouts.end()) {
-		render_context->getD3DDeviceContext()->IASetInputLayout(layout_it->second);
-		return true;
+	if (layout_it == polygon_layouts.end()) {
+		return false;
+	}
+	
+	// set the according input layout
+	render_context->getD3DDeviceContext()->IASetInputLayout(layout_it->second);
+
+	// configure all texture layers
+	for(unsigned int i=0; i<vertex_buffer->getNumberOfTextureLayers(); i++) {
+		assert(i < textures.size());
+
+		if (i < textures.size() && (textures.at(i) != NULL)) {
+			ID3D11ShaderResourceView* resource_view = textures.at(i)->getDx11ShaderResourceView();
+			ID3D11SamplerState*       sampler_state = textures.at(i)->getDx11TextureSamplerState();
+			render_context->getD3DDeviceContext()->PSSetShaderResources(i, 1, &resource_view);
+			render_context->getD3DDeviceContext()->PSSetSamplers(i, 1, &sampler_state);
+		}
+		else {
+			render_context->getD3DDeviceContext()->PSSetShaderResources(i, 1, NULL);
+			render_context->getD3DDeviceContext()->PSSetSamplers(i, 1, NULL);
+		}
 	}
 
-	return false;
+	return true;
 }

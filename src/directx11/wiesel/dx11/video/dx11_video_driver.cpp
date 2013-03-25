@@ -26,9 +26,7 @@
 #include "dx11_indexbuffer_content.h"
 #include "dx11_vertexbuffer_content.h"
 #include "dx11_shader_content.h"
-/*
 #include "dx11_texture_content.h"
-*/
 
 #include <wiesel/util/log.h>
 #include <wiesel/ui/touchhandler.h>
@@ -285,7 +283,6 @@ ShaderContent *Dx11VideoDeviceDriver::createShaderContent(Shader *shader) {
 }
 
 TextureContent *Dx11VideoDeviceDriver::createTextureContent(Texture *texture) {
-//	return Dx11TextureContent::createContentFor(texture);
-	return NULL;
+	return Dx11TextureContent::createContentFor(this->render_context, texture);
 }
 

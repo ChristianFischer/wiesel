@@ -58,6 +58,7 @@ namespace video {
 		static const char *UNIFORM_PROJECTION_MATRIX;
 		static const char *UNIFORM_MODELVIEW_MATRIX;
 		static const char *UNIFORM_TEXTURE;
+		static const char *UNIFORM_TEXTURE_SAMPLER;
 		static const char *VARYING_COLOR;
 		static const char *VARYING_NORMAL;
 		static const char *VARYING_TEXTURE_COORDINATE;
