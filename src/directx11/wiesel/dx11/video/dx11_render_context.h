@@ -33,6 +33,7 @@
 
 #include "wiesel/dx11/dx11.h"
 #include "dx11_shader_content.h"
+#include "dx11_texture_content.h"
 
 
 namespace wiesel {
@@ -94,25 +95,27 @@ namespace video {
 		void unbind(const wiesel::video::VertexBuffer *vertex_buffer);
 
 	private:
-		bool								vsync;
-		bool								fullscreen;
+		bool									vsync;
+		bool									fullscreen;
 
-		D3D_DRIVER_TYPE						driver_type;
-		D3D_FEATURE_LEVEL					feature_level;
-		ID3D11Device*						d3d_device;
-		ID3D11DeviceContext*				d3d_device_context;
-		IDXGISwapChain*						swap_chain;
-		ID3D11RenderTargetView*				render_target_view;
+		D3D_DRIVER_TYPE							driver_type;
+		D3D_FEATURE_LEVEL						feature_level;
+		ID3D11Device*							d3d_device;
+		ID3D11DeviceContext*					d3d_device_context;
+		IDXGISwapChain*							swap_chain;
+		ID3D11RenderTargetView*					render_target_view;
 
-		ID3D11Texture2D*					depth_stencil_buffer;
-		ID3D11DepthStencilState*			depth_stencil_state;
-		ID3D11DepthStencilView*				depth_stencil_view;
-		ID3D11RasterizerState*				raster_state;
+		ID3D11Texture2D*						depth_stencil_buffer;
+		ID3D11DepthStencilState*				depth_stencil_state;
+		ID3D11DepthStencilView*					depth_stencil_view;
+		ID3D11RasterizerState*					raster_state;
 
-		wiesel::video::Shader*				active_shader;
-		Dx11ShaderContent*					active_shader_content;
-	//	std::vector<Texture*>				active_textures;
-	//	std::vector<Dx11TextureContent*>	active_textures_content;
+		ID3D11BlendState*						blendstate_enabled;
+
+		wiesel::video::Shader*					active_shader;
+		Dx11ShaderContent*						active_shader_content;
+		std::vector<wiesel::video::Texture*>	active_textures;
+		std::vector<Dx11TextureContent*		>	active_textures_content;
 	};
 
 }
