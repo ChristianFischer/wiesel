@@ -114,12 +114,20 @@ void AndroidPlatform::initAndroidApp(struct android_app *app) {
 	this->app		= app;
 	this->asset_fs	= new AndroidAssetFileSystem(app->activity->assetManager);
 
-	FileSystem *root_fs = Engine::getInstance()->getRootFileSystem();
-	if (app && app->activity && root_fs) {
-		// TODO: There's a known bug, that internalDataPath and externalDataPath are both NULL
+	// try to fetch application data via JNI
+	fetchApplicationInfoFromJNI();
+
+	if (app && app->activity) {
+		// NOTE: There's a known bug, that internalDataPath and externalDataPath are both NULL
 		//       on Android 2.3 and we need a workaround for this case.
 		if (app->activity->internalDataPath) {
 			data_fs = new GenericFileSystem(app->activity->internalDataPath);
+		}
+		else
+		if (this->data_dir.empty() == false) {
+			if (data_dir.empty() == false) {
+				data_fs = new GenericFileSystem(data_dir);
+			}
 		}
 
 		if (app->activity->externalDataPath) {
@@ -389,6 +397,107 @@ FileSystem *AndroidPlatform::getExternalDataFileSystem(const std::string &subdir
 	}
 
 	return getDataFileSystem(subdir);
+}
+
+
+
+void AndroidPlatform::fetchApplicationInfoFromJNI() {
+	JNIEnv* env = NULL;
+	jint initenv_result = app->activity->vm->AttachCurrentThread(&env, NULL);
+	if (initenv_result != JNI_OK || env == NULL) {
+		Log::info << "Could not get JNI Env (env=" << env << ", result=" << initenv_result << ")" << std::endl;
+		return;
+	}
+
+	// gett all the classes we need
+	jclass activity_class			= env->FindClass("android/app/Activity");
+	jclass pkgmgr_class				= env->FindClass("android/content/pm/PackageManager");
+	jclass pkginfo_class			= env->FindClass("android/content/pm/PackageInfo");
+	jclass appinfo_class			= env->FindClass("android/content/pm/ApplicationInfo");
+	jclass file_class				= env->FindClass("java/io/File");
+
+	if (
+			activity_class			== NULL
+		||	pkgmgr_class			== NULL
+		||	pkginfo_class			== NULL
+		||	appinfo_class			== NULL
+		||	file_class				== NULL
+	) {
+		return;
+	}
+
+	jmethodID activity_getpkgmgr	= env->GetMethodID(activity_class,		"getPackageManager",	"()Landroid/content/pm/PackageManager;");
+	jmethodID activity_getpkgname	= env->GetMethodID(activity_class,		"getPackageName",		"()Ljava/lang/String;");
+	jmethodID activity_getfilesdir	= env->GetMethodID(activity_class,		"getFilesDir",			"()Ljava/io/File;");
+	jmethodID pkgmgr_getpkginfo		= env->GetMethodID(pkgmgr_class,		"getPackageInfo",		"(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;");
+	jmethodID file_getabspath		= env->GetMethodID(file_class,			"getAbsolutePath",		"()Ljava/lang/String;");
+
+	if (
+			activity_getpkgmgr		== NULL
+		||	activity_getpkgname		== NULL
+		||	activity_getfilesdir	== NULL
+		||	pkgmgr_getpkginfo		== NULL
+		||	file_getabspath			== NULL
+	) {
+		return;
+	}
+
+	jfieldID pkginfo_appinfo		= env->GetFieldID(pkginfo_class,		"applicationInfo",		"Landroid/content/pm/ApplicationInfo;");
+	jfieldID appinfo_datadir		= env->GetFieldID(appinfo_class,		"dataDir",				"Ljava/lang/String;");
+
+	if (
+			pkginfo_appinfo			== NULL
+		||	appinfo_datadir			== NULL
+	) {
+		return;
+	}
+
+	// get the packagename
+	jstring pkgname_jstr = (jstring)env->CallObjectMethod(app->activity->clazz, activity_getpkgname);
+	if (pkgname_jstr) {
+		// store the package name
+		const char *chr_pkgname = env->GetStringUTFChars(pkgname_jstr, NULL);
+		this->package_name = chr_pkgname;
+		env->ReleaseStringUTFChars(pkgname_jstr, chr_pkgname);
+		chr_pkgname = NULL;
+	}
+	else {
+		return;
+	}
+
+	// get the package manager (and all information we need from it)
+	jobject pkgmgr = env->CallObjectMethod(app->activity->clazz, activity_getpkgmgr);
+	if (pkgmgr) {
+		// get the package info object
+		jobject pkginfo = env->CallObjectMethod(pkgmgr, pkgmgr_getpkginfo, pkgname_jstr, 0);
+		if (pkginfo) {
+			jobject appinfo = env->GetObjectField(pkginfo, pkginfo_appinfo);
+			if (appinfo) {
+				env->DeleteLocalRef(appinfo);
+			}
+
+			env->DeleteLocalRef(pkginfo);
+		}
+
+		env->DeleteLocalRef(pkgmgr);
+	}
+
+	jobject filedir_file = env->CallObjectMethod(app->activity->clazz, activity_getfilesdir);
+	if (filedir_file) {
+		jstring filedir_jstr = (jstring)env->CallObjectMethod(filedir_file, file_getabspath);
+		if (filedir_jstr) {
+			const char *filedir_chr = env->GetStringUTFChars(filedir_jstr, NULL);
+			this->data_dir = filedir_chr;
+			env->ReleaseStringUTFChars(filedir_jstr, filedir_chr);
+			env->DeleteLocalRef(filedir_jstr);
+		}
+
+		env->DeleteLocalRef(filedir_file);
+	}
+
+	env->DeleteLocalRef(pkgname_jstr);
+
+	return;
 }
 
 
