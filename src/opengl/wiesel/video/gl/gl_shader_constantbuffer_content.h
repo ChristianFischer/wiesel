@@ -19,47 +19,31 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_VIDEO_TYPES_H__
-#define	__WIESEL_VIDEO_TYPES_H__
+#ifndef __WIESEL_VIDEO_GL_SHADER_CONSTANTBUFFER_CONTENT_H__
+#define __WIESEL_VIDEO_GL_SHADER_CONSTANTBUFFER_CONTENT_H__
 
-#include <wiesel.h>
-#include <wiesel/wiesel-core.def>
+#include <wiesel/wiesel-opengl.def>
+#include <wiesel/video/shader_constantbuffer.h>
+
 
 namespace wiesel {
-	namespace video {
+namespace video {
+namespace gl {
 
-		/**
-		 * @brief A list of possible primiteves at rendering.
-		 */
-		enum Primitive {
-			Triangles,
-			TriangleStrip,
-			TriangleFan,
-		};
+	/**
+	 * @brief Handles the device specific part of a index buffer.
+	 */
+	class WIESEL_OPENGL_EXPORT GlShaderConstantBufferContent : public ShaderConstantBufferContent
+	{
+	public:
+		GlShaderConstantBufferContent(ShaderConstantBuffer *shader_constant_buffer);
+		virtual ~GlShaderConstantBufferContent();
 
+	public:
+		static GlShaderConstantBufferContent* createContentFor(ShaderConstantBuffer *shader_constant_buffer);
+	};
 
-
-		/**
-		 * @brief A list of valid types for various graphics operations.
-		 */
-		enum ValueType {
-			TypeInt32,
-
-			TypeFloat,
-
-			TypeVector2f,
-			TypeVector3f,
-			TypeVector4f,
-
-			TypeMatrix4x4f,
-		};
-
-
-		/**
-		 * @brief Determine a type's size in bytes.
-		 */
-		size_t WIESEL_CORE_EXPORT getTypeSize(ValueType type);
-	}
-}
-
-#endif	/* __WIESEL_VIDEO_TYPES_H__ */
+} /* namespace gl */
+} /* namespace video */
+} /* namespace wiesel */
+#endif /* __WIESEL_VIDEO_GL_SHADER_CONSTANTBUFFER_CONTENT_H__ */

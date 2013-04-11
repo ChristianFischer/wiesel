@@ -29,6 +29,8 @@
 #include <wiesel/math/vector3d.h>
 #include <wiesel/io/datasource.h>
 #include <wiesel/video/screen.h>
+#include <wiesel/video/shader_constantbuffer.h>
+#include <wiesel/video/types.h>
 #include <wiesel/device_resource.h>
 #include <stdint.h>
 #include <string>
@@ -56,13 +58,12 @@ namespace video {
 
 		static const char* HLSL_VERTEX_SHADER;		//!< Source type for HLSL vertex shaders.
 		static const char* HLSL_FRAGMENT_SHADER;	//!< Source type for HLSL fragment shaders.
+
+
 		/**
 		 * @brief A list of various shader attributes.
 		 */
 		enum Attribute {
-			ProjectionMatrix,
-			ModelviewMatrix,
-
 			VertexPosition,
 			VertexNormal,
 			VertexColor,
@@ -71,19 +72,23 @@ namespace video {
 			Texture,
 		};
 
+
 		/**
-		 * @brief A list of valid types for shader attributes.
+		 * @brief Enumeration of various shader stages.
 		 */
-		enum ValueType {
-			TypeInt32,
+		enum Context {
+			Context_VertexShader		= 0x0001,
+			Context_FragmentShader		= 0x0002,
+		};
 
-			TypeFloat,
 
-			TypeVector2f,
-			TypeVector3f,
-			TypeVector4f,
-
-			TypeMatrix4x4f,
+		/**
+		 * @brief Entry of a constant buffer within this shader.
+		 */
+		struct ConstantBufferTplEntry {
+			std::string						name;
+			uint16_t						context;
+			ShaderConstantBufferTemplate*	buffer_template;
 		};
 
 
@@ -95,6 +100,9 @@ namespace video {
 
 		/// Alias type for a list of sources
 		typedef std::map<std::string,DataSource*>		SourcesList;
+
+		/// Alias type for a list of constant buffer templates
+		typedef std::vector<ConstantBufferTplEntry>		ConstantBufferTplList;
 
 	public:
 		Shader();
@@ -139,14 +147,26 @@ namespace video {
 		const AttributeList* getAttributes() const;
 
 		/**
-		 * @brief Add the name of a new uniform attribute.
+		 * @brief Adds a new constant buffer template to this shader.
+		 * @param name				The name of the new constant buffer.
+		 * @param context			One or more flags of \ref Context to determine,
+		 *							which shader stages are using this buffer.
+		 * @param buffer_template	The constant buffer template, which
+		 * @return \c true on success, \c false otherwise.
 		 */
-		void addUniform(const std::string &name);
+		bool addConstantBuffer(const std::string &name, uint16_t context, ShaderConstantBufferTemplate *buffer_template);
 
 		/**
-		 * @brief Get the list of all uniform attributes assigned to this shader.
+		 * @brief Find a constant buffer template with the given name, which is assigned to this shader.
+		 * @param name	The name of the requested constant buffer.
+		 * @return the requested constant buffer, or \c NULL, when no buffer was found.
 		 */
-		const std::set<std::string>* getUniforms() const;
+		ShaderConstantBufferTemplate *findConstantBufferTemplate(const std::string &name) const;
+
+		/**
+		 * @brief Get the list of all constant buffers, assigned to this shader.
+		 */
+		const ConstantBufferTplList *getConstantBufferTemplates() const;
 
 	// DeviceResource implementation
 	protected:
@@ -161,8 +181,8 @@ namespace video {
 		/// A list of attributes according to this shader
 		AttributeList				attributes;
 
-		/// names of custom uniform attributes to be set from user code
-		std::set<std::string>		uniform_attributes;
+		/// A list of all constant buffers assigned to this shader.
+		ConstantBufferTplList		constant_buffers;
 	};
 
 
@@ -191,14 +211,8 @@ namespace video {
 
 	// setters
 	public:
-		/// set the modelview matrix for the current shader
-		virtual bool setModelviewMatrix(const matrix4x4 &matrix) = 0;
-
-		/// set the projection matrix for the current shader
-		virtual bool setProjectionMatrix(const matrix4x4 &matrix) = 0;
-
-		/// set a uniform shader value, see ShaderTarget::setShaderValue
-		virtual bool setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) = 0;
+		/// assigns a constant buffer to the current shader instance.
+		virtual bool assignShaderConstantBuffer(const std::string &name, ShaderConstantBufferContent *buffer_content) = 0;
 
 	private:
 		Shader*		shader;

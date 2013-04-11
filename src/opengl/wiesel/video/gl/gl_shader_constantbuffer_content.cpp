@@ -19,47 +19,23 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_VIDEO_TYPES_H__
-#define	__WIESEL_VIDEO_TYPES_H__
+#include "gl_shader_constantbuffer_content.h"
 
-#include <wiesel.h>
-#include <wiesel/wiesel-core.def>
-
-namespace wiesel {
-	namespace video {
-
-		/**
-		 * @brief A list of possible primiteves at rendering.
-		 */
-		enum Primitive {
-			Triangles,
-			TriangleStrip,
-			TriangleFan,
-		};
+using namespace wiesel;
+using namespace wiesel::video;
+using namespace wiesel::video::gl;
 
 
-
-		/**
-		 * @brief A list of valid types for various graphics operations.
-		 */
-		enum ValueType {
-			TypeInt32,
-
-			TypeFloat,
-
-			TypeVector2f,
-			TypeVector3f,
-			TypeVector4f,
-
-			TypeMatrix4x4f,
-		};
-
-
-		/**
-		 * @brief Determine a type's size in bytes.
-		 */
-		size_t WIESEL_CORE_EXPORT getTypeSize(ValueType type);
-	}
+GlShaderConstantBufferContent::GlShaderConstantBufferContent(ShaderConstantBuffer *constant_buffer)
+		: ShaderConstantBufferContent(constant_buffer)
+{
+	return;
 }
 
-#endif	/* __WIESEL_VIDEO_TYPES_H__ */
+GlShaderConstantBufferContent::~GlShaderConstantBufferContent() {
+	return;
+}
+
+GlShaderConstantBufferContent* GlShaderConstantBufferContent::createContentFor(ShaderConstantBuffer *constant_buffer) {
+	return new GlShaderConstantBufferContent(constant_buffer);
+}

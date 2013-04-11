@@ -46,9 +46,17 @@ Shader::Shader() {
 
 
 Shader::~Shader() {
+	for(ConstantBufferTplList::iterator it=constant_buffers.begin(); it!=constant_buffers.end(); it++) {
+		it->buffer_template->release();
+	}
+
+	constant_buffers.clear();
+
 	for(SourcesList::iterator it=sources.begin(); it!=sources.end(); it++) {
 		it->second->release();
 	}
+
+	sources.clear();
 
 	return;
 }
@@ -114,15 +122,49 @@ const Shader::AttributeList *Shader::getAttributes() const {
 }
 
 
-void Shader::addUniform(const std::string& name) {
-	uniform_attributes.insert(name);
+bool Shader::addConstantBuffer(const std::string& name, uint16_t context, ShaderConstantBufferTemplate* buffer_template) {
+	for(ConstantBufferTplList::iterator it=constant_buffers.begin(); it!=constant_buffers.end(); it++) {
+		if (it->name == name) {
+			// when the existing entry matches the "new" buffer, just add the context (if changed)
+			if (it->buffer_template == buffer_template) {
+				it->context |= context;
+				return true;
+			}
+			else {
+				// otherwise, adding the buffer failed.
+				return false;
+			}
+		}
+	}
+
+	// create a new buffer entry
+	ConstantBufferTplEntry entry;
+	entry.name				= name;
+	entry.context			= context;
+	entry.buffer_template	= buffer_template;
+
+	// store the buffer
+	constant_buffers.push_back(entry);
+	entry.buffer_template->retain();
+
+	return true;
 }
 
 
-const std::set<std::string> *Shader::getUniforms() const {
-	return &uniform_attributes;
+ShaderConstantBufferTemplate *Shader::findConstantBufferTemplate(const std::string& name) const {
+	for(ConstantBufferTplList::const_iterator it=constant_buffers.begin(); it!=constant_buffers.end(); it++) {
+		if (it->name == name) {
+			return it->buffer_template;
+		}
+	}
+
+	return NULL;
 }
 
+
+const Shader::ConstantBufferTplList *Shader::getConstantBufferTemplates() const {
+	return &constant_buffers;
+}
 
 
 bool Shader::doLoadContent() {

@@ -78,7 +78,7 @@ namespace video {
 		virtual bool setModelviewMatrix(const matrix4x4 &matrix);
 
 		/// set a uniform shader value, see ShaderTarget::setShaderValue
-		virtual bool setShaderValue(const std::string &name, wiesel::video::Shader::ValueType type, size_t elements, void *pValue);
+		virtual bool setShaderValue(const std::string &name, wiesel::video::ValueType type, size_t elements, void *pValue);
 
 		/// ensures, all buffers are uploaded to the shader
 		bool uploadAllBuffers(DirectX11RenderContext *render_context);

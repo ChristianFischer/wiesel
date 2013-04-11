@@ -79,7 +79,7 @@ namespace video {
 
 	public:
 		virtual void setShader(wiesel::video::Shader *shader);
-		virtual void setShaderValue(const std::string &name, wiesel::video::Shader::ValueType type, size_t elements, void *pValue);
+		virtual void setShaderValue(const std::string &name, wiesel::video::ValueType type, size_t elements, void *pValue);
 		virtual void setTexture(uint16_t index, wiesel::video::Texture *texture);
 		virtual void prepareTextureLayers(uint16_t layers);
 		virtual void clearTextures();

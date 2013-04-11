@@ -56,6 +56,7 @@ namespace gl {
 		virtual IndexBufferContent *createIndexBufferContent(IndexBuffer *index_buffer);
 		virtual VertexBufferContent *createVertexBufferContent(VertexBuffer *index_buffer);
 		virtual ShaderContent *createShaderContent(Shader *shader);
+		virtual ShaderConstantBufferContent *createConstantBufferContent(ShaderConstantBuffer *shader_constant_buffer);
 		virtual TextureContent *createTextureContent(Texture *texture);
 	};
 

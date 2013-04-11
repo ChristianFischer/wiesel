@@ -24,6 +24,7 @@
 #include "gl_indexbuffer_content.h"
 #include "gl_vertexbuffer_content.h"
 #include "gl_shader_content.h"
+#include "gl_shader_constantbuffer_content.h"
 #include "gl_texture_content.h"
 
 #include <wiesel/util/log.h>
@@ -134,6 +135,10 @@ VertexBufferContent *OpenGlVideoDeviceDriver::createVertexBufferContent(VertexBu
 
 ShaderContent *OpenGlVideoDeviceDriver::createShaderContent(Shader *shader) {
 	return GlShaderContent::createContentFor(shader);
+}
+
+ShaderConstantBufferContent *OpenGlVideoDeviceDriver::createConstantBufferContent(ShaderConstantBuffer *shader_constant_buffer) {
+	return GlShaderConstantBufferContent::createContentFor(shader_constant_buffer);
 }
 
 TextureContent *OpenGlVideoDeviceDriver::createTextureContent(Texture *texture) {

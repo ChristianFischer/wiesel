@@ -41,6 +41,8 @@ namespace video {
 	class IndexBufferContent;
 	class Shader;
 	class ShaderContent;
+	class ShaderConstantBuffer;
+	class ShaderConstantBufferContent;
 	class Texture;
 	class TextureContent;
 	class VertexBuffer;
@@ -165,6 +167,9 @@ namespace video {
 
 		/// create a shader resource content object
 		virtual ShaderContent *createShaderContent(Shader *shader) = 0;
+
+		/// create a constantbuffer resource content object
+		virtual ShaderConstantBufferContent *createConstantBufferContent(ShaderConstantBuffer *constant_buffer) = 0;
 
 		/// create a texture resource content object
 		virtual TextureContent *createTextureContent(Texture *texture) = 0;

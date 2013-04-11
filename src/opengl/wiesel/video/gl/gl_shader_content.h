@@ -33,6 +33,8 @@ namespace wiesel {
 namespace video {
 namespace gl {
 
+	class OpenGlRenderContext;
+
 	/**
 	 * @brief OpenGL backend for shader objects.
 	 */
@@ -86,14 +88,11 @@ namespace gl {
 		 */
 		GLint getAttribHandle(Shader::Attribute attr, uint8_t index) const;
 
-		/// set the projection matrix
-		virtual bool setProjectionMatrix(const matrix4x4 &matrix);
+		/// assigns a constant buffer to the current shader instance.
+		virtual bool assignShaderConstantBuffer(const std::string &name, ShaderConstantBufferContent *buffer_content);
 
-		/// set the modelview matrix
-		virtual bool setModelviewMatrix(const matrix4x4 &matrix);
-
-		/// set a uniform shader value, see ShaderTarget::setShaderValue
-		virtual bool setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue);
+		/// set a uniform shader value
+		virtual bool setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue);
 
 	private:
 		/// Alias type for an indiced list of attribute names
@@ -102,13 +101,15 @@ namespace gl {
 		/// Alias type for a list of attributes
 		typedef std::vector<AttributeHandlesByIndex>	AttributeHandleList;
 
+		typedef std::map<
+					const ShaderConstantBufferTemplate*,
+					ShaderConstantBuffer::version_t
+		>												BufferVersionMap;
 
 		GLuint		program_handle;
 
-		GLint		modelview_matrix_handle;
-		GLint		projection_matrix_handle;
-
 		AttributeHandleList			attribute_handles;
+		BufferVersionMap			buffer_versions;
 
 		std::map<std::string,GLint>	uniform_attributes;
 	};
