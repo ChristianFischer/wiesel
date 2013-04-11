@@ -109,13 +109,14 @@ namespace video {
 		virtual void setShader(Shader *shader) = 0;
 
 		/**
-		 * @brief Set the uniform attribute for the current shader.
-		 * @param name		The unique name of the shader attribute.
-		 * @param type		The attribute's type.
-		 * @param elements	The number of elements within the parameter, to use an array of values.
-		 * @param pValue	Pointer to the value, which will be delivered to the shader.
+		 * @brief Assigns a shader constant buffer to the current shader.
+		 * If there's no current shader, or the current shader does not use a buffer with the given name,
+		 * this function will do nothing.
+		 * @param name		Name to assign the buffer to.
+		 * @param buffer	The buffer which should be assigned to the shader.
+		 * @return \c true on success, \c false otherwise.
 		 */
-		virtual void setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) = 0;
+		virtual bool assignShaderConstantBuffer(const std::string &name, ShaderConstantBuffer *buffer) = 0;
 
 		/**
 		 * @brief Set a texture for a specific texture unit.
@@ -168,6 +169,9 @@ namespace video {
 	protected:
 		Screen*			screen;
 		matrix4x4		projection;
+
+		ShaderConstantBuffer*		cb_modelview;
+		ShaderConstantBuffer*		cb_projection;
 	};
 
 }

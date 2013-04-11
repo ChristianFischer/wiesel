@@ -26,6 +26,7 @@
 
 #include "wiesel/util/shared_object_cache.h"
 #include "wiesel/video/shader.h"
+#include "wiesel/video/shader_constantbuffer.h"
 #include "wiesel/video/vertexbuffer.h"
 
 #include <string>
@@ -55,21 +56,30 @@ namespace video {
 		static const char *ATTRIBUTE_VERTEX_NORMAL;
 		static const char *ATTRIBUTE_VERTEX_COLOR;
 		static const char *ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
-		static const char *UNIFORM_PROJECTION_MATRIX;
-		static const char *UNIFORM_MODELVIEW_MATRIX;
-		static const char *UNIFORM_TEXTURE;
-		static const char *UNIFORM_TEXTURE_SAMPLER;
+
 		static const char *VARYING_COLOR;
 		static const char *VARYING_NORMAL;
 		static const char *VARYING_TEXTURE_COORDINATE;
 
+		static const char *UNIFORM_PROJECTION_MATRIX;
+		static const char *UNIFORM_MODELVIEW_MATRIX;
+		static const char *UNIFORM_TEXTURE;
+		static const char *UNIFORM_TEXTURE_SAMPLER;
+
+		static const char *CONSTANTBUFFER_PROJECTION_MATRIX;
+		static const char *CONSTANTBUFFER_MODELVIEW_MATRIX;
+
+
 	// public types
 	public:
 		/// alias type for a cache for data sources
-		typedef SharedObjectCache<std::string,DataSource>		DataSourceCache;
+		typedef SharedObjectCache<std::string,DataSource>						DataSourceCache;
 
 		/// alias type for a cache for shader objects
-		typedef SharedObjectCache<std::string,Shader>			ShaderCache;
+		typedef SharedObjectCache<std::string,Shader>							ShaderCache;
+
+		/// alias type for a cache for shader constantbuffer templates
+		typedef SharedObjectCache<std::string,ShaderConstantBufferTemplate>		ShaderCBTemplateCache;
 
 	// caching
 	public:
@@ -93,6 +103,11 @@ namespace video {
 			return &cached_hlsl_fragment_shaders;
 		}
 
+		/// get the cache for fragment shader data sources
+		inline ShaderCBTemplateCache *getShaderConstantBufferTemplateCache() {
+			return &cached_shader_cb_templates;
+		}
+
 		/// get the cache for shaders
 		inline ShaderCache *getShaderCache() {
 			return &cached_shaders;
@@ -103,6 +118,14 @@ namespace video {
 		/// get a suitable shader for a given \ref VertexBuffer.
 		Shader *getShaderFor(VertexBuffer *vbo);
 
+	public:
+		/// get a constant buffer template for the current object's modelview matrix
+		ShaderConstantBufferTemplate *getModelviewMatrixBufferTemplate();
+
+		/// get a constant buffer template for the current scene's projection matrix
+		ShaderConstantBufferTemplate *getProjectionMatrixBufferTemplate();
+
+	public:
 		/// get a suitable vertex shader source for a given \ref VertexBuffer.
 		DataSource *getGlslVertexShaderSourceFor(Shader *shader, VertexBuffer *vbo);
 
@@ -123,6 +146,7 @@ namespace video {
 		DataSourceCache			cached_hlsl_fragment_shaders;
 
 		ShaderCache				cached_shaders;
+		ShaderCBTemplateCache	cached_shader_cb_templates;
 	};
 
 }

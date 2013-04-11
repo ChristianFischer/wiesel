@@ -620,7 +620,7 @@ void DirectX11RenderContext::setShader(Shader* shader) {
 }
 
 
-void DirectX11RenderContext::setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) {
+void DirectX11RenderContext::setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue) {
 	if (active_shader_content) {
 		active_shader_content->setShaderValue(name, type, elements, pValue);
 	}

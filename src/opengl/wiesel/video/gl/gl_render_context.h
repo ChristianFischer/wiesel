@@ -31,6 +31,7 @@
 #include <wiesel/video/vertexbuffer.h>
 
 #include "gl_shader_content.h"
+#include "gl_shader_constantbuffer_content.h"
 #include "gl_texture_content.h"
 
 
@@ -62,7 +63,8 @@ namespace gl {
 
 	public:
 		virtual void setShader(Shader *shader);
-		virtual void setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue);
+		virtual bool assignShaderConstantBuffer(const std::string &name, ShaderConstantBuffer *buffer);
+
 		virtual void setTexture(uint16_t index, Texture *texture);
 		virtual void prepareTextureLayers(uint16_t layers);
 		virtual void clearTextures();
@@ -82,6 +84,9 @@ namespace gl {
 		GlShaderContent*					active_shader_content;
 		std::vector<Texture*>				active_textures;
 		std::vector<GlTextureContent*>		active_textures_content;
+
+		GlShaderConstantBufferContent*		cb_modelview_content;
+		GlShaderConstantBufferContent*		cb_projection_content;
 	};
 
 }

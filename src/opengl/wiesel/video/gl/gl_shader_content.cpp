@@ -231,8 +231,8 @@ void GlShaderContent::releaseShader() {
 
 
 void GlShaderContent::bindAttributes() {
-	const Shader::AttributeList *attributes = getShader()->getAttributes();
-	const std::set<std::string> *uniforms   = getShader()->getUniforms();
+	const Shader::AttributeList*			attributes			= getShader()->getAttributes();
+	const Shader::ConstantBufferTplList*	buffer_templates	= getShader()->getConstantBufferTemplates();
 
 	// prepare the lists
 	uniform_attributes.clear();
@@ -252,18 +252,6 @@ void GlShaderContent::bindAttributes() {
 			GLint handle = -1;
 
 			switch(static_cast<Shader::Attribute>(attr)) {
-				case Shader::ProjectionMatrix: {
-					handle = glGetUniformLocation(program_handle, name.c_str());
-					projection_matrix_handle = handle;
-					break;
-				}
-
-				case Shader::ModelviewMatrix: {
-					handle = glGetUniformLocation(program_handle, name.c_str());
-					modelview_matrix_handle = handle;
-					break;
-				}
-
 				case Shader::Texture: {
 					handle = glGetUniformLocation(program_handle, name.c_str());
 					break;
@@ -289,13 +277,26 @@ void GlShaderContent::bindAttributes() {
 		}
 	}
 
-	// get all uniform handles
-	for(std::set<std::string>::const_iterator it=uniforms->begin(); it!=uniforms->end(); it++) {
-		GLint handle = glGetUniformLocation(program_handle, it->c_str());
-		assert(handle != -1);
-		CHECK_GL_ERROR;
+	// get uniform handles from all constant buffers
+	for(Shader::ConstantBufferTplList::const_iterator
+			tpl_it  = buffer_templates->begin();
+			tpl_it != buffer_templates->end();
+			tpl_it++
+	) {
+		ShaderConstantBufferTemplate *buffer_template = tpl_it->buffer_template;
+		const ShaderConstantBufferTemplate::EntryList *buffer_template_entries = buffer_template->getEntries();
 
-		uniform_attributes[*it] = handle;
+		for(ShaderConstantBufferTemplate::EntryList::const_iterator
+				e_it  = buffer_template_entries->begin();
+				e_it != buffer_template_entries->end();
+				e_it++
+		) {
+			GLint handle = glGetUniformLocation(program_handle, e_it->name.c_str());
+			assert(handle != -1);
+			CHECK_GL_ERROR;
+
+			uniform_attributes[e_it->name] = handle;
+		}
 	}
 
 	return;
@@ -311,44 +312,42 @@ GLint GlShaderContent::getAttribHandle(Shader::Attribute attr, uint8_t index) co
 }
 
 
-bool GlShaderContent::setProjectionMatrix(const matrix4x4& matrix) {
-	// bind the projection matrix
-	assert(projection_matrix_handle != -1);
+bool GlShaderContent::assignShaderConstantBuffer(const std::string& name, ShaderConstantBufferContent* buffer_content) {
+	const ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(name);
+	if (buffer_template) {
+		ShaderConstantBuffer::version_t& version = buffer_versions[buffer_template];
 
-	if (projection_matrix_handle != -1) {
-		glUniformMatrix4fv(projection_matrix_handle, 1, false, matrix);
-		CHECK_GL_ERROR;
+		if (version != buffer_content->getShaderConstantBuffer()->getChangeVersion()) {
+			version  = buffer_content->getShaderConstantBuffer()->getChangeVersion();
 
-		return true;
-	}
+			const ShaderConstantBufferTemplate::EntryList *entries = buffer_template->getEntries();
+			for(ShaderConstantBufferTemplate::EntryList::const_iterator it=entries->begin(); it!=entries->end(); it++) {
+				bool success = setShaderValue(
+									it->name,
+									it->type,
+									it->elements,
+									buffer_content->getShaderConstantBuffer()->getDataPtr() + it->offset
+				);
 
-	return false;
-}
-
-
-bool GlShaderContent::setModelviewMatrix(const matrix4x4& matrix) {
-	// bind the modelview matrix
-	assert(modelview_matrix_handle != -1);
-
-	if (modelview_matrix_handle != -1) {
-		glUniformMatrix4fv(modelview_matrix_handle, 1, false, matrix);
-		CHECK_GL_ERROR;
+				assert(success);
+			}
+		}
 
 		return true;
 	}
 
-	return false;
+	return false;;
 }
 
 
-bool GlShaderContent::setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) {
+bool GlShaderContent::setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue) {
 	std::map<std::string,GLint>::iterator it = uniform_attributes.find(name);
 
 	if (it != uniform_attributes.end() && it->second != -1) {
 		GLint attrib_handle = it->second;
 
 		switch(type) {
-			case Shader::TypeInt32: {
+			case TypeInt32: {
 				if (elements == 1) {
 					glUniform1i(attrib_handle, *(reinterpret_cast<GLint*>(pValue)));
 				}
@@ -359,7 +358,7 @@ bool GlShaderContent::setShaderValue(const std::string &name, Shader::ValueType 
 				break;
 			}
 
-			case Shader::TypeFloat: {
+			case TypeFloat: {
 				if (elements == 1) {
 					glUniform1f(attrib_handle, *(reinterpret_cast<GLfloat*>(pValue)));
 				}
@@ -370,22 +369,22 @@ bool GlShaderContent::setShaderValue(const std::string &name, Shader::ValueType 
 				break;
 			}
 
-			case Shader::TypeVector2f: {
+			case TypeVector2f: {
 				glUniform2fv(attrib_handle, elements, reinterpret_cast<GLfloat*>(pValue));
 				break;
 			}
 
-			case Shader::TypeVector3f: {
+			case TypeVector3f: {
 				glUniform3fv(attrib_handle, elements, reinterpret_cast<GLfloat*>(pValue));
 				break;
 			}
 
-			case Shader::TypeVector4f: {
+			case TypeVector4f: {
 				glUniform4fv(attrib_handle, elements, reinterpret_cast<GLfloat*>(pValue));
 				break;
 			}
 
-			case Shader::TypeMatrix4x4f: {
+			case TypeMatrix4x4f: {
 				glUniformMatrix4fv(attrib_handle, elements, false, reinterpret_cast<GLfloat*>(pValue));
 				break;
 			}

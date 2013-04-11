@@ -22,6 +22,9 @@
 #include "gl_render_context.h"
 #include "gl_vertexbuffer_content.h"
 #include "gl_indexbuffer_content.h"
+#include "gl_video_driver.h"
+#include "wiesel/video/shaders.h"
+#include "wiesel/video/video_driver.h"
 
 #include <wiesel/util/log.h>
 #include <wiesel/video/gl/gl.h>
@@ -37,12 +40,20 @@ using namespace wiesel::video::gl;
 OpenGlRenderContext::OpenGlRenderContext(Screen *screen) : RenderContext(screen) {
 	this->active_shader				= NULL;
 	this->active_shader_content		= NULL;
+
+	this->cb_modelview_content		= NULL;
+	this->cb_projection_content		= NULL;
+
 	return;
 }
 
 
 OpenGlRenderContext::~OpenGlRenderContext() {
 	releaseContext();
+
+	safe_release(cb_modelview_content);
+	safe_release(cb_projection_content);
+
 	return;
 }
 
@@ -80,6 +91,25 @@ void OpenGlRenderContext::preRender() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	CHECK_GL_ERROR;
 
+	// prepare the default constant buffers
+	if(!cb_modelview->isLoaded()) {
+		cb_modelview->loadContentFrom(getScreen());
+	}
+
+	if(!cb_projection->isLoaded()) {
+		cb_projection->loadContentFrom(getScreen());
+	}
+
+	cb_modelview_content  = dynamic_cast<GlShaderConstantBufferContent*>(cb_modelview->getContent());
+	if (cb_modelview_content) {
+		cb_modelview_content->retain();
+	}
+
+	cb_projection_content = dynamic_cast<GlShaderConstantBufferContent*>(cb_projection->getContent());
+	if (cb_projection_content) {
+		cb_projection_content->retain();
+	}
+
 	return;
 }
 
@@ -89,16 +119,26 @@ void OpenGlRenderContext::postRender() {
 	setShader(NULL);
 	clearTextures();
 
+	// clear temporary members
+	safe_release(cb_modelview_content);
+	safe_release(cb_projection_content);
+
 	return;
 }
 
 
 
 void OpenGlRenderContext::setProjectionMatrix(const matrix4x4& matrix) {
+	assert(cb_projection);
+
 	this->projection = matrix;
+	this->cb_projection->setShaderValue(Shaders::UNIFORM_PROJECTION_MATRIX, this->projection);
 
 	if (active_shader_content) {
-		active_shader_content->setProjectionMatrix(matrix);
+		active_shader_content->assignShaderConstantBuffer(
+									Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
+									this->cb_projection_content
+		);
 	}
 
 	return;
@@ -106,8 +146,15 @@ void OpenGlRenderContext::setProjectionMatrix(const matrix4x4& matrix) {
 
 
 void OpenGlRenderContext::setModelviewMatrix(const matrix4x4& matrix) {
+	assert(cb_modelview);
+
+	this->cb_modelview->setShaderValue(Shaders::UNIFORM_MODELVIEW_MATRIX, matrix);
+
 	if (active_shader_content) {
-		active_shader_content->setModelviewMatrix(matrix);
+		active_shader_content->assignShaderConstantBuffer(
+									Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX,
+									this->cb_modelview_content
+		);
 	}
 
 	return;
@@ -150,7 +197,10 @@ void OpenGlRenderContext::setShader(Shader* shader) {
 			glUseProgram(active_shader_content->getGlHandle());
 
 			// update projection matrix for the current shader
-			active_shader_content->setProjectionMatrix(getProjectionMatrix());
+			active_shader_content->assignShaderConstantBuffer(
+										Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
+										this->cb_projection_content
+			);
 		}
 		else {
 			glUseProgram(0);
@@ -163,12 +213,22 @@ void OpenGlRenderContext::setShader(Shader* shader) {
 }
 
 
-void OpenGlRenderContext::setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) {
+bool OpenGlRenderContext::assignShaderConstantBuffer(const std::string &name, ShaderConstantBuffer *buffer) {
 	if (active_shader_content) {
-		active_shader_content->setShaderValue(name, type, elements, pValue);
+		// load on demand
+		if (buffer->isLoaded() == false) {
+			buffer->loadContentFrom(getScreen());
+
+			// failed?
+			if (buffer->isLoaded() == false) {
+				return false;
+			}
+		}
+
+		return active_shader_content->assignShaderConstantBuffer(name, buffer->getContent());
 	}
 
-	return;
+	return false;
 }
 
 

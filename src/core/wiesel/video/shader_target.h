@@ -26,7 +26,9 @@
 
 #include <wiesel/util/shared_object.h>
 
+#include "shader_constantbuffer.h"
 #include "shader.h"
+#include "types.h"
 
 #include <string>
 
@@ -41,7 +43,7 @@ namespace video {
 	/**
 	 * @brief This is the baseclass for any class which uses shaders.
 	 */
-	class WIESEL_CORE_EXPORT ShaderTarget : public virtual SharedObject
+	class WIESEL_CORE_EXPORT ShaderTarget : public ShaderConstantBufferWriter
 	{
 	public:
 		ShaderTarget();
@@ -60,82 +62,21 @@ namespace video {
 			return shader;
 		}
 
+	// ConstantBufferSetter
+	protected:
+		virtual bool doSetShaderValue(const std::string &name, ValueType type, size_t elements, const void *pValue);
 
 	public:
-		/**
-		 * @brief Set the uniform attribute for the current shader.
-		 * @param name		The unique name of the shader attribute.
-		 * @param type		The attribute's type.
-		 * @param elements	The number of elements within the parameter, to use an array of values.
-		 * @param pValue	Pointer to the value, which will be delivered to the shader.
-		 */
-		void setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, const void *pValue);
-
-		/**
-		 * @brief Set the uniform attribute for the current shader.
-		 * @param name		The unique name of the shader attribute.
-		 * @param i			The integer value for the shader attribute.
-		 */
-		void setShaderValue(const std::string &name, int32_t i);
-
-		/**
-		 * @brief Set the uniform attribute for the current shader.
-		 * @param name		The unique name of the shader attribute.
-		 * @param f			The float value for the shader attribute.
-		 */
-		void setShaderValue(const std::string &name, float f);
-
-		/**
-		 * @brief Set the uniform attribute for the current shader.
-		 * @param name		The unique name of the shader attribute.
-		 * @param v			The vector value for the shader attribute.
-		 */
-		void setShaderValue(const std::string &name, const vector2d &v);
-
-		/**
-		 * @brief Set the uniform attribute for the current shader.
-		 * @param name		The unique name of the shader attribute.
-		 * @param v			The vector value for the shader attribute.
-		 */
-		void setShaderValue(const std::string &name, const vector3d &v);
-
-		/**
-		 * @brief Set the uniform attribute for the current shader.
-		 * @param name		The unique name of the shader attribute.
-		 * @param m			The matrix value for the shader attribute.
-		 */
-		void setShaderValue(const std::string &name, const matrix4x4 &m);
-
-
 		/**
 		 * @brief Applies the stored shader attributes to the given \ref RenderContext.
 		 */
 		void applyShaderConfigTo(RenderContext *rc);
 
 	private:
-		struct entry
-		{
-		private:
-			entry();
-			
-		public:
-			entry(Shader::ValueType type, size_t elements);
-			~entry();
-			
-			bool match(Shader::ValueType type, size_t elements);
-			void set(const void *pValue);
-
-			Shader::ValueType	type;
-			size_t				elements;
-			size_t				data_size;
-			char*				data;
-		};
-
-	private:
-		typedef std::map<std::string,entry*> ValueMap;
+		typedef std::map<std::string,ShaderConstantBuffer*> BufferMap;
 
 		Shader*		shader;
-		ValueMap	values;
+		BufferMap	buffers;
 	};
 
 } /* namespace video */

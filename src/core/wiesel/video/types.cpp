@@ -19,47 +19,37 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_VIDEO_TYPES_H__
-#define	__WIESEL_VIDEO_TYPES_H__
+#include "types.h"
 
-#include <wiesel.h>
-#include <wiesel/wiesel-core.def>
-
-namespace wiesel {
-	namespace video {
-
-		/**
-		 * @brief A list of possible primiteves at rendering.
-		 */
-		enum Primitive {
-			Triangles,
-			TriangleStrip,
-			TriangleFan,
-		};
+using namespace wiesel::video;
 
 
+size_t wiesel::video::getTypeSize(ValueType type) {
+	switch(type) {
+		case TypeInt32: {
+			return 4;
+		}
 
-		/**
-		 * @brief A list of valid types for various graphics operations.
-		 */
-		enum ValueType {
-			TypeInt32,
+		case TypeFloat: {
+			return 4;
+		}
 
-			TypeFloat,
+		case TypeVector2f: {
+			return 8;
+		}
 
-			TypeVector2f,
-			TypeVector3f,
-			TypeVector4f,
+		case TypeVector3f: {
+			return 12;
+		}
 
-			TypeMatrix4x4f,
-		};
+		case TypeVector4f: {
+			return 16;
+		}
 
-
-		/**
-		 * @brief Determine a type's size in bytes.
-		 */
-		size_t WIESEL_CORE_EXPORT getTypeSize(ValueType type);
+		case TypeMatrix4x4f: {
+			return 64;
+		}
 	}
-}
 
-#endif	/* __WIESEL_VIDEO_TYPES_H__ */
+	return 0;
+}

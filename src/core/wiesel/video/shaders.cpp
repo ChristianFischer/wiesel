@@ -35,13 +35,18 @@ const char *Shaders::ATTRIBUTE_VERTEX_POSITION					= "vPosition";
 const char *Shaders::ATTRIBUTE_VERTEX_NORMAL					= "vNormal";
 const char *Shaders::ATTRIBUTE_VERTEX_COLOR						= "vColor";
 const char *Shaders::ATTRIBUTE_VERTEX_TEXTURE_COORDINATE		= "vTexCoord";
+
+const char *Shaders::VARYING_COLOR								= "my_color";
+const char *Shaders::VARYING_NORMAL								= "my_normal";
+const char *Shaders::VARYING_TEXTURE_COORDINATE					= "my_texcoord";
+
 const char *Shaders::UNIFORM_TEXTURE							= "texture";
 const char *Shaders::UNIFORM_TEXTURE_SAMPLER					= "sampler";
 const char *Shaders::UNIFORM_PROJECTION_MATRIX					= "mProjection";
 const char *Shaders::UNIFORM_MODELVIEW_MATRIX					= "mModelview";
-const char *Shaders::VARYING_COLOR								= "my_color";
-const char *Shaders::VARYING_NORMAL								= "my_normal";
-const char *Shaders::VARYING_TEXTURE_COORDINATE					= "my_texcoord";
+
+const char *Shaders::CONSTANTBUFFER_PROJECTION_MATRIX			= "cbProjection";
+const char *Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX			= "cbModelview";
 
 
 
@@ -51,6 +56,9 @@ Shaders::Shaders() {
 Shaders::~Shaders() {
 	// release all cached programs
 	getShaderCache()->releaseAllObjects();
+
+	// release constant buffer templates
+	getShaderConstantBufferTemplateCache()->releaseAllObjects();
 
 	// release all cached shaders
 	getGlslVertexShaderCache()->releaseAllObjects();
@@ -100,6 +108,38 @@ Shader *Shaders::getShaderFor(VertexBuffer* vbo) {
 	}
 
 	return shader;
+}
+
+
+ShaderConstantBufferTemplate *Shaders::getProjectionMatrixBufferTemplate() {
+	ShaderConstantBufferTemplate *projection_template = NULL;
+
+	// check, if there's already a template in the cache
+	projection_template = getShaderConstantBufferTemplateCache()->get(CONSTANTBUFFER_PROJECTION_MATRIX);
+	if (projection_template == NULL) {
+		projection_template = new ShaderConstantBufferTemplate();
+		projection_template->addEntry(TypeMatrix4x4f, 1, UNIFORM_PROJECTION_MATRIX);
+
+		getShaderConstantBufferTemplateCache()->add(CONSTANTBUFFER_PROJECTION_MATRIX, projection_template);
+	}
+
+	return projection_template;
+}
+
+
+ShaderConstantBufferTemplate *Shaders::getModelviewMatrixBufferTemplate() {
+	ShaderConstantBufferTemplate *modelview_template = NULL;
+
+	// check, if there's already a template in the cache
+	modelview_template = getShaderConstantBufferTemplateCache()->get(CONSTANTBUFFER_MODELVIEW_MATRIX);
+	if (modelview_template == NULL) {
+		modelview_template = new ShaderConstantBufferTemplate();
+		modelview_template->addEntry(TypeMatrix4x4f, 1, UNIFORM_MODELVIEW_MATRIX);
+
+		getShaderConstantBufferTemplateCache()->add(CONSTANTBUFFER_MODELVIEW_MATRIX, modelview_template);
+	}
+
+	return modelview_template;
 }
 
 
@@ -162,8 +202,6 @@ DataSource *Shaders::getGlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 
 	// when given a shader, configure all data members
 	if (shader) {
-		shader->setAttributeName(Shader::ProjectionMatrix, 0, UNIFORM_PROJECTION_MATRIX);
-		shader->setAttributeName(Shader::ModelviewMatrix,  0, UNIFORM_MODELVIEW_MATRIX);
 		shader->setAttributeName(Shader::VertexPosition,   0, ATTRIBUTE_VERTEX_POSITION);
 
 		if (vbo->hasNormals()) {
@@ -180,6 +218,18 @@ DataSource *Shaders::getGlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 			tex_attr << i;
 			shader->setAttributeName(Shader::VertexTextureCoordinate, i, tex_attr.str());
 		}
+
+		shader->addConstantBuffer(
+								CONSTANTBUFFER_MODELVIEW_MATRIX,
+								Shader::Context_VertexShader,
+								getModelviewMatrixBufferTemplate()
+		);
+
+		shader->addConstantBuffer(
+								CONSTANTBUFFER_PROJECTION_MATRIX,
+								Shader::Context_VertexShader,
+								getProjectionMatrixBufferTemplate()
+		);
 	}
 
 	return data_source;
@@ -379,8 +429,6 @@ DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 
 	// when given a shader, configure all data members
 	if (shader) {
-		shader->setAttributeName(Shader::ProjectionMatrix, 0, UNIFORM_PROJECTION_MATRIX);
-		shader->setAttributeName(Shader::ModelviewMatrix,  0, UNIFORM_MODELVIEW_MATRIX);
 		shader->setAttributeName(Shader::VertexPosition,   0, ATTRIBUTE_VERTEX_POSITION);
 
 		if (vbo->hasNormals()) {
@@ -397,6 +445,18 @@ DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 			tex_attr << i;
 			shader->setAttributeName(Shader::VertexTextureCoordinate, i, tex_attr.str());
 		}
+
+		shader->addConstantBuffer(
+								CONSTANTBUFFER_MODELVIEW_MATRIX,
+								Shader::Context_VertexShader,
+								getModelviewMatrixBufferTemplate()
+		);
+
+		shader->addConstantBuffer(
+								CONSTANTBUFFER_PROJECTION_MATRIX,
+								Shader::Context_VertexShader,
+								getProjectionMatrixBufferTemplate()
+		);
 	}
 
 	return data_source;
@@ -489,7 +549,7 @@ DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 
 				// apply the vertex color
 				if (vbo->hasColors()) {
-					ss << "    color = mul(color, input." << VARYING_COLOR << ');' << endl;
+					ss << "    color = mul(color, input." << VARYING_COLOR << ");" << endl;
 				}
 
 				// apply all texture colors

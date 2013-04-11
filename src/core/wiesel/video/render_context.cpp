@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "render_context.h"
+#include "shaders.h"
 
 using namespace wiesel;
 using namespace wiesel::video;
@@ -34,10 +35,24 @@ RenderContext::RenderContext() {
 
 RenderContext::RenderContext(Screen *screen) {
 	this->screen = screen;
+
+	// create default constant buffers
+	ShaderConstantBufferTemplate*	cb_tpl_modelview;
+	cb_tpl_modelview				= Shaders::instance()->getModelviewMatrixBufferTemplate();
+	this->cb_modelview				= new ShaderConstantBuffer(cb_tpl_modelview);
+	this->cb_modelview->retain();
+
+	ShaderConstantBufferTemplate*	cb_tpl_projection;
+	cb_tpl_projection				= Shaders::instance()->getProjectionMatrixBufferTemplate();
+	this->cb_projection				= new ShaderConstantBuffer(cb_tpl_projection);
+	this->cb_projection->retain();
+
 	return;
 }
 
 
 RenderContext::~RenderContext() {
+	safe_release(cb_modelview);
+	safe_release(cb_projection);
 	return;
 }

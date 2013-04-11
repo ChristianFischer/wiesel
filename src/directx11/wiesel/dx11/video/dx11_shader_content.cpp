@@ -188,6 +188,11 @@ Dx11ShaderContent *Dx11ShaderContent::createContentFor(DirectX11RenderContext *c
 			}
 		}
 
+		// at least one buffer was found?
+		if (dx_shader->shader_buffers.empty()) {
+			success = false;
+		}
+
 		// try to get handles to all attributes
 		if (!dx_shader->bindAttributes(context)) {
 			success = false;
@@ -285,7 +290,7 @@ bool Dx11ShaderContent::setModelviewMatrix(const matrix4x4& matrix) {
 }
 
 
-bool Dx11ShaderContent::setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, void *pValue) {
+bool Dx11ShaderContent::setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue) {
 	return false;
 }
 

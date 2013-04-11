@@ -23,6 +23,7 @@
 
 #include "shader_target.h"
 #include "render_context.h"
+#include "shaders.h"
 
 using namespace wiesel;
 using namespace wiesel::video;
@@ -33,8 +34,8 @@ ShaderTarget::ShaderTarget() {
 }
 
 ShaderTarget::~ShaderTarget() {
-	for(ValueMap::iterator it=values.begin(); it!=values.end(); it++) {
-		delete it->second;
+	for(BufferMap::iterator it=buffers.begin(); it!=buffers.end(); it++) {
+		it->second->release();
 	}
 
 	setShader(NULL);
@@ -51,6 +52,36 @@ void ShaderTarget::setShader(Shader* shader) {
 		if (shader) {
 			this->shader = shader;
 			this->shader->retain();
+
+			// release all buffers, which does not belong to the new shader
+			for(BufferMap::iterator it=buffers.begin(); it!=buffers.end();) {
+				if (this->shader->findConstantBufferTemplate(it->first) == NULL) {
+					it->second->release();
+					buffers.erase(it++);
+				}
+				else {
+					it++;
+				}
+			}
+
+			// create buffers, which are new for this shader
+			const Shader::ConstantBufferTplList *buffer_templates = this->shader->getConstantBufferTemplates();
+			for(Shader::ConstantBufferTplList::const_iterator it=buffer_templates->begin(); it!=buffer_templates->end(); it++) {
+				// ignore buffers handled by the renderer itself
+				if (
+						it->name == Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX
+					||	it->name == Shaders::CONSTANTBUFFER_PROJECTION_MATRIX
+				) {
+					continue;
+				}
+
+				// when not already contained in this list, create a new buffer
+				if (buffers.find(it->name) == buffers.end()) {
+					ShaderConstantBuffer *buffer = new ShaderConstantBuffer(it->buffer_template);
+					buffers[it->name] = buffer;
+					buffer->retain();
+				}
+			}
 		}
 	}
 
@@ -58,55 +89,14 @@ void ShaderTarget::setShader(Shader* shader) {
 }
 
 
-void ShaderTarget::setShaderValue(const std::string &name, Shader::ValueType type, size_t elements, const void *pValue) {
-	ValueMap::iterator it = values.find(name);
+bool ShaderTarget::doSetShaderValue(const std::string &name, ValueType type, size_t elements, const void *pValue) {
+	bool success = false;
 
-	// when the value already exists, but has a different type, we need to delete the old one
-	if (it != values.end()) {
-		if (it->second->match(type, elements) == false) {
-			delete it->second;
-			values.erase(it);
-			it = values.end();
-		}
+	for(BufferMap::iterator it=buffers.begin(); it!=buffers.end(); it++) {
+		success |= it->second->setShaderValue(name, type, elements, pValue);
 	}
 
-	// create a new element, if none exists
-	if (it == values.end()) {
-		it = values.insert(std::pair<std::string,entry*>(name, new entry(type, elements))).first;
-	}
-
-	assert(it != values.end());
-	assert(it->second->match(type, elements));
-
-	// now we can assign the value
-	it->second->set(pValue);
-
-	return;
-}
-
-
-void ShaderTarget::setShaderValue(const std::string &name, int32_t i) {
-	setShaderValue(name, Shader::TypeInt32, 1, &i);
-}
-
-
-void ShaderTarget::setShaderValue(const std::string &name, float f) {
-	setShaderValue(name, Shader::TypeFloat, 1, &f);
-}
-
-
-void ShaderTarget::setShaderValue(const std::string &name, const vector2d &v) {
-	setShaderValue(name, Shader::TypeVector2f, 1, (const float*)v);
-}
-
-
-void ShaderTarget::setShaderValue(const std::string &name, const vector3d &v) {
-	setShaderValue(name, Shader::TypeVector3f, 1, (const float*)v);
-}
-
-
-void ShaderTarget::setShaderValue(const std::string &name, const matrix4x4 &m) {
-	setShaderValue(name, Shader::TypeMatrix4x4f, 1, (const float*)m);
+	return success;
 }
 
 
@@ -114,84 +104,10 @@ void ShaderTarget::setShaderValue(const std::string &name, const matrix4x4 &m) {
 void ShaderTarget::applyShaderConfigTo(RenderContext* rc) {
 	rc->setShader(getShader());
 
-	for(ValueMap::iterator it=values.begin(); it!=values.end(); it++) {
-		rc->setShaderValue(it->first, it->second->type, it->second->elements, it->second->data);
+	for(BufferMap::iterator it=buffers.begin(); it!=buffers.end(); it++) {
+		rc->assignShaderConstantBuffer(it->first, it->second);
 	}
 
 	return;
 }
 
-
-
-
-ShaderTarget::entry::entry() {
-	assert(false);
-}
-
-ShaderTarget::entry::entry(Shader::ValueType type, size_t elements) {
-	size_t value_size = 0;
-
-	switch(type) {
-		case Shader::TypeInt32: {
-			value_size = 4;
-			break;
-		}
-
-		case Shader::TypeFloat: {
-			value_size = 4;
-			break;
-		}
-
-		case Shader::TypeVector2f: {
-			value_size = 8;
-			break;
-		}
-
-		case Shader::TypeVector3f: {
-			value_size = 12;
-			break;
-		}
-
-		case Shader::TypeVector4f: {
-			value_size = 16;
-			break;
-		}
-
-		case Shader::TypeMatrix4x4f: {
-			value_size = 64;
-			break;
-		}
-	}
-
-	// ensure, our value type was valid
-	assert(value_size > 0);
-
-	this->type      = type;
-	this->elements  = elements;
-	this->data_size = value_size * elements;
-	this->data      = new char[data_size];
-
-	return;
-}
-
-
-ShaderTarget::entry::~entry() {
-	if (data) {
-		delete data;
-	}
-
-	return;
-}
-
-
-bool ShaderTarget::entry::match(Shader::ValueType type, size_t elements) {
-	return this->type==type && this->elements == elements;
-}
-
-
-void ShaderTarget::entry::set(const void *pValue) {
-	assert(data);
-	memcpy(data, pValue, data_size);
-
-	return;
-}
