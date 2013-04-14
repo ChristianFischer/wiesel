@@ -71,7 +71,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 		if (WIN8_SDK_ROOT_DIR)
 			set (DIRECTX_INC_SEARCH_PATH "${WIN8_SDK_ROOT_DIR}/Include/um" "${WIN8_SDK_ROOT_DIR}/Include/shared")
 			set (DIRECTX_LIB_SEARCH_PATH "${WIN8_SDK_ROOT_DIR}/Lib/Win8/um/${DIRECTX_ARCHITECTURE}")
-			set (DIRECTX_BIN_SEARCH_PATH "${WIN8_SDK_ROOT_DIR}/bin/x86")
+			set (DIRECTX_BIN_SEARCH_PATH "${WIN8_SDK_ROOT_DIR}/bin/${DIRECTX_ARCHITECTURE}")
 		endif ()
 	endif ()
 
@@ -83,17 +83,17 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 		find_path(
 					DIRECTX_D3D${version}_INCLUDE_DIR
 					"d3d${version}.h"
-					PATHS	${DirectX_INC_SEARCH_PATH}
+					PATHS	${DIRECTX_INC_SEARCH_PATH}
 					DOC		"The include path for the Direct3D ${version} header."
 		)
 		
 		find_library(
 					DIRECTX_D3D${version}_LIBRARY
 					"d3d${version}"
-					PATHS	${DirectX_LIB_SEARCH_PATH}
+					PATHS	${DIRECTX_LIB_SEARCH_PATH}
 					DOC		"The library path for the Direct3D ${version} library."
 		)
-			
+		
 		if (DIRECTX_D3D${version}_INCLUDE_DIR AND DIRECTX_D3D${version}_LIBRARY)
 			set(DIRECTX_D3D${version}_FOUND TRUE)
 			
@@ -101,14 +101,14 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 			find_path(
 						DIRECTX_D3DX${version}_INCLUDE_DIR
 						"d3dx${version}.h"
-						PATHS	${DirectX_INC_SEARCH_PATH}
+						PATHS	${DIRECTX_INC_SEARCH_PATH}
 						DOC		"The include path for the Direct3DX ${version} header."
 			)
 			
 			find_library(
 						DIRECTX_D3DX${version}_LIBRARY
 						"d3dx${version}"
-						PATHS	${DirectX_LIB_SEARCH_PATH}
+						PATHS	${DIRECTX_LIB_SEARCH_PATH}
 						DOC		"The library path for the Direct3DX ${version} library."
 			)
 				
@@ -154,7 +154,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	# search for shader compiler executable
 	find_program(
 		DIRECTX_FXC_EXECUTABLE fxc
-		PATHS ${DirectX_BIN_SEARCH_PATH}
+		PATHS ${DIRECTX_BIN_SEARCH_PATH}
 		DOC "Path to fxc.exe executable."
 	)
 
