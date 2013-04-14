@@ -34,6 +34,7 @@ namespace dx11 {
 namespace video {
 
 	class DirectX11RenderContext;
+	class Dx11ShaderConstantBufferContent;
 	class Dx11TextureContent;
 
 	/**
@@ -42,7 +43,7 @@ namespace video {
 	class WIESEL_DIRECTX11_EXPORT Dx11ShaderContent : public wiesel::video::ShaderContent
 	{
 	private:
-		Dx11ShaderContent(wiesel::video::Shader *shader);
+		Dx11ShaderContent(DirectX11RenderContext *context, wiesel::video::Shader *shader);
 
 	public:
 		virtual ~Dx11ShaderContent();
@@ -71,17 +72,11 @@ namespace video {
 		bool bindAttributes(DirectX11RenderContext *context);
 
 	public:
-		/// set the projection matrix
-		virtual bool setProjectionMatrix(const matrix4x4 &matrix);
+		/// assigns a constant buffer to the current shader instance.
+		virtual bool assignShaderConstantBuffer(const std::string &name, wiesel::video::ShaderConstantBufferContent *buffer_content);
 
-		/// set the modelview matrix
-		virtual bool setModelviewMatrix(const matrix4x4 &matrix);
-
-		/// set a uniform shader value, see ShaderTarget::setShaderValue
-		virtual bool setShaderValue(const std::string &name, wiesel::video::ValueType type, size_t elements, void *pValue);
-
-		/// ensures, all buffers are uploaded to the shader
-		bool uploadAllBuffers(DirectX11RenderContext *render_context);
+		/// assigns a constant buffer to the current shader instance.
+		bool assignShaderConstantBuffer(const std::string &name, Dx11ShaderConstantBufferContent *buffer_content);
 
 		/// bind this shader to the context
 		bool bind(DirectX11RenderContext *render_context);
@@ -90,18 +85,26 @@ namespace video {
 		bool bind(DirectX11RenderContext *render_context, const wiesel::video::VertexBuffer *vertex_buffer, const std::vector<Dx11TextureContent*> &textures);
 
 	private:
-		typedef std::map<std::string, ID3D10Blob*>			ShaderBufferMap;
+		struct ShaderConstantBufferEntry {
+			uint32_t	vs_slot;
+			uint32_t	ps_slot;
+		};
+
+		typedef std::map<std::string, ID3D10Blob*>			ShaderOpcodeBufferMap;
 		typedef std::map<std::string, ID3D11InputLayout*>	PolygonLayoutMap;
 
-		ShaderBufferMap			shader_buffers;
-		ID3D11VertexShader*		vertex_shader;
-		ID3D11PixelShader*		pixel_shader;
-		PolygonLayoutMap		polygon_layouts;
+		typedef std::map<
+					const wiesel::video::ShaderConstantBufferTemplate*,
+					ShaderConstantBufferEntry
+		>												ShaderConstantBufferEntryMap;
 
-		ID3D11Buffer*			matrix_buffer;
-		std::vector<D3DMATRIX>	matrix_buffer_content;
-		size_t					matrix_buffer_size;
-		bool					matrix_buffer_dirty;
+		ShaderOpcodeBufferMap			shader_opcode_buffers;
+		ShaderConstantBufferEntryMap	shader_constant_buffer_entries;
+		ID3D11VertexShader*				vertex_shader;
+		ID3D11PixelShader*				pixel_shader;
+		PolygonLayoutMap				polygon_layouts;
+
+		DirectX11RenderContext*			render_context;
 	};
 
 }

@@ -315,10 +315,27 @@ GLint GlShaderContent::getAttribHandle(Shader::Attribute attr, uint8_t index) co
 bool GlShaderContent::assignShaderConstantBuffer(const std::string& name, ShaderConstantBufferContent* buffer_content) {
 	const ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(name);
 	if (buffer_template) {
-		ShaderConstantBuffer::version_t& version = buffer_versions[buffer_template];
+		ShaderConstantBuffer::version_t new_version = buffer_content->getShaderConstantBuffer()->getChangeVersion();
+		BufferEntryMap::iterator entry = buffer_entries.find(buffer_template);
 
-		if (version != buffer_content->getShaderConstantBuffer()->getChangeVersion()) {
-			version  = buffer_content->getShaderConstantBuffer()->getChangeVersion();
+		// create a new entry, if not available
+		if (entry == buffer_entries.end()) {
+			BufferEntry buffer_entry;
+			buffer_entry.buffer  = buffer_content->getShaderConstantBuffer();
+			buffer_entry.version = buffer_content->getShaderConstantBuffer()->getChangeVersion();
+			buffer_entries[buffer_template] = buffer_entry;
+
+			entry = buffer_entries.find(buffer_template);
+			assert(entry != buffer_entries.end());
+		}
+
+		// check if the content has changed
+		if (
+				entry->second.version != new_version
+			||	entry->second.buffer  != buffer_content->getShaderConstantBuffer()
+		) {
+			entry->second.version = new_version;
+			entry->second.buffer  = buffer_content->getShaderConstantBuffer();
 
 			const ShaderConstantBufferTemplate::EntryList *entries = buffer_template->getEntries();
 			for(ShaderConstantBufferTemplate::EntryList::const_iterator it=entries->begin(); it!=entries->end(); it++) {
@@ -336,7 +353,7 @@ bool GlShaderContent::assignShaderConstantBuffer(const std::string& name, Shader
 		return true;
 	}
 
-	return false;;
+	return false;
 }
 
 

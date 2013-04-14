@@ -351,9 +351,13 @@ DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 	if (data_source == NULL) {
 		stringstream ss;
 
-		// matrix buffer
-		ss << "cbuffer MatrixBuffer {" << endl;
+		// modelview matrix buffer
+		ss << "cbuffer " << CONSTANTBUFFER_MODELVIEW_MATRIX << " {" << endl;
 		ss << "  matrix " << UNIFORM_MODELVIEW_MATRIX << ';' << endl;
+		ss << "};" << endl << endl;
+
+		// projection matrix buffer
+		ss << "cbuffer " << CONSTANTBUFFER_PROJECTION_MATRIX << " {" << endl;
 		ss << "  matrix " << UNIFORM_PROJECTION_MATRIX << ';' << endl;
 		ss << "};" << endl << endl;
 
