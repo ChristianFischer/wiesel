@@ -23,20 +23,11 @@
 #include "wiesel/platform_config.h"
 #include "generic_root_fs.h"
 #include "wiesel/util/log.h"
-#include <direct.h>
+#include "wiesel/platform-fileutils.h"
+
 #include <stdio.h>
-#include <sys/stat.h>
 #include <sstream>
-
-#if WIESEL_PLATFORM_WINDOWS && !WIESEL_PLATFORM_CYGWIN
-#include "windows.h"
-#endif
-
-#if defined(_MSC_VER)
-#else
-#include <dirent.h>
-#endif
-
+#include <fstream>
 
 
 using namespace wiesel;
@@ -45,6 +36,12 @@ using namespace std;
 
 GenericFileSystem::GenericFileSystem() {
 	root = new GenericFileSystemDirectory(this, NULL, "");
+	root->retain();
+	return;
+}
+
+GenericFileSystem::GenericFileSystem(const std::string &root_path) {
+	root = new GenericFileSystemDirectory(this, NULL, root_path);
 	root->retain();
 	return;
 }
@@ -82,7 +79,7 @@ string GenericFileSystemDirectory::getName() const {
 }
 
 
-string GenericFileSystemDirectory::getFullPath() {
+string GenericFileSystemDirectory::getFullPath() const {
 	#if WIESEL_PLATFORM_WINDOWS && !WIESEL_PLATFORM_CYGWIN
 	if (getParent() && getParent()->getName().empty()) {
 		// this is a 2nd level directory, on a windows file system this
@@ -95,7 +92,7 @@ string GenericFileSystemDirectory::getFullPath() {
 }
 
 
-string GenericFileSystemDirectory::getNativePath() {
+string GenericFileSystemDirectory::getNativePath() const {
 	return getFullPath();
 }
 
@@ -228,6 +225,102 @@ FileList GenericFileSystemDirectory::getFiles() {
 }
 
 
+bool GenericFileSystemDirectory::canRead() const {
+	struct stat fileinfo;
+
+	if (stat(getFullPath().c_str(), &fileinfo) < 0) {
+		return false;
+	}
+
+	#if WIESEL_PLATFORM_UNIX | WIESEL_PLATFORM_CYGWIN
+		if (fileinfo.st_mode & S_IRUSR) {
+			return true;
+		}
+	#endif
+
+	#if WIESEL_PLATFORM_WINDOWS
+		if (fileinfo.st_mode & S_IREAD) {
+			return true;
+		}
+	#endif
+
+	return false;
+}
+
+
+bool GenericFileSystemDirectory::canWrite() const {
+	struct stat fileinfo;
+
+	if (stat(getFullPath().c_str(), &fileinfo) < 0) {
+		return false;
+	}
+
+	#if WIESEL_PLATFORM_UNIX || WIESEL_PLATFORM_CYGWIN
+		if (fileinfo.st_mode & S_IWUSR) {
+			return true;
+		}
+	#endif
+
+	#if WIESEL_PLATFORM_WINDOWS
+		if (fileinfo.st_mode & S_IWRITE) {
+			return true;
+		}
+	#endif
+
+	return false;
+}
+
+
+Directory *GenericFileSystemDirectory::doCreateDirectory(const string &name) {
+	// no nested directories allowed
+	assert(name.find('/') == string::npos);
+
+	stringstream ss;
+	ss << getFullPath();
+	ss << '/';
+	ss << name;
+	string fullpath = ss.str();
+
+	// now create the directory
+	int result;
+	
+	#if WIESEL_PLATFORM_UNIX || WIESEL_PLATFORM_CYGWIN
+		result = mkdir(fullpath.c_str(), 0777);
+	#else
+		result = mkdir(fullpath.c_str());
+	#endif
+
+	if (result != 0) {
+		return NULL;
+	}
+
+	// after the directory was created, try again to find it
+	return findDirectory(name);
+}
+
+
+File *GenericFileSystemDirectory::doCreateFile(const string &name) {
+	// no nested directories allowed
+	assert(name.find('/') == string::npos);
+
+	stringstream ss;
+	ss << getFullPath();
+	ss << '/';
+	ss << name;
+	string fullpath = ss.str();
+
+	// open the file for writing to create it
+	ofstream file_out;
+	file_out.open(fullpath.c_str());
+	file_out.flush();
+	file_out.close();
+
+	// after the file was created, try again to find it
+	return findFile(name);
+}
+
+
+
 
 
 
@@ -249,7 +342,7 @@ string GenericFileSystemFile::getName() const {
 }
 
 
-string GenericFileSystemFile::getNativePath() {
+string GenericFileSystemFile::getNativePath() const {
 	return getFullPath();
 }
 
@@ -272,5 +365,51 @@ DataBuffer *GenericFileSystemFile::getContent() {
 	}
 
 	return NULL;
+}
+
+
+bool GenericFileSystemFile::canRead() const {
+	struct stat fileinfo;
+
+	if (stat(getFullPath().c_str(), &fileinfo) < 0) {
+		return false;
+	}
+
+	#if WIESEL_PLATFORM_UNIX || WIESEL_PLATFORM_CYGWIN
+		if (fileinfo.st_mode & S_IRUSR) {
+			return true;
+		}
+	#endif
+
+	#if WIESEL_PLATFORM_WINDOWS
+		if (fileinfo.st_mode & S_IREAD) {
+			return true;
+		}
+	#endif
+
+	return false;
+}
+
+
+bool GenericFileSystemFile::canWrite() const {
+	struct stat fileinfo;
+
+	if (stat(getFullPath().c_str(), &fileinfo) < 0) {
+		return false;
+	}
+
+	#if WIESEL_PLATFORM_UNIX || WIESEL_PLATFORM_CYGWIN
+		if (fileinfo.st_mode & S_IWUSR) {
+			return true;
+		}
+	#endif
+
+	#if WIESEL_PLATFORM_WINDOWS
+		if (fileinfo.st_mode & S_IWRITE) {
+			return true;
+		}
+	#endif
+
+	return false;
 }
 

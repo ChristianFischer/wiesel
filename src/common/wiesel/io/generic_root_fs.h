@@ -37,6 +37,7 @@ namespace wiesel {
 	{
 	public:
 		GenericFileSystem();
+		GenericFileSystem(const std::string &root_path);
 		virtual ~GenericFileSystem();
 
 		virtual Directory *getRootDirectory();
@@ -54,10 +55,16 @@ namespace wiesel {
 		~GenericFileSystemDirectory();
 
 		virtual std::string getName() const;
-		virtual std::string getFullPath();
-		virtual std::string getNativePath();
+		virtual std::string getFullPath() const;
+		virtual std::string getNativePath() const;
 		virtual DirectoryList getSubDirectories();
 		virtual FileList getFiles();
+		virtual bool canRead() const;
+		virtual bool canWrite() const;
+
+	protected:
+		virtual Directory *doCreateDirectory(const std::string &name);
+		virtual File *doCreateFile(const std::string &name);
 
 	private:
 		std::string		name;
@@ -72,9 +79,12 @@ namespace wiesel {
 		~GenericFileSystemFile();
 
 		virtual std::string getName() const;
-		virtual std::string getNativePath();
+		virtual std::string getNativePath() const;
 
 		virtual DataBuffer *getContent();
+
+		virtual bool canRead() const;
+		virtual bool canWrite() const;
 
 	private:
 		std::string		name;

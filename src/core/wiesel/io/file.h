@@ -70,7 +70,7 @@ namespace wiesel {
 		 * For example: "/home/user/myfile.txt"
 		 * To get the path only, try getParent()->getFullPath()
 		 */
-		virtual std::string getFullPath();
+		virtual std::string getFullPath() const;
 		
 		/**
 		 * @brief get the file's full path on the platform's native file system.
@@ -78,7 +78,7 @@ namespace wiesel {
 		 * file system, this function will return an empty string.
 		 * @return the native path or an empty string, if there is no real filesystem.
 		 */
-		virtual std::string getNativePath();
+		virtual std::string getNativePath() const;
 
 		/**
 		 * @brief get the file's extension.
@@ -114,9 +114,20 @@ namespace wiesel {
 		/**
 		 * @brief get the parent-directory of this file.
 		 */
-		inline Directory* getParent() {
+		inline Directory* getParent() const {
 			return parent;
 		}
+
+		/**
+		 * @brief Checks if we have can read data from this file.
+		 * Without read-access, all methods to read from this file will fail.
+		 */
+		virtual bool canRead() const = 0;
+
+		/**
+		 * @breif Checks if we can write data into this file.
+		 */
+		virtual bool canWrite() const = 0;
 
 	public:
 		/**

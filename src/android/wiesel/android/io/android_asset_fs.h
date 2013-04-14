@@ -69,9 +69,16 @@ namespace android {
 		virtual DirectoryList getSubDirectories();
 		virtual FileList getFiles();
 
+		virtual bool canRead() const;
+		virtual bool canWrite() const;
+
 		inline AAssetManager *getAssetManager() {
 			return ((AndroidAssetFileSystem*)getFileSystem())->getAssetManager();
 		}
+
+	protected:
+		virtual Directory *doCreateDirectory(const std::string &name);
+		virtual File *doCreateFile(const std::string &name);
 
 	private:
 		std::string		name;
@@ -88,6 +95,9 @@ namespace android {
 		virtual std::string getName() const;
 
 		virtual DataBuffer *getContent();
+
+		virtual bool canRead() const;
+		virtual bool canWrite() const;
 
 		inline AAssetManager *getAssetManager() {
 			return ((AndroidAssetFileSystem*)getParent()->getFileSystem())->getAssetManager();
