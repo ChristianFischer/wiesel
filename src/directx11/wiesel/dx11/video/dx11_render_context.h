@@ -33,6 +33,7 @@
 
 #include "wiesel/dx11/dx11.h"
 #include "dx11_shader_content.h"
+#include "dx11_shader_constantbuffer_content.h"
 #include "dx11_texture_content.h"
 
 
@@ -79,7 +80,7 @@ namespace video {
 
 	public:
 		virtual void setShader(wiesel::video::Shader *shader);
-		virtual void setShaderValue(const std::string &name, wiesel::video::ValueType type, size_t elements, void *pValue);
+		virtual bool assignShaderConstantBuffer(const std::string &name, wiesel::video::ShaderConstantBuffer *buffer);
 		virtual void setTexture(uint16_t index, wiesel::video::Texture *texture);
 		virtual void prepareTextureLayers(uint16_t layers);
 		virtual void clearTextures();
@@ -116,6 +117,9 @@ namespace video {
 		Dx11ShaderContent*						active_shader_content;
 		std::vector<wiesel::video::Texture*>	active_textures;
 		std::vector<Dx11TextureContent*		>	active_textures_content;
+
+		Dx11ShaderConstantBufferContent*		cb_modelview_content;
+		Dx11ShaderConstantBufferContent*		cb_projection_content;
 	};
 
 }

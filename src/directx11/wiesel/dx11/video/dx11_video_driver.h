@@ -77,6 +77,7 @@ namespace video {
 		virtual wiesel::video::IndexBufferContent *createIndexBufferContent(wiesel::video::IndexBuffer *index_buffer);
 		virtual wiesel::video::VertexBufferContent *createVertexBufferContent(wiesel::video::VertexBuffer *index_buffer);
 		virtual wiesel::video::ShaderContent *createShaderContent(wiesel::video::Shader *shader);
+		virtual wiesel::video::ShaderConstantBufferContent *createConstantBufferContent(wiesel::video::ShaderConstantBuffer *shader_constant_buffer);
 		virtual wiesel::video::TextureContent *createTextureContent(wiesel::video::Texture *texture);
 
 	private:

@@ -95,6 +95,11 @@ namespace gl {
 		virtual bool setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue);
 
 	private:
+		struct BufferEntry {
+			ShaderConstantBuffer*				buffer;
+			ShaderConstantBuffer::version_t		version;
+		};
+
 		/// Alias type for an indiced list of attribute names
 		typedef std::vector<GLint>						AttributeHandlesByIndex;
 
@@ -103,13 +108,13 @@ namespace gl {
 
 		typedef std::map<
 					const ShaderConstantBufferTemplate*,
-					ShaderConstantBuffer::version_t
-		>												BufferVersionMap;
+					BufferEntry
+		>												BufferEntryMap;
 
 		GLuint		program_handle;
 
 		AttributeHandleList			attribute_handles;
-		BufferVersionMap			buffer_versions;
+		BufferEntryMap				buffer_entries;
 
 		std::map<std::string,GLint>	uniform_attributes;
 	};

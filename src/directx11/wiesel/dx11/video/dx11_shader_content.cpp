@@ -37,11 +37,10 @@ using namespace wiesel::dx11::video;
 #define TYPE_PIXEL_SHADER		"ps"
 
 
-Dx11ShaderContent::Dx11ShaderContent(Shader *shader) : ShaderContent(shader) {
+Dx11ShaderContent::Dx11ShaderContent(DirectX11RenderContext *context, Shader *shader) : ShaderContent(shader) {
+	this->render_context		= context;
 	this->vertex_shader			= NULL;
 	this->pixel_shader			= NULL;
-	this->matrix_buffer			= NULL;
-	this->matrix_buffer_dirty	= true;
 
 	return;
 }
@@ -116,13 +115,6 @@ static ID3D10Blob *compile(DirectX11RenderContext *context, const char *entry_po
 
 		return NULL;
 	}
-	else {
-		Log::info
-			<< "successfully compiled shader:" << std::endl
-			<< std::string(src_buffer->getDataAsCharPtr(), src_buffer->getSize()) 
-			<< std::endl << std::endl
-		;
-	}
 
 	return shader_buffer;
 }
@@ -130,7 +122,7 @@ static ID3D10Blob *compile(DirectX11RenderContext *context, const char *entry_po
 
 Dx11ShaderContent *Dx11ShaderContent::createContentFor(DirectX11RenderContext *context, Shader* shader) {
 	if (shader->getSources()->size() > 0) {
-		Dx11ShaderContent *dx_shader = new Dx11ShaderContent(shader);
+		Dx11ShaderContent *dx_shader = new Dx11ShaderContent(context, shader);
 		
 		if (dx_shader->initializeShader(context) == false) {
 			delete dx_shader;
@@ -146,7 +138,7 @@ Dx11ShaderContent *Dx11ShaderContent::createContentFor(DirectX11RenderContext *c
 			assert(buffer);
 
 			if (buffer) {
-				dx_shader->shader_buffers[Shader::HLSL_VERTEX_SHADER] = buffer;
+				dx_shader->shader_opcode_buffers[Shader::HLSL_VERTEX_SHADER] = buffer;
 
 				HRESULT result = context->getD3DDevice()->CreateVertexShader(
 										buffer->GetBufferPointer(),
@@ -170,7 +162,7 @@ Dx11ShaderContent *Dx11ShaderContent::createContentFor(DirectX11RenderContext *c
 			assert(buffer);
 
 			if (buffer) {
-				dx_shader->shader_buffers[Shader::HLSL_FRAGMENT_SHADER] = buffer;
+				dx_shader->shader_opcode_buffers[Shader::HLSL_FRAGMENT_SHADER] = buffer;
 
 				HRESULT result = context->getD3DDevice()->CreatePixelShader(
 										buffer->GetBufferPointer(),
@@ -189,7 +181,7 @@ Dx11ShaderContent *Dx11ShaderContent::createContentFor(DirectX11RenderContext *c
 		}
 
 		// at least one buffer was found?
-		if (dx_shader->shader_buffers.empty()) {
+		if (dx_shader->shader_opcode_buffers.empty()) {
 			success = false;
 		}
 
@@ -219,20 +211,19 @@ bool Dx11ShaderContent::initializeShader(DirectX11RenderContext *context) {
 
 void Dx11ShaderContent::releaseShader() {
 	// clear all opcode buffers
-	for(ShaderBufferMap::iterator it=shader_buffers.begin(); it!=shader_buffers.end(); it++) {
+	for(ShaderOpcodeBufferMap::iterator it=shader_opcode_buffers.begin(); it!=shader_opcode_buffers.end(); it++) {
 		it->second->Release();
 	}
-	shader_buffers.clear();
+	shader_opcode_buffers.clear();
+
+	for(ShaderConstantBufferEntryMap::iterator it=shader_constant_buffer_entries.begin(); it!=shader_constant_buffer_entries.end(); it++) {
+	}
+	shader_constant_buffer_entries.clear();
 
 	for(PolygonLayoutMap::iterator it=polygon_layouts.begin(); it!=polygon_layouts.end(); it++) {
 		it->second->Release();
 	}
 	polygon_layouts.clear();
-
-	if (matrix_buffer) {
-		matrix_buffer->Release();
-		matrix_buffer = NULL;
-	}
 
 	// release the pixel shader.
 	if (pixel_shader) {
@@ -251,90 +242,73 @@ void Dx11ShaderContent::releaseShader() {
 
 
 bool Dx11ShaderContent::bindAttributes(DirectX11RenderContext *context) {
-	const Shader::AttributeList *attributes = getShader()->getAttributes();
-	HRESULT result;
+	const Shader::ConstantBufferTplList *buffer_templates = getShader()->getConstantBufferTemplates();
+	uint32_t vs_slot = 0;
+	uint32_t ps_slot = 0;
 
-	// prepare the matrix búffer
-	this->matrix_buffer_content.resize(2);
-	this->matrix_buffer_size = matrix_buffer_content.size() * sizeof(matrix4x4);
+	for(Shader::ConstantBufferTplList::const_iterator it=buffer_templates->begin(); it!=buffer_templates->end(); it++) {
+		ShaderConstantBufferEntry entry;
+		entry.vs_slot	= 0xffffffff;
+		entry.ps_slot	= 0xffffffff;
 
-	D3D11_BUFFER_DESC matrixBufferDesc;
-	matrixBufferDesc.ByteWidth				= matrix_buffer_size;
-	matrixBufferDesc.Usage					= D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.BindFlags				= D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags			= D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags				= 0;
-	matrixBufferDesc.StructureByteStride	= 0;
+		if (it->context & Shader::Context_VertexShader) {
+			entry.vs_slot = vs_slot;
+			++vs_slot;
+		}
 
-	// create the constant buffer
-	result = context->getD3DDevice()->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer);
-	if (FAILED(result)) {
-		return false;
+		if (it->context & Shader::Context_FragmentShader) {
+			entry.ps_slot = ps_slot;
+			++ps_slot;
+		}
+
+		shader_constant_buffer_entries[it->buffer_template] = entry;
 	}
 
 	return true;
 }
 
 
-bool Dx11ShaderContent::setProjectionMatrix(const matrix4x4& matrix) {
-	memcpy(&(matrix_buffer_content[1]), &matrix, sizeof(matrix));
-	matrix_buffer_dirty = true;
-	return true;
-}
+bool Dx11ShaderContent::assignShaderConstantBuffer(const std::string &name, ShaderConstantBufferContent *buffer_content) {
+	Dx11ShaderConstantBufferContent *dx11_buffer_content = dynamic_cast<Dx11ShaderConstantBufferContent*>(buffer_content);
 
+	if (dx11_buffer_content) {
+		return assignShaderConstantBuffer(name, dx11_buffer_content);
+	}
 
-bool Dx11ShaderContent::setModelviewMatrix(const matrix4x4& matrix) {
-	memcpy(&(matrix_buffer_content[0]), &matrix, sizeof(matrix));
-	matrix_buffer_dirty = true;
-	return true;
-}
-
-
-bool Dx11ShaderContent::setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue) {
 	return false;
 }
 
 
-bool Dx11ShaderContent::uploadAllBuffers(DirectX11RenderContext *render_context) {
-	if (matrix_buffer_dirty) {
-		ID3D11DeviceContext *d3d_context = render_context->getD3DDeviceContext();
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		HRESULT result;
+bool Dx11ShaderContent::assignShaderConstantBuffer(const std::string &name, Dx11ShaderConstantBufferContent *buffer_content) {
+	const ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(name);
+	if (buffer_template) {
+		ShaderConstantBuffer::version_t new_version = buffer_content->getShaderConstantBuffer()->getChangeVersion();
+		ShaderConstantBufferEntryMap::iterator entry = shader_constant_buffer_entries.find(buffer_template);
 
-		// lock the constant buffer so it can be written to.
-		result = d3d_context->Map(matrix_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result)) {
-			return false;
+		// create a new entry, if not available
+		if (entry != shader_constant_buffer_entries.end()) {
+
+			// update the buffer's content
+			buffer_content->updateContent(render_context);
+			ID3D11Buffer* dx_buffer = buffer_content->getDx11Buffer();
+
+			if (entry->second.vs_slot != 0xffffffff) {
+				render_context->getD3DDeviceContext()->VSSetConstantBuffers(entry->second.vs_slot, 1, &dx_buffer);
+			}
+
+			if (entry->second.ps_slot != 0xffffffff) {
+				render_context->getD3DDeviceContext()->PSSetConstantBuffers(entry->second.ps_slot, 1, &dx_buffer);
+			}
 		}
 
-		// copy the matrix buffer content into the buffer
-		memcpy(
-				mappedResource.pData,
-				matrix_buffer_content.data(),
-				matrix_buffer_size
-		);
-
-		// unlock the constant buffer.
-		d3d_context->Unmap(matrix_buffer, 0);
-
-		// Set the position of the constant buffer in the vertex shader.
-		unsigned int buffer_index = 0;
-
-		// Finanly set the constant buffer in the vertex shader with the updated values.
-		d3d_context->VSSetConstantBuffers(buffer_index, 1, &matrix_buffer);
-
-		// done - don't need to update the buffer again, until the data has changed
-		matrix_buffer_dirty = false;
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 
 bool Dx11ShaderContent::bind(DirectX11RenderContext *render_context) {
-	matrix_buffer_dirty = true;
-	uploadAllBuffers(render_context);
-
 	ID3D11DeviceContext *d3d_context = render_context->getD3DDeviceContext();
 
 	// Set the vertex and pixel shaders that will be used to render this triangle.
@@ -487,8 +461,8 @@ bool Dx11ShaderContent::bind(DirectX11RenderContext *render_context, const Verte
 		HRESULT result = render_context->getD3DDevice()->CreateInputLayout(
 								polygon_layout.data(),
 								polygon_layout.size(),
-								shader_buffers[Shader::HLSL_VERTEX_SHADER]->GetBufferPointer(), 
-								shader_buffers[Shader::HLSL_VERTEX_SHADER]->GetBufferSize(),
+								shader_opcode_buffers[Shader::HLSL_VERTEX_SHADER]->GetBufferPointer(), 
+								shader_opcode_buffers[Shader::HLSL_VERTEX_SHADER]->GetBufferSize(),
 								&layout
 		);
 

@@ -282,6 +282,10 @@ ShaderContent *Dx11VideoDeviceDriver::createShaderContent(Shader *shader) {
 	return Dx11ShaderContent::createContentFor(this->render_context, shader);
 }
 
+ShaderConstantBufferContent *Dx11VideoDeviceDriver::createConstantBufferContent(ShaderConstantBuffer *shader_constant_buffer) {
+	return Dx11ShaderConstantBufferContent::createContentFor(this->render_context, shader_constant_buffer);
+}
+
 TextureContent *Dx11VideoDeviceDriver::createTextureContent(Texture *texture) {
 	return Dx11TextureContent::createContentFor(this->render_context, texture);
 }

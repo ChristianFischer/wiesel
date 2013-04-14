@@ -25,6 +25,7 @@
 
 #include <wiesel/util/log.h>
 #include <wiesel/video/shader.h>
+#include <wiesel/video/shaders.h>
 #include <wiesel/video/texture.h>
 
 using namespace wiesel;
@@ -45,12 +46,19 @@ DirectX11RenderContext::DirectX11RenderContext(Screen *screen) : RenderContext(s
 	this->active_shader				= NULL;
 	this->active_shader_content		= NULL;
 
+	this->cb_modelview_content		= NULL;
+	this->cb_projection_content		= NULL;
+
 	return;
 }
 
 
 DirectX11RenderContext::~DirectX11RenderContext() {
 	releaseContext();
+
+	safe_release(cb_modelview_content);
+	safe_release(cb_projection_content);
+
 	return;
 }
 
@@ -530,6 +538,25 @@ void DirectX11RenderContext::preRender() {
 	blendFactor[3] = 0.0f;
 	d3d_device_context->OMSetBlendState(blendstate_enabled, blendFactor, 0xffffffff);
 
+	// prepare the default constant buffers
+	if(!cb_modelview->isLoaded()) {
+		cb_modelview->loadContentFrom(getScreen());
+	}
+
+	if(!cb_projection->isLoaded()) {
+		cb_projection->loadContentFrom(getScreen());
+	}
+
+	cb_modelview_content  = dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_modelview->getContent());
+	if (cb_modelview_content) {
+		cb_modelview_content->retain();
+	}
+
+	cb_projection_content = dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_projection->getContent());
+	if (cb_projection_content) {
+		cb_projection_content->retain();
+	}
+
 	return;
 }
 
@@ -538,6 +565,10 @@ void DirectX11RenderContext::postRender() {
 	// reset all gl objects
 	setShader(NULL);
 	clearTextures();
+
+	// clear temporary members
+	safe_release(cb_modelview_content);
+	safe_release(cb_projection_content);
 
 	// display screen
 	if (vsync) {
@@ -553,10 +584,16 @@ void DirectX11RenderContext::postRender() {
 
 
 void DirectX11RenderContext::setProjectionMatrix(const matrix4x4& matrix) {
+	assert(cb_projection);
+
 	this->projection = matrix;
+	this->cb_projection->setShaderValue(Shaders::UNIFORM_PROJECTION_MATRIX, this->projection);
 
 	if (active_shader_content) {
-		active_shader_content->setProjectionMatrix(this->projection);
+		active_shader_content->assignShaderConstantBuffer(
+									Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
+									this->cb_projection_content
+		);
 	}
 
 	return;
@@ -564,8 +601,15 @@ void DirectX11RenderContext::setProjectionMatrix(const matrix4x4& matrix) {
 
 
 void DirectX11RenderContext::setModelviewMatrix(const matrix4x4& matrix) {
+	assert(cb_modelview);
+
+	this->cb_modelview->setShaderValue(Shaders::UNIFORM_MODELVIEW_MATRIX, matrix);
+
 	if (active_shader_content) {
-		active_shader_content->setModelviewMatrix(matrix);
+		active_shader_content->assignShaderConstantBuffer(
+									Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX,
+									this->cb_modelview_content
+		);
 	}
 
 	return;
@@ -608,7 +652,10 @@ void DirectX11RenderContext::setShader(Shader* shader) {
 			active_shader_content->bind(this);
 
 			// update projection matrix for the current shader
-			active_shader_content->setProjectionMatrix(getProjectionMatrix());
+			active_shader_content->assignShaderConstantBuffer(
+										Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
+										this->cb_projection_content
+			);
 		}
 		else {
 			d3d_device_context->VSSetShader(NULL, NULL, 0);
@@ -620,14 +667,22 @@ void DirectX11RenderContext::setShader(Shader* shader) {
 }
 
 
-void DirectX11RenderContext::setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue) {
+bool DirectX11RenderContext::assignShaderConstantBuffer(const std::string &name, wiesel::video::ShaderConstantBuffer *buffer) {
 	if (active_shader_content) {
-		active_shader_content->setShaderValue(name, type, elements, pValue);
+		// load on demand
+		if(!buffer->isLoaded()) {
+			buffer->loadContentFrom(getScreen());
+
+			if (!buffer->isLoaded()) {
+				return false;
+			}
+		}
+
+		active_shader_content->assignShaderConstantBuffer(name, buffer->getContent());
 	}
 
-	return;
+	return false;
 }
-
 
 
 void DirectX11RenderContext::setTexture(uint16_t index, Texture* texture) {
@@ -830,9 +885,6 @@ bool DirectX11RenderContext::bind(const VertexBuffer* vertex_buffer) {
 		if (active_shader_content->bind(this, vertex_buffer, active_textures_content) == false) {
 			return false;
 		}
-
-		// prepare the shader
-		active_shader_content->uploadAllBuffers(this);
 
 		// create the hardware buffer on demand
 		if(!vertex_buffer->isLoaded()) {
