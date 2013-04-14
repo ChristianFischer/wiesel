@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "wiesel.h"
+#include "wiesel/platform_config.h"
 #include "generic_root_fs.h"
 #include "wiesel/util/log.h"
 #include <direct.h>

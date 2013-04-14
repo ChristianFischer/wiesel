@@ -134,7 +134,7 @@ DirectX11RenderContext *DirectX11RenderContext::createContextWithWindowHandle(HW
 		pVideoInfo->api			= "DirectX";
 		pVideoInfo->shaders.api	= "HLSL";
 
-		unsigned int stringLength;
+		size_t stringLength;
 		char str[1024];
 
 		int error = wcstombs_s(&stringLength, str, 1024, adapterDesc.Description, 1024);

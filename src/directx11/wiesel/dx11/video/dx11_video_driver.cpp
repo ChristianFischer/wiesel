@@ -103,7 +103,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 
 		case WM_LBUTTONDOWN: {
-			LONG lp = GetWindowLongPtr(hWnd, GWL_USERDATA);
+			LONG_PTR lp = GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			Dx11VideoDeviceDriver *driver = reinterpret_cast<Dx11VideoDeviceDriver*>(lp);
 
 			vector2d location = driver->convertScreenToWorld(vector2d(LOWORD(lParam), HIWORD(lParam)));
@@ -113,7 +113,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 
 		case WM_LBUTTONUP: {
-			LONG lp = GetWindowLongPtr(hWnd, GWL_USERDATA);
+			LONG_PTR lp = GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			Dx11VideoDeviceDriver *driver = reinterpret_cast<Dx11VideoDeviceDriver*>(lp);
 
 			driver->getScreen()->getTouchHandler()->releaseTouch(0);
@@ -122,7 +122,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 
 		case WM_MOUSEMOVE: {
-			LONG lp = GetWindowLongPtr(hWnd, GWL_USERDATA);
+			LONG_PTR lp = GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			Dx11VideoDeviceDriver *driver = reinterpret_cast<Dx11VideoDeviceDriver*>(lp);
 
 			vector2d location = driver->convertScreenToWorld(vector2d(LOWORD(lParam), HIWORD(lParam)));
@@ -191,11 +191,8 @@ bool Dx11VideoDeviceDriver::initWindow(const dimension &size, int nCmdShow) {
 	}
 
 	// store the reference to this object into the window
-	LONG pThis = reinterpret_cast<LONG>(this);
-	SetWindowLongPtr(hWnd, GWL_USERDATA, pThis);
-
-	LONG lp = GetWindowLongPtr(hWnd, GWL_USERDATA);
-	assert(pThis == lp);
+	LONG_PTR pThis = reinterpret_cast<LONG>(this);
+	SetWindowLongPtr(hWnd, GWLP_USERDATA, pThis);
 
 	ShowWindow(hWnd, nCmdShow);
 	SetForegroundWindow(hWnd);

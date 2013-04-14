@@ -45,6 +45,6 @@ include(config/local/paths.cmake OPTIONAL)
 # enable warnings?
 option(WIESEL_BUILD_WARN_ALL "Enable all warnings on build. (gcc option -Wall)" ON)
 if (WIESEL_BUILD_WARN_ALL)
-	set(CMAKE_CXX_FLAGS "-g -Wall")
-	set(CMAKE_C_FLAGS "-g -Wall")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall")
+	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -g -Wall")
 endif(WIESEL_BUILD_WARN_ALL)
