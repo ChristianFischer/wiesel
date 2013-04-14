@@ -107,6 +107,34 @@ FileSystem *Engine::getAssetFileSystem() {
 }
 
 
+FileSystem *Engine::getDataFileSystem(const std::string &subdir) {
+	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {
+		Platform *platform = *it;
+
+		FileSystem *fs = platform->getDataFileSystem(subdir);
+		if (fs) {
+			return fs;
+		}
+	}
+
+	return NULL;
+}
+
+
+FileSystem *Engine::getExternalDataFileSystem(const std::string &subdir) {
+	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {
+		Platform *platform = *it;
+
+		FileSystem *fs = platform->getExternalDataFileSystem(subdir);
+		if (fs) {
+			return fs;
+		}
+	}
+
+	return NULL;
+}
+
+
 bool Engine::shutdown() {
 	// release all platforms
 	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {

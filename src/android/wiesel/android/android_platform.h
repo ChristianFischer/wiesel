@@ -91,11 +91,22 @@ namespace android {
 	public:
 		virtual FileSystem *getRootFileSystem();
 		virtual FileSystem *getAssetFileSystem();
+		virtual FileSystem *getDataFileSystem(const std::string &subdir);
+		virtual FileSystem *getExternalDataFileSystem(const std::string &subdir);
+
+	private:
+		void fetchApplicationInfoFromJNI();
 
 	protected:
 		struct android_app*			app;
 		AndroidAssetFileSystem*		asset_fs;
+		FileSystem*					data_fs;
+		FileSystem*					data_ext_fs;
 		bool						window_initialized;
+
+		// application info
+		std::string					package_name;
+		std::string					data_dir;
 
 		std::vector<IAndroidMessageReceiver*>	receivers;
 	};

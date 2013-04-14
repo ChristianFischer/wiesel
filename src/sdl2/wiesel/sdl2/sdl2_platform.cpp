@@ -113,3 +113,13 @@ FileSystem *Sdl2Platform::getRootFileSystem() {
 FileSystem *Sdl2Platform::getAssetFileSystem() {
 	return NULL;
 }
+
+
+FileSystem *Sdl2Platform::getDataFileSystem(const std::string &subdir) {
+	return NULL;
+}
+
+
+FileSystem *Sdl2Platform::getExternalDataFileSystem(const std::string &subdir) {
+	return NULL;
+}

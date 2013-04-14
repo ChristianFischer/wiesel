@@ -26,6 +26,8 @@
 
 #include <wiesel/platform.h>
 
+#include <map>
+
 
 namespace wiesel {
 
@@ -50,13 +52,46 @@ namespace wiesel {
 		virtual void onRunFirst();
 		virtual bool onRun();
 
+	// utilities
+	public:
+		/**
+		 * @brief Get the value of the environment variable with the given name.
+		 * @param name The name of the requested environment variable,
+		 * @return The value of the requested environment variable,
+		 */
+		std::string getEnv(const std::string &name) const;
+
+		/**
+		 * @brief Get the current working directory name.
+		 */
+		std::string getWorkingDirName() const;
+
+		/**
+		 * @brief Get the name of the current user's home directory.
+		 */
+		std::string getHomeDirName() const;
+
+		/**
+		 * @brief Get the current users application data directory name.
+		 */
+		std::string getAppDataDirName() const;
+
+		/**
+		 * @brief Converts a path into the format used by the engine.
+		 */
+		static void convertPathToEngineStyle(std::string *path);
+
 	public:
 		virtual FileSystem *getRootFileSystem();
 		virtual FileSystem *getAssetFileSystem();
+		virtual FileSystem *getDataFileSystem(const std::string &subdir);
+		virtual FileSystem *getExternalDataFileSystem(const std::string &subdir);
 
 	protected:
 		FileSystem*		root_fs;
 		FileSystem*		asset_fs;
+
+		std::map<std::string,FileSystem*>	data_fs;
 	};
 
 }

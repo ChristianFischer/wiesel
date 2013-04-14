@@ -84,6 +84,30 @@ namespace wiesel {
 		 * @brief get the file system, which stores the assets of the current application.
 		 */
 		virtual FileSystem *getAssetFileSystem() = 0;
+
+		/**
+		 * @brief get the file system, where persistent application data can be stored.
+		 * The normal data file system should be used for small data like profiles
+		 * or savegames. For large data try \ref getExternalDataFileSystem().
+		 * @param subdir	This parameter is used to create an application specific
+		 *					subdirectory in the user's home directory.
+		 *					"subdir" should be an unique name to avoid conflicts with other
+		 *					applications. On platforms, which have a dedicated appdata
+		 *					location per application, this parameter will be ignored.
+		 */
+		virtual FileSystem *getDataFileSystem(const std::string &subdir) = 0;
+
+		/**
+		 * @brief another file system, where persistent application data can be stored.
+		 * This may be on another physical drive, which is appropriate for large data.
+		 * On some platforms, this may be identical with \ef getDataFileSystem().
+		 * @param subdir	This parameter is used to create an application specific
+		 *					subdirectory in the user's home directory.
+		 *					"subdir" should be an unique name to avoid conflicts with other
+		 *					applications. On platforms, which have a dedicated appdata
+		 *					location per application, this parameter will be ignored.
+		 */
+		virtual FileSystem *getExternalDataFileSystem(const std::string &subdir) = 0;
 	};
 
 }

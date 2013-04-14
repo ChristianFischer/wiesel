@@ -77,6 +77,11 @@ function(wiesel_create_executable target source_dir)
 	
 	# add the source dir as include directory to the target
 	wiesel_target_add_includes(${target} ${source_dir})
+	
+	# if available, add the copy-resources target as dependency
+	if (TARGET copy-resources)
+		add_dependencies(${target} copy-resources)
+	endif(TARGET copy-resources)
 endfunction(wiesel_create_executable)
 
 

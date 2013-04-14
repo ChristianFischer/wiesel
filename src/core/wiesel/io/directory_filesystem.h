@@ -89,9 +89,15 @@ namespace wiesel {
 
 	public:
 		virtual std::string getName() const;
-		virtual std::string getNativePath();
+		virtual std::string getNativePath() const;
 		virtual DirectoryList getSubDirectories();
 		virtual FileList getFiles();
+		virtual bool canRead() const;
+		virtual bool canWrite() const;
+
+	protected:
+		virtual Directory *doCreateDirectory(const std::string &name);
+		virtual File *doCreateFile(const std::string &name);
 
 	private:
 		Directory	*enclosed_directory;
@@ -133,8 +139,10 @@ namespace wiesel {
 		virtual const File *getEnclosedFile() const;
 
 	public:
+		virtual bool canRead() const;
+		virtual bool canWrite() const;
 		virtual std::string getName() const;
-		virtual std::string getNativePath();
+		virtual std::string getNativePath() const;
 		virtual DataBuffer *getContent();
 
 	private:
