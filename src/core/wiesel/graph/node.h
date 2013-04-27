@@ -141,7 +141,7 @@ namespace wiesel {
 		/**
 		 * @brief Update the local and world transformation matrix, if necessary.
 		 */
-		virtual void updateTransform();
+		void updateTransform();
 
 		/**
 		 * @brief Flags the transformation on this node and all it's children as dirty.
@@ -187,6 +187,12 @@ namespace wiesel {
 
 	// overridables
 	protected:
+		/**
+		 * Compute the transformations relative to the node's parent.
+		 * Can be overridden in subclasses.
+		 */
+		virtual void computeLocalTransform(matrix4x4 *transform);
+
 		/**
 		 * @brief Called to render this node.
 		 * This function should be the only place to put rendering code.

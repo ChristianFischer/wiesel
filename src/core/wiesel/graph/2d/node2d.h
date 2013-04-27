@@ -37,14 +37,19 @@ namespace wiesel {
 		Node2D();
 		virtual ~Node2D();
 
-	// getter/setter
-	public:
+	// getter/setter for subclasses
+	protected:
 		/// set the content size of this node
 		void setContentSize(const dimension &size);
 
 		/// set the content size of this node
 		void setContentSize(float width, float height);
 
+		/// set the 2D bounding rectangle of this node.
+		void setBounds(const rectangle &bounds);
+
+	// getter/setter
+	public:
 		/// set the pivot point of this node.
 		/// usually this value would be between 0,0 (bottom left) and 1,1 (top right).
 		void setPivot(const vector2d &pivot);
@@ -52,9 +57,6 @@ namespace wiesel {
 		/// set the pivot point of this node.
 		/// usually this value would be between 0,0 (bottom left) and 1,1 (top right).
 		void setPivot(float x, float y);
-
-		/// set the 2D bounding rectangle of this node.
-		void setBounds(const rectangle &bounds);
 
 		/// get the content size of this node.
 		inline const dimension& getContentSize() const {
@@ -124,9 +126,9 @@ namespace wiesel {
 			return scale_x;
 		}
 
+	protected:
 		/// update the transform matrices
-		void updateTransform();
-
+		virtual void computeLocalTransform(matrix4x4 *transform);
 
 	public:
 		/// Tests, if a point is within this node.

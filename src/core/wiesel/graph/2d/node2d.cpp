@@ -55,12 +55,14 @@ void Node2D::setContentSize(const dimension &size) {
 void Node2D::setContentSize(float width, float height) {
 	this->bounds.size.width  = width;
 	this->bounds.size.height = height;
+	setTransformDirty();
 	return;
 }
 
 
 void Node2D::setPivot(const vector2d &pivot) {
 	this->pivot = pivot;
+	setTransformDirty();
 	return;
 }
 
@@ -75,6 +77,7 @@ void Node2D::setPivot(float x, float y) {
 
 void Node2D::setBounds(const rectangle& bounds) {
 	this->bounds = bounds;
+	setTransformDirty();
 }
 
 
@@ -121,17 +124,15 @@ void Node2D::setScaleY(float sy) {
 }
 
 
-void Node2D::updateTransform() {
-	local_transform = matrix4x4::identity;
-
+void Node2D::computeLocalTransform(matrix4x4 *transform) {
 	vector2d pivot_in_units = getPivotInUnits();
 
-	local_transform.translate(-pivot_in_units.x, -pivot_in_units.y);
-	local_transform.scale(scale_x, scale_y, 1.0f);
-	local_transform.rotateZ(deg2rad(rotation));
-	local_transform.translate(position.x, position.y);
+	transform->translate(-pivot_in_units.x, -pivot_in_units.y);
+	transform->scale(scale_x, scale_y, 1.0f);
+	transform->rotateZ(deg2rad(rotation));
+	transform->translate(position.x, position.y);
 
-	Node::updateTransform();
+	Node::computeLocalTransform(transform);
 
 	return;
 }
