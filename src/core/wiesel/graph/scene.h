@@ -25,8 +25,13 @@
 #include <wiesel/wiesel-core.def>
 
 #include "node.h"
+#include "viewport.h"
 
 namespace wiesel {
+
+	namespace video {
+		class Screen;
+	}
 
 	class Scene;
 
@@ -39,13 +44,22 @@ namespace wiesel {
 	/**
 	 * @brief Base-class for scenes.
 	 */
-	class WIESEL_CORE_EXPORT Scene : public Node
+	class WIESEL_CORE_EXPORT Scene : public Viewport
 	{
 	public:
 		Scene();
 		virtual ~Scene();
 
+	// Node
+	public:
+		virtual void render(video::RenderContext *render_context);
+
+	// Viewport
+	protected:
+		rectangle getParentViewport();
+
 	private:
+		rectangle		screen_size;
 	};
 }
 #endif	/* __WIESEL_GRAPH_SCENE_H__ */

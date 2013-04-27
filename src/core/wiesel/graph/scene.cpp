@@ -20,6 +20,8 @@
  * Boston, MA 02110-1301 USA
  */
 #include "scene.h"
+#include "wiesel/video/screen.h"
+#include "wiesel/video/video_driver.h"
 
 using namespace wiesel;
 
@@ -30,5 +32,32 @@ Scene::Scene() {
 
 Scene::~Scene() {
 	return;
+}
+
+
+void Scene::render(video::RenderContext* render_context) {
+	rectangle resolution = rectangle(
+			vector2d::zero,
+			render_context->getScreen()->getVideoDeviceDriver()->getResolution()
+	);
+
+	// update the screen size
+	if (this->screen_size != resolution) {
+		this->screen_size  = resolution;
+		setTransformDirty();
+	}
+
+	Viewport::render(render_context);
+
+	return;
+}
+
+
+rectangle Scene::getParentViewport() {
+	if (getParent()) {
+		return Viewport::getParentViewport();
+	}
+
+	return screen_size;
 }
 

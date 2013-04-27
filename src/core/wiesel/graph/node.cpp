@@ -131,6 +131,10 @@ void Node::setTransformDirty() {
 
 
 void Node::updateTransform() {
+	// compute the local transform
+	local_transform = matrix4x4::identity;
+	computeLocalTransform(&local_transform);
+
 	if (getParent() == NULL) {
 		world_transform = local_transform;
 	}
@@ -140,6 +144,11 @@ void Node::updateTransform() {
 
 	transform_dirty = false;
 
+	return;
+}
+
+
+void Node::computeLocalTransform(matrix4x4* transform) {
 	return;
 }
 
