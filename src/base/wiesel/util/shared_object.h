@@ -19,13 +19,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
-#ifndef __WIESEL_UTIL_MANAGED_OBJECT_H__
-#define __WIESEL_UTIL_MANAGED_OBJECT_H__
+#ifndef __WIESEL_UTIL_SHARED_OBJECT_H__
+#define __WIESEL_UTIL_SHARED_OBJECT_H__
 
 #include <wiesel/wiesel-base.def>
 
 #include <assert.h>
 #include <stddef.h>
+#include <list>
 #include <vector>
 
 
@@ -50,35 +51,13 @@ namespace wiesel {
 
 	public:
 		virtual ~SharedObject();
+		
+	public:
+		friend void _keep(const SharedObject* obj);
+		friend void _release(const SharedObject* obj);
 
 	// reference-counting
 	public:
-		/// An alias type for a list of managed objects.
-		typedef std::vector<SharedObject*> List;
-
-		/**
-		 * @brief increment the reference-counter.
-		 */
-		inline void retain() {
-			++references;
-		}
-
-		/**
-		 * @brief decrement the reference-counter.
-		 * When the reference-counter hits zero,
-		 * the object will be deleted immediately.
-		 */
-		inline void release() {
-			// checks, if there are any references for this object.
-			// when this condition fails, the object may be release()'d too often
-			// or there's a retain() missing.
-			assert(references > 0);
-
-			if (--references <= 0) {
-				delete this;
-			}
-		}
-
 		/**
 		 * @brief get the current value of the reference counter.
 		 */
@@ -86,38 +65,51 @@ namespace wiesel {
 			return references;
 		}
 
-	// handling living / dead objects
-	public:
-		/**
-		 * @brief Provides a read-only list of all currently living objects.
-		 */
-		static inline const List *getLivingObjects() {
-			return &living_objects;
-		}
-
-		/**
-		 * @brief Deletes all objects with a reference-count of 0.
-		 * This would be all objects, where the reference-counter never was increased.
-		 */
-		static void purgeDeadObjects();
-
 	private:
-		static List	living_objects;
-		int			references;
+		mutable int		references;
 	};
+	
+	
+	
+	
+	inline void _keep(const SharedObject *obj) {
+		assert(obj != NULL);
+		++obj->references;
+	}
+
+	inline void _release(const SharedObject *obj) {
+		assert(obj != NULL);
+		assert(obj->references > 0);
+		
+		if ((--obj->references) <= 0) {
+			delete obj;
+		}
+	}
 
 
 
 	/**
 	 * @brief Takes a pointer of a \ref SharedObject to retain it.
 	 * When the pointer is \ref NULL, nothing happens.
+	 * @return the pointer of the object with an incremented reference counter.
 	 */
-	inline void safe_retain(SharedObject* obj) {
+	template <class OBJ>
+	inline OBJ* keep(OBJ* obj) {
 		if (obj != NULL) {
-			obj->retain();
+			_keep(obj);
 		}
 
-		return;
+		return obj;
+	}
+	
+	/**
+	 * @brief Releases a pointer to a \ref SharedObject.
+	 * When the reference counter of this object reaches zero, the object will be destroyed.
+	 */
+	inline void release(const SharedObject *obj) {
+		if (obj != NULL) {
+			_release(obj);
+		}
 	}
 
 	/**
@@ -128,13 +120,97 @@ namespace wiesel {
 	template <class OBJ>
 	inline void safe_release(OBJ*& obj) {
 		if (obj != NULL) {
-			obj->release();
+			_release(obj);
 			obj  = NULL;
 		}
 
 		return;
 	}
+	
+	/**
+	 * @brief Marks an object to be autoreleased.
+	 * The object will be kept for a short time.
+	 * There can be only one object stored to autorelease at the same time.
+	 */
+	void WIESEL_BASE_EXPORT autorelease(const SharedObject *obj);
 
+
+
+
+
+	/**
+	 * @brief A smartpointer type which wraps a \ref SharedObject 
+	 * and automatically increases and decreases the reference counter, 
+	 * when the pointer is created or destroyed.
+	 */
+	template <class T>
+	class ref
+	{
+	public:
+		ref() : pointer(NULL) {
+		}
+
+		ref(T* p) : pointer(keep(p)) {
+		}
+
+		ref(const ref<T>& other) : pointer(keep(other.pointer)) {
+		}
+
+		~ref() {
+			safe_release(pointer);
+		}
+		
+	public:
+		inline T* operator=(T* p) {
+			if (this->pointer != p) {
+				safe_release(this->pointer);
+				this->pointer = keep(p);
+			}
+
+			return this->pointer;
+		}
+
+	public:
+		inline operator T*() {
+			return pointer;
+		}
+
+		inline operator const T*() const {
+			return pointer;
+		}
+		
+	public:
+		inline T* operator*() {
+			return pointer;
+		}
+
+		inline const T* operator*() const {
+			return pointer;
+		}
+
+	public:
+		inline T* operator->() {
+			return pointer;
+		}
+
+		inline const T* operator->() const {
+			return pointer;
+		}
+		
+	public:
+		/**
+		 * @brief Alias type for a vector, which stores smartpointers to class \ref T.
+		 */
+		typedef std::vector< wiesel::ref<T> >		vector;
+		
+		/**
+		 * @brief Alias type for a vector, which stores smartpointers to class \ref T.
+		 */
+		typedef std::list< wiesel::ref<T> >			list;
+	
+	private:
+		T* pointer;
+	};
 
 } /* namespace wiesel */
-#endif /* __WIESEL_UTIL_MANAGED_OBJECT_H__ */
+#endif /* __WIESEL_UTIL_SHARED_OBJECT_H__ */

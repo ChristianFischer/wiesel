@@ -81,7 +81,7 @@ namespace wiesel {
 		virtual std::string getName() const;
 		virtual std::string getNativePath() const;
 
-		virtual DataBuffer *getContent();
+		virtual DataBuffer *loadContent();
 
 		virtual bool canRead() const;
 		virtual bool canWrite() const;

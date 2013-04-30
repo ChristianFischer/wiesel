@@ -101,14 +101,10 @@ void OpenGlRenderContext::preRender() {
 	}
 
 	cb_modelview_content  = dynamic_cast<GlShaderConstantBufferContent*>(cb_modelview->getContent());
-	if (cb_modelview_content) {
-		cb_modelview_content->retain();
-	}
+	keep(cb_modelview_content);
 
 	cb_projection_content = dynamic_cast<GlShaderConstantBufferContent*>(cb_projection->getContent());
-	if (cb_projection_content) {
-		cb_projection_content->retain();
-	}
+	keep(cb_projection_content);
 
 	return;
 }
@@ -164,21 +160,14 @@ void OpenGlRenderContext::setModelviewMatrix(const matrix4x4& matrix) {
 void OpenGlRenderContext::setShader(Shader* shader) {
 	if (this->active_shader != shader) {
 		// clear the old shader
-		if (this->active_shader) {
-			this->active_shader->release();
-			this->active_shader = NULL;
-		}
+		safe_release(this->active_shader);
 
 		// ... and it's implementation
-		if (this->active_shader_content) {
-			this->active_shader_content->release();
-			this->active_shader_content = NULL;
-		}
+		safe_release(this->active_shader_content);
 
 		// store the new shader
 		if (shader) {
-			this->active_shader = shader;
-			this->active_shader->retain();
+			this->active_shader = keep(shader);
 
 			// load the shader implementation on demand
 			if(!active_shader->isLoaded()) {
@@ -187,8 +176,7 @@ void OpenGlRenderContext::setShader(Shader* shader) {
 
 			GlShaderContent *gl_shader_content = dynamic_cast<GlShaderContent*>(active_shader->getContent());
 			if (gl_shader_content) {
-				this->active_shader_content = gl_shader_content;
-				this->active_shader_content->retain();
+				this->active_shader_content = keep(gl_shader_content);
 			}
 		}
 
@@ -243,26 +231,18 @@ void OpenGlRenderContext::setTexture(uint16_t index, Texture* texture) {
 		GlTextureContent *active_texture_content = this->active_textures_content[index];
 
 		// clear the old texture
-		if (active_texture) {
-			active_texture->release();
-			active_texture = NULL;
-		}
+		safe_release(active_texture);
 
 		// and it's implementation
-		if (active_texture_content) {
-			active_texture_content->release();
-			active_texture_content = NULL;
-		}
+		safe_release(active_texture_content);
 
 		// store the new texture
 		if (texture) {
-			active_texture = texture;
-			active_texture->retain();
+			active_texture = keep(texture);
 
 			GlTextureContent *gl_texture_content = dynamic_cast<GlTextureContent*>(active_texture->getContent());
 			if (gl_texture_content) {
-				active_texture_content = gl_texture_content;
-				active_texture_content->retain();
+				active_texture_content = keep(gl_texture_content);
 			}
 		}
 

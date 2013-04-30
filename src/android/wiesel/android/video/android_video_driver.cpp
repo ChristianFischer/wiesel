@@ -53,10 +53,7 @@ AndroidVideoDeviceDriver::~AndroidVideoDeviceDriver() {
 	}
 
 	// release the render context
-	if (render_context) {
-		render_context->release();
-		render_context = NULL;
-	}
+	safe_release(render_context);
 
 	// check if the screen was released correctly
 	assert(display == EGL_NO_DISPLAY);
@@ -171,15 +168,11 @@ bool AndroidVideoDeviceDriver::initContext() {
 	}
 
 	// remove the old context, if any
-	if (render_context) {
-		render_context->release();
-		render_context = NULL;
-	}
+	safe_release(render_context);
 
 	// initialize the new render context
-	render_context = new AndroidGlRenderContext(getScreen());
+	render_context = keep(new AndroidGlRenderContext(getScreen()));
 	render_context->initContext();
-	render_context->retain();
 
 	// initialize the window's size
 	resize();
@@ -213,10 +206,7 @@ bool AndroidVideoDeviceDriver::resize() {
 
 bool AndroidVideoDeviceDriver::releaseContext() {
 	// release the render context
-	if (render_context) {
-		render_context->release();
-		render_context = NULL;
-	}
+	safe_release(render_context);
 
 	if (display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

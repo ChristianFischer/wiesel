@@ -73,7 +73,7 @@ bool Dx11TextureContent::initializeTexture(DirectX11RenderContext *context) {
 
 	std::vector<ModuleLoader<IImageLoader>*> loaders = ModuleRegistry::getInstance()->findModules<IImageLoader>();
 	for(std::vector<ModuleLoader<IImageLoader>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
-		IImageLoader *loader = (*it)->create();
+		ref<IImageLoader> loader = (*it)->create();
 		if (loader == NULL) {
 			continue;
 		}

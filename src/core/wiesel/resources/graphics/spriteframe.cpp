@@ -40,8 +40,7 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture)
 	assert(texture);
 
 	if (texture) {
-		this->texture = texture;
-		this->texture->retain();
+		this->texture     = keep(texture);
 		this->inner_rect  = rectangle(texture->getOriginalSize());
 		this->sprite_size = texture->getOriginalSize();
 		
@@ -61,15 +60,13 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture)
 }
 
 SpriteFrame::SpriteFrame(const std::string& name, Texture* texture, const rectangle& texture_rect)
-: name(name), texture(texture), inner_rect(vector2d::zero, texture_rect.size)
+: name(name), texture(keep(texture)), inner_rect(vector2d::zero, texture_rect.size)
 {
 	assert(texture);
 	assert(texture_rect.position.x + texture_rect.size.width  <= texture->getOriginalSize().width);
 	assert(texture_rect.position.y + texture_rect.size.height <= texture->getOriginalSize().height);
 
 	if (texture) {
-		texture->retain();
-
 		sprite_size = texture_rect.size;
 
 		float texcoord_l = texture_rect.getMinX();
@@ -89,24 +86,17 @@ SpriteFrame::SpriteFrame(const std::string& name, Texture* texture, const rectan
 SpriteFrame::SpriteFrame(const string& name, Texture* texture,
 		const dimension& size, const rectangle& inner_rect, const TextureCoords& texcoords
 )
-: name(name), texture(texture), sprite_size(size), inner_rect(inner_rect), texture_coordinates(texcoords)
+: name(name), texture(keep(texture)), sprite_size(size), inner_rect(inner_rect), texture_coordinates(texcoords)
 {
 	assert(texture);
 	assert(inner_rect.getMaxX() <= size.width);
 	assert(inner_rect.getMaxY() <= size.height);
 
-	if (texture) {
-		texture->retain();
-	}
-
 	return;
 }
 
 SpriteFrame::~SpriteFrame() {
-	if (texture) {
-		texture->release();
-		texture = NULL;
-	}
+	safe_release(texture);
 }
 
 

@@ -547,15 +547,8 @@ void DirectX11RenderContext::preRender() {
 		cb_projection->loadContentFrom(getScreen());
 	}
 
-	cb_modelview_content  = dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_modelview->getContent());
-	if (cb_modelview_content) {
-		cb_modelview_content->retain();
-	}
-
-	cb_projection_content = dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_projection->getContent());
-	if (cb_projection_content) {
-		cb_projection_content->retain();
-	}
+	cb_modelview_content  = keep(dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_modelview->getContent()));
+	cb_projection_content = keep(dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_projection->getContent()));
 
 	return;
 }
@@ -619,21 +612,14 @@ void DirectX11RenderContext::setModelviewMatrix(const matrix4x4& matrix) {
 void DirectX11RenderContext::setShader(Shader* shader) {
 	if (this->active_shader != shader) {
 		// clear the old shader
-		if (this->active_shader) {
-			this->active_shader->release();
-			this->active_shader = NULL;
-		}
+		safe_release(this->active_shader);
 
 		// ... and it's implementation
-		if (this->active_shader_content) {
-			this->active_shader_content->release();
-			this->active_shader_content = NULL;
-		}
+		safe_release(this->active_shader_content);
 
 		// store the new shader
 		if (shader) {
-			this->active_shader = shader;
-			this->active_shader->retain();
+			this->active_shader = keep(shader);
 
 			// load the shader implementation on demand
 			if(!active_shader->isLoaded()) {
@@ -642,8 +628,7 @@ void DirectX11RenderContext::setShader(Shader* shader) {
 
 			Dx11ShaderContent *dx_shader_content = dynamic_cast<Dx11ShaderContent*>(active_shader->getContent());
 			if (dx_shader_content) {
-				this->active_shader_content = dx_shader_content;
-				this->active_shader_content->retain();
+				this->active_shader_content = keep(dx_shader_content);
 			}
 		}
 
@@ -695,26 +680,18 @@ void DirectX11RenderContext::setTexture(uint16_t index, Texture* texture) {
 		Dx11TextureContent *active_texture_content = this->active_textures_content[index];
 
 		// clear the old texture
-		if (active_texture) {
-			active_texture->release();
-			active_texture = NULL;
-		}
+		safe_release(active_texture);
 
 		// and it's implementation
-		if (active_texture_content) {
-			active_texture_content->release();
-			active_texture_content = NULL;
-		}
+		safe_release(active_texture_content);
 
 		// store the new texture
 		if (texture) {
-			active_texture = texture;
-			active_texture->retain();
+			active_texture = keep(texture);
 
 			Dx11TextureContent *dx11_texture_content = dynamic_cast<Dx11TextureContent*>(active_texture->getContent());
 			if (dx11_texture_content) {
-				active_texture_content = dx11_texture_content;
-				active_texture_content->retain();
+				active_texture_content = keep(dx11_texture_content);
 			}
 		}
 

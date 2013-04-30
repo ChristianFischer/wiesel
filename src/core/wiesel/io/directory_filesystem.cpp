@@ -27,17 +27,17 @@ using namespace std;
 
 DirectoryFileSystem::DirectoryFileSystem(Directory *enclosed_root) {
 	this->enclosed_root = enclosed_root;
-	this->enclosed_root->retain();
+	keep(enclosed_root);
 
 	this->root = new DirectoryFileSystemRootDirectory(this, enclosed_root);
-	this->root->retain();
+	keep(this->root);
 
 	return;
 }
 
 DirectoryFileSystem::~DirectoryFileSystem() {
-	root->release();
-	enclosed_root->release();
+	safe_release(root);
+	safe_release(enclosed_root);
 	return;
 }
 
@@ -65,12 +65,12 @@ const Directory *DirectoryFileSystem::getEnclosedRootDirectory() const {
 DirectoryFileSystemDirectory::DirectoryFileSystemDirectory(DirectoryFileSystem *fs, DirectoryFileSystemDirectory *parent, Directory *enclosed_directory)
 :	Directory(fs, parent), enclosed_directory(enclosed_directory)
 {
-	enclosed_directory->retain();
+	keep(enclosed_directory);
 	return;
 }
 
 DirectoryFileSystemDirectory::~DirectoryFileSystemDirectory() {
-	enclosed_directory->release();
+	safe_release(enclosed_directory);
 	return;
 }
 
@@ -210,12 +210,12 @@ string DirectoryFileSystemRootDirectory::getName() const {
 DirectoryFileSystemFile::DirectoryFileSystemFile(DirectoryFileSystemDirectory *parent, File *enclosed_file)
 : File(parent), enclosed_file(enclosed_file)
 {
-	enclosed_file->retain();
+	keep(enclosed_file);
 	return;
 }
 
 DirectoryFileSystemFile::~DirectoryFileSystemFile() {
-	enclosed_file->release();
+	safe_release(enclosed_file);
 	return;
 }
 
@@ -240,8 +240,8 @@ string DirectoryFileSystemFile::getNativePath() const {
 }
 
 
-DataBuffer *DirectoryFileSystemFile::getContent() {
-	return getEnclosedFile()->getContent();
+DataBuffer *DirectoryFileSystemFile::loadContent() {
+	return getEnclosedFile()->loadContent();
 }
 
 

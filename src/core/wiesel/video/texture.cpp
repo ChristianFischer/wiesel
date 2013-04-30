@@ -39,10 +39,7 @@ Texture::Texture() {
 }
 
 Texture::~Texture() {
-	if (data) {
-		data->release();
-	}
-
+	safe_release(data);
 	return;
 }
 
@@ -55,7 +52,7 @@ Texture *Texture::fromFile(File *file) {
 Texture *Texture::fromDataSource(DataSource *data) {
 	Texture *texture = new Texture();
 	texture->data = data;
-	texture->data->retain();
+	keep(texture->data);
 
 	return texture;
 }

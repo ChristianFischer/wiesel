@@ -56,9 +56,7 @@ MultiSpriteNode::MultiSpriteNode(Texture *texture) {
 
 
 MultiSpriteNode::~MultiSpriteNode() {
-	if (vbo) {
-		vbo->release();
-	}
+	safe_release(vbo);
 
 	setTexture(NULL);
 	clear();
@@ -68,14 +66,10 @@ MultiSpriteNode::~MultiSpriteNode() {
 
 
 void MultiSpriteNode::setTexture(Texture* texture) {
-	if (this->texture) {
-		this->texture->release();
-		this->texture = NULL;
-	}
+	safe_release(this->texture);
 
 	if (texture) {
-		this->texture = texture;
-		this->texture->retain();
+		this->texture = keep(texture);
 
 		// check, if the new texture is different to
 		// the texture used in the sprite frames
@@ -119,7 +113,7 @@ MultiSpriteNode::index_t MultiSpriteNode::addSprite(SpriteFrame* sprite, const v
 		entries.push_back(entry);
 
 		// keep reference
-		sprite->retain();
+		keep(sprite);
 
 		// update the boundings of this node
 		setBounds(createUnion(
@@ -144,7 +138,7 @@ void MultiSpriteNode::removeSprite(index_t idx) {
 		std::advance(it, idx);
 		
 		// remove sprite reference
-		it->sprite->release();
+		release(it->sprite);
 
 		// remove from list
 		entries.erase(it);
@@ -159,7 +153,7 @@ void MultiSpriteNode::removeSprite(index_t idx) {
 
 void MultiSpriteNode::clear() {
 	for(EntryList::iterator it=entries.begin(); it!=entries.end(); it++) {
-		it->sprite->release();
+		release(it->sprite);
 	}
 
 	entries.clear();
@@ -223,13 +217,11 @@ void MultiSpriteNode::onDraw(video::RenderContext *render_context) {
 
 void MultiSpriteNode::rebuildVertexBuffer() {
 	if (vbo == NULL) {
-		vbo = new VertexBuffer();
-		vbo->retain();
+		vbo = keep(new VertexBuffer());
 	}
 
 	if (indices == NULL) {
-		indices = new IndexBuffer(2);
-		indices->retain();
+		indices = keep(new IndexBuffer(2));
 	}
 
 	if (vbo_dirty) {

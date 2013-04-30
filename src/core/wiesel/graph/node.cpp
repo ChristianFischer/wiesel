@@ -50,7 +50,7 @@ Node::~Node() {
 	for(NodeList::iterator it=children.begin(); it!=children.end(); it++) {
 		Node *child = *it;
 		child->parent = NULL;
-		child->release();
+		release(child);
 	}
 
 	children.clear();
@@ -86,9 +86,8 @@ bool Node::addChildUnsorted(Node* child) {
 		return false;
 	}
 
-	children.push_back(child);
+	children.push_back(keep(child));
 	child->parent = this;
-	child->retain();
 
 	return true;
 }
@@ -101,8 +100,7 @@ void Node::removeChild(Node* child) {
 
 		assert(child->parent == this);
 		child->parent = NULL;
-
-		child->release();
+		release(child);
 	}
 
 	return;

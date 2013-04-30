@@ -38,14 +38,10 @@ LabelNode::~LabelNode() {
 
 void LabelNode::setFont(Font* font) {
 	if (this->font != font) {
-		if (this->font) {
-			this->font->release();
-			this->font = NULL;
-		}
+		safe_release(this->font);
 
 		if (font) {
-			this->font = font;
-			this->font->retain();
+			this->font = keep(font);
 		}
 
 		updateLabelContent();

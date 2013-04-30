@@ -46,6 +46,14 @@ namespace wiesel {
 		 * This is the most universal method to get the data.
 		 */
 		virtual DataBuffer *getDataBuffer() = 0;
+		
+		/**
+		 * @brief Release the data buffer, when it is no longer required.
+		 * Since the DataBuffer returned by \ref getDataBuffer() may be cached
+		 * to be accessed multiple times, it is recommended to release 
+		 * the buffer, when no longer required.
+		 */
+		virtual void releaseDataBuffer() = 0;
 	};
 
 
@@ -72,6 +80,8 @@ namespace wiesel {
 		virtual ~BufferDataSource();
 
 		virtual DataBuffer *getDataBuffer();
+		
+		virtual void releaseDataBuffer();
 
 	private:
 		DataBuffer* buffer;

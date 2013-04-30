@@ -35,7 +35,7 @@ ShaderTarget::ShaderTarget() {
 
 ShaderTarget::~ShaderTarget() {
 	for(BufferMap::iterator it=buffers.begin(); it!=buffers.end(); it++) {
-		it->second->release();
+		release(it->second);
 	}
 
 	setShader(NULL);
@@ -44,19 +44,16 @@ ShaderTarget::~ShaderTarget() {
 
 void ShaderTarget::setShader(Shader* shader) {
 	if (this->shader != shader) {
-		if (this->shader) {
-			this->shader->release();
-			this->shader = NULL;
-		}
+		safe_release(this->shader);
 
 		if (shader) {
 			this->shader = shader;
-			this->shader->retain();
+			keep(this->shader);
 
 			// release all buffers, which does not belong to the new shader
 			for(BufferMap::iterator it=buffers.begin(); it!=buffers.end();) {
 				if (this->shader->findConstantBufferTemplate(it->first) == NULL) {
-					it->second->release();
+					release(it->second);
 					buffers.erase(it++);
 				}
 				else {
@@ -79,7 +76,7 @@ void ShaderTarget::setShader(Shader* shader) {
 				if (buffers.find(it->name) == buffers.end()) {
 					ShaderConstantBuffer *buffer = new ShaderConstantBuffer(it->buffer_template);
 					buffers[it->name] = buffer;
-					buffer->retain();
+					keep(buffer);
 				}
 			}
 		}

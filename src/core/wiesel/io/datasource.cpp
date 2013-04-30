@@ -38,24 +38,25 @@ DataSource::~DataSource() {
 BufferDataSource::BufferDataSource(DataBuffer *buffer)
 : buffer(buffer)
 {
-	if (buffer) {
-		buffer->retain();
-	}
+	keep(buffer);
 }
 
 BufferDataSource::BufferDataSource(DataBuffer::mutable_data_t data, size_t size)
 : buffer(new ExclusiveDataBuffer(data, size))
 {
-	buffer->retain();
+	keep(buffer);
 }
 
 BufferDataSource::~BufferDataSource() {
-	if (buffer) {
-		buffer->release();
-	}
+	safe_release(buffer);
 }
 
 DataBuffer *BufferDataSource::getDataBuffer() {
 	return buffer;
 }
+
+void BufferDataSource::releaseDataBuffer() {
+	return;
+}
+
 

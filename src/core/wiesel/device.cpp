@@ -40,7 +40,7 @@ Device::~Device() {
 		// the content should already be unloaded
 		assert(resource->isLoaded() == false);
 
-		resource->release();
+		release(resource);
 	}
 
 	return;
@@ -53,9 +53,8 @@ void Device::addResource(DeviceResource *resource) {
 	assert(it == resources.end());
 
 	if (it == resources.end()) {
-		resources.push_back(resource);
+		resources.push_back(keep(resource));
 		resource->device = this;
-		resource->retain();
 	}
 
 	return;
@@ -72,7 +71,7 @@ void Device::removeResource(DeviceResource *resource) {
 			resource->device = NULL;
 		}
 
-		(*it)->release();
+		release(*it);
 	}
 
 	return;

@@ -63,7 +63,7 @@ bool Application::pushScene(Scene *scene) {
 
 	if (scene && it == scene_stack.end()) {
 		scene_stack.push_back(scene);
-		scene->retain();
+		keep(scene);
 
 		return true;
 	}
@@ -76,7 +76,7 @@ void Application::removeScene(Scene *scene) {
 	SceneList::iterator it = std::find(scene_stack.begin(), scene_stack.end(), scene);
 	if (it != scene_stack.end()) {
 		scene_stack.erase(it);
-		scene->release();
+		release(scene);
 	}
 
 	return;
@@ -85,7 +85,7 @@ void Application::removeScene(Scene *scene) {
 
 void Application::clearSceneStack() {
 	for(SceneList::reverse_iterator it=scene_stack.rbegin(); it!=scene_stack.rend(); it++) {
-		(*it)->release();
+		release(*it);
 	}
 
 	scene_stack.clear();

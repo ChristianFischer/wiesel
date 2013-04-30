@@ -35,13 +35,12 @@ using namespace std;
 
 AndroidAssetFileSystem::AndroidAssetFileSystem(AAssetManager *assetManager) {
 	this->assetManager = assetManager;
-	root = new AndroidAssetFileSystemDirectory(this, NULL, "");
-	root->retain();
+	root = keep(new AndroidAssetFileSystemDirectory(this, NULL, ""));
 	return;
 }
 
 AndroidAssetFileSystem::~AndroidAssetFileSystem() {
-	root->release();
+	safe_release(root);
 	return;
 }
 
@@ -170,7 +169,7 @@ string AndroidAssetFileSystemFile::getName() const {
 }
 
 
-DataBuffer *AndroidAssetFileSystemFile::getContent() {
+DataBuffer *AndroidAssetFileSystemFile::loadContent() {
 	string path = getFullPath();
 
 	// strip leading slash

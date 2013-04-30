@@ -383,7 +383,7 @@ namespace wiesel {
 		virtual INTERFACE_CLASS* create() {
 			if (instance == NULL) {
 				instance = (*module_factory)();
-				instance->retain();
+				keep(instance);
 			}
 
 			return instance;
@@ -395,12 +395,7 @@ namespace wiesel {
 		 * but the module loader will create a new instance next time calling \ref create().
 		 */
 		virtual void release() {
-			if (instance) {
-				instance->release();
-				instance = NULL;
-			}
-
-			return;
+			safe_release(instance);
 		}
 
 	private:

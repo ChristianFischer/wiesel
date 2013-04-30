@@ -55,10 +55,7 @@ Dx11VideoDeviceDriver::Dx11VideoDeviceDriver(Screen *screen) : VideoDeviceDriver
 Dx11VideoDeviceDriver::~Dx11VideoDeviceDriver() {
 	Engine::getInstance()->unregisterUpdateable(this);
 
-	if (render_context) {
-		render_context->release();
-		render_context = NULL;
-	}
+	safe_release(render_context);
 
 	return;
 }
@@ -204,16 +201,12 @@ bool Dx11VideoDeviceDriver::initWindow(const dimension &size, int nCmdShow) {
 
 bool Dx11VideoDeviceDriver::initDirectX() {
 	// remove the old context, if any
-	if (render_context) {
-		render_context->release();
-		render_context = NULL;
-	}
+	safe_release(render_context);
 
 	// initialize the new render context
-	render_context = DirectX11RenderContext::createContextWithWindowHandle(hWnd, getScreen(), &info);
+	render_context = keep(DirectX11RenderContext::createContextWithWindowHandle(hWnd, getScreen(), &info));
 	if (render_context) {
 		render_context->initContext();
-		render_context->retain();
 	}
 	else {
 		return false;

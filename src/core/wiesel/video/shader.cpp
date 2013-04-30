@@ -47,13 +47,13 @@ Shader::Shader() {
 
 Shader::~Shader() {
 	for(ConstantBufferTplList::iterator it=constant_buffers.begin(); it!=constant_buffers.end(); it++) {
-		it->buffer_template->release();
+		release(it->buffer_template);
 	}
 
 	constant_buffers.clear();
 
 	for(SourcesList::iterator it=sources.begin(); it!=sources.end(); it++) {
-		it->second->release();
+		release(it->second);
 	}
 
 	sources.clear();
@@ -66,12 +66,12 @@ void Shader::setSource(const std::string &name, DataSource *source) {
 	// find old source for this name, if any
 	SourcesList::iterator it = sources.find(name);
 	if (it != sources.end()) {
-		it->second->release();
+		release(it->second);
 		sources.erase(it);
 	}
 
 	sources[name] = source;
-	source->retain();
+	keep(source);
 
 	return;
 }
@@ -145,7 +145,7 @@ bool Shader::addConstantBuffer(const std::string& name, uint16_t context, Shader
 
 	// store the buffer
 	constant_buffers.push_back(entry);
-	entry.buffer_template->retain();
+	keep(entry.buffer_template);
 
 	return true;
 }

@@ -139,7 +139,7 @@ ShaderConstantBuffer::ShaderConstantBuffer(ShaderConstantBufferTemplate *buffer_
 	this->change_ver		= 1;
 
 	if (this->buffer_template) {
-		this->buffer_template->retain();
+		keep(this->buffer_template);
 
 		size_t buffer_size = this->buffer_template->getSize();
 		this->data = reinterpret_cast<data_t>(malloc(buffer_size));

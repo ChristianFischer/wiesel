@@ -51,7 +51,8 @@ GlTextureContent *GlTextureContent::createContentFor(Texture *texture) {
 	GlTextureContent *gl_texture = new GlTextureContent(texture);
 
 	if (gl_texture->createHardwareTexture() == false) {
-		// TODO: delete gl_texture;
+		delete gl_texture;
+
 		return NULL;
 	}
 	
@@ -66,12 +67,12 @@ bool GlTextureContent::createHardwareTexture() {
 	releaseTexture();
 
 	DataSource *data = getTexture()->getSource();
-	Image *image = NULL;
+	ref<Image> image = NULL;
 	dimension new_original_size;
 
 	std::vector<ModuleLoader<IImageLoader>*> loaders = ModuleRegistry::getInstance()->findModules<IImageLoader>();
 	for(std::vector<ModuleLoader<IImageLoader>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
-		IImageLoader *loader = (*it)->create();
+		ref<IImageLoader> loader = (*it)->create();
 		if (loader == NULL) {
 			continue;
 		}
