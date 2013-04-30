@@ -33,7 +33,7 @@ using namespace std;
 Directory::Directory(FileSystem *fs, Directory *parent)
 : fs(fs), parent(parent)
 {
-	safe_retain(this->parent);
+	keep(this->parent);
 	return;
 }
 
@@ -114,6 +114,7 @@ Directory *Directory::getSubDirectory(const string &name) {
 		Directory *dir = *it;
 
 		if (dir->getName() == name) {
+			autorelease(dir);
 			return dir;
 		}
 	}
@@ -143,6 +144,7 @@ File *Directory::findFile(const std::string &name) {
 			File *file = *it;
 
 			if (file->getName() == filename) {
+				autorelease(file);
 				return file;
 			}
 		}

@@ -59,7 +59,7 @@ namespace wiesel {
 				typename List::iterator it = cached_objects.find(key);
 				if (it == cached_objects.end()) {
 					cached_objects[key] = object;
-					object->retain();
+					keep(object);
 					return true;
 				}
 			}
@@ -89,7 +89,7 @@ namespace wiesel {
 		void drop(const KEY &key) {
 			typename List::iterator it = cached_objects.find(key);
 			if (it != cached_objects.end()) {
-				it->second->release();
+				release(it->second);
 				cached_objects.erase(it);
 			}
 		}
@@ -102,7 +102,7 @@ namespace wiesel {
 		void dropIfUnused(const KEY &key) {
 			typename List::iterator it = cached_objects.find(key);
 			if (it != cached_objects->end() && it->second->getRetainCount() == 1) {
-				it->second->release();
+				release(it->second);
 				cached_objects.erase(it);
 			}
 		}
@@ -116,7 +116,7 @@ namespace wiesel {
 			typename List::iterator it;
 			for(it=cached_objects.begin(); it!=cached_objects.end();) {
 				if (it->second->getReferenceCount() == 1) {
-					it->second->release();
+					release(it->second);
 					cached_objects.erase(it++);
 				}
 				else {
@@ -134,7 +134,7 @@ namespace wiesel {
 		void releaseAllObjects() {
 			typename List::iterator it;
 			for(it=cached_objects.begin(); it!=cached_objects.end(); ++it) {
-				it->second->release();
+				release(it->second);
 			}
 
 			cached_objects.clear();

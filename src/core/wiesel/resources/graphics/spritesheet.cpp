@@ -350,16 +350,14 @@ SpriteSheet::SpriteSheet(Texture* texture)
 	assert(texture);
 
 	if (texture) {
-		texture->retain();
+		keep(texture);
 	}
 }
 
 SpriteSheet::~SpriteSheet() {
 	clear();
 
-	if (texture) {
-		texture->release();
-	}
+	safe_release(texture);
 
 	return;
 }
@@ -368,7 +366,7 @@ SpriteSheet::~SpriteSheet() {
 SpriteSheet *SpriteSheet::fromFile(File* file) {
 	SpriteSheetParser *parser = new SpriteSheetParser(file->getParent());
 	SpriteSheet *result = NULL;
-	parser->retain();
+	keep(parser);
 	
 	// start parsing the spritesheet
 	bool success = XmlParser::parse(file->asDataSource(), parser);
@@ -377,7 +375,7 @@ SpriteSheet *SpriteSheet::fromFile(File* file) {
 		result = parser->spritesheet;
 	}
 
-	parser->release();
+	release(parser);
 
 	return result;
 }
@@ -388,8 +386,7 @@ void SpriteSheet::add(SpriteFrame *sprite) {
 	assert(sprites_by_name.find(sprite->getName()) == sprites_by_name.end());
 
 	// add to the sprite list
-	sprite_list.push_back(sprite);
-	sprite->retain();
+	sprite_list.push_back(keep(sprite));
 
 	// add to name mapping
 	sprites_by_name.insert(make_pair(sprite->getName(), sprite));
@@ -515,7 +512,7 @@ SpriteFrame *SpriteSheet::get(const std::string& name) {
 void SpriteSheet::clear() {
 	// release all sprites
 	for(List::iterator it=sprite_list.begin(); it!=sprite_list.end(); it++) {
-		(*it)->release();
+		release(*it);
 	}
 
 	sprite_list.clear();

@@ -29,7 +29,7 @@ using namespace std;
 File::File(Directory *parent)
 : parent(parent)
 {
-	safe_retain(this->parent);
+	keep(this->parent);
 	return;
 }
 
@@ -67,8 +67,8 @@ DataSource *File::asDataSource() {
 }
 
 
-std::string File::getContentAsString() {
-	DataBuffer *buffer = getContent();
+std::string File::loadContentAsString() {
+	ref<DataBuffer> buffer = loadContent();
 	if (buffer) {
 		const char *data = reinterpret_cast<const char*>(buffer->getData());
 		size_t size = buffer->getSize();
@@ -79,8 +79,8 @@ std::string File::getContentAsString() {
 }
 
 
-vector<string> File::getLines() {
-	DataBuffer *buffer = getContent();
+vector<string> File::loadLines() {
+	ref<DataBuffer> buffer = loadContent();
 	if (buffer == NULL) {
 		return vector<string>();
 	}
@@ -123,19 +123,26 @@ void File::sortByName(FileList &list, bool asc) {
 FileDataSource::FileDataSource(File *file)
 : file(file)
 {
-	if (file) {
-		file->retain();
-	}
+	keep(file);
+	this->content = NULL;
+	return;
 }
 
 FileDataSource::~FileDataSource() {
-	if (file) {
-		file->release();
-	}
+	safe_release(file);
+	safe_release(content);
 }
 
 DataBuffer *FileDataSource::getDataBuffer() {
-	return file->getContent();
+	if (content == NULL) {
+		content = keep(file->loadContent());
+	}
+		
+	return content;
+}
+
+void FileDataSource::releaseDataBuffer() {
+	safe_release(content);
 }
 
 File *FileDataSource::getFile() {

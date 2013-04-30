@@ -36,18 +36,18 @@ using namespace std;
 
 GenericFileSystem::GenericFileSystem() {
 	root = new GenericFileSystemDirectory(this, NULL, "");
-	root->retain();
+	keep(root);
 	return;
 }
 
 GenericFileSystem::GenericFileSystem(const std::string &root_path) {
 	root = new GenericFileSystemDirectory(this, NULL, root_path);
-	root->retain();
+	keep(root);
 	return;
 }
 
 GenericFileSystem::~GenericFileSystem() {
-	root->release();
+	safe_release(root);
 	return;
 }
 
@@ -347,7 +347,7 @@ string GenericFileSystemFile::getNativePath() const {
 }
 
 
-DataBuffer *GenericFileSystemFile::getContent() {
+DataBuffer *GenericFileSystemFile::loadContent() {
 	FILE *fp = fopen(getFullPath().c_str(), "rb");
 	if (fp != NULL) {
 		fseek(fp, 0, SEEK_END);

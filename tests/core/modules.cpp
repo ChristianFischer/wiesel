@@ -169,9 +169,18 @@ TEST(ModuleApi, ModuleLoaders) {
 		// get the module
 		ITestModule *testmod1 = test_loader->create();
 		ASSERT_TRUE(NULL != testmod1);
+		
+		// since we called a 'create' function, we need to take ownage of the created object
+		keep(testmod1);
+		
+		// the reference counter should be one
+		EXPECT_EQ(1, testmod1->getReferenceCount());
 
 		// compare the result of the module
 		ASSERT_EQ(17, testmod1->getTestValue());
+		
+		// release the object after usage
+		safe_release(testmod1);
 	}
 
 	// after we left the scope, the registry should be empty
@@ -212,7 +221,7 @@ TEST(ModuleApi, ModuleConstruction) {
 
 		// now create the first module...
 		module1 = list[0]->create();
-		module1->retain();
+		keep(module1);
 
 		// one creation, but no destruction.
 		ASSERT_EQ(1, TrackingModuleImpl::construction_count);
@@ -220,15 +229,14 @@ TEST(ModuleApi, ModuleConstruction) {
 
 		// create the second module
 		module2 = list[0]->create();
-		module2->retain();
+		keep(module2);
 
 		// two creations, but still no destruction
 		ASSERT_EQ(2, TrackingModuleImpl::construction_count);
 		ASSERT_EQ(0, TrackingModuleImpl::destruction_count);
 
 		// release the first module
-		module1->release();
-		module1 = NULL;
+		safe_release(module1);
 
 		// the first one should be destructed, but the first one should be still alive.
 		ASSERT_EQ(2, TrackingModuleImpl::construction_count);
@@ -243,8 +251,7 @@ TEST(ModuleApi, ModuleConstruction) {
 	ASSERT_EQ(1, TrackingModuleImpl::destruction_count);
 
 	// now release the second module
-	module2->release();
-	module2 = NULL;
+	safe_release(module2);
 
 	// ... and check, if it's really gone
 	ASSERT_EQ(2, TrackingModuleImpl::construction_count);
@@ -284,7 +291,7 @@ TEST(ModuleApi, ModuleConstructionSingleton) {
 
 		// now create the first module...
 		module1 = list[0]->create();
-		module1->retain();
+		keep(module1);
 
 		// one creation, but no destruction.
 		ASSERT_EQ(1, TrackingModuleImpl::construction_count);
@@ -295,7 +302,7 @@ TEST(ModuleApi, ModuleConstructionSingleton) {
 
 		// create the second module
 		module2 = list[0]->create();
-		module2->retain();
+		keep(module2);
 
 		// we should got the same object
 		ASSERT_EQ(module1, module2);
@@ -309,8 +316,7 @@ TEST(ModuleApi, ModuleConstructionSingleton) {
 		ASSERT_EQ(3, module2->getReferenceCount());
 
 		// release the first module
-		module1->release();
-		module1 = NULL;
+		safe_release(module1);
 
 		// there should still be only one valid object, it should not be released
 		ASSERT_EQ(1, TrackingModuleImpl::construction_count);
@@ -331,8 +337,7 @@ TEST(ModuleApi, ModuleConstructionSingleton) {
 	ASSERT_EQ(1, module2->getReferenceCount());
 
 	// now release the second module
-	module2->release();
-	module2 = NULL;
+	safe_release(module2);
 
 	// ... and check, if it's really gone
 	ASSERT_EQ(1, TrackingModuleImpl::construction_count);
@@ -365,9 +370,9 @@ TEST(ModuleApi, ApiVersionOrder) {
 		ASSERT_EQ(3u, list2.size());
 
 		// get the moduiles
-		ITestModule *testmod1 = list2[0]->create();
-		ITestModule *testmod2 = list2[1]->create();
-		ITestModule *testmod3 = list2[2]->create();
+		ITestModule *testmod1 = keep(list2[0]->create());
+		ITestModule *testmod2 = keep(list2[1]->create());
+		ITestModule *testmod3 = keep(list2[2]->create());
 
 		// check if all modules were created
 		ASSERT_TRUE(NULL != testmod1);
@@ -378,6 +383,11 @@ TEST(ModuleApi, ApiVersionOrder) {
 		EXPECT_EQ(42, testmod1->getTestValue());
 		EXPECT_EQ(23, testmod2->getTestValue());
 		EXPECT_EQ(17, testmod3->getTestValue());
+		
+		// release all modules after usage
+		safe_release(testmod1);
+		safe_release(testmod2);
+		safe_release(testmod3);
 	}
 
 	// after we left the scope, the registry should be empty
@@ -412,9 +422,9 @@ TEST(ModuleApi, PriorityOrder) {
 		ASSERT_EQ(3u, list2.size());
 
 		// get the moduiles
-		ITestModule *testmod1 = list2[0]->create();
-		ITestModule *testmod2 = list2[1]->create();
-		ITestModule *testmod3 = list2[2]->create();
+		ITestModule *testmod1 = keep(list2[0]->create());
+		ITestModule *testmod2 = keep(list2[1]->create());
+		ITestModule *testmod3 = keep(list2[2]->create());
 
 		// check if all modules were created
 		ASSERT_TRUE(NULL != testmod1);
@@ -425,6 +435,11 @@ TEST(ModuleApi, PriorityOrder) {
 		EXPECT_EQ(17, testmod1->getTestValue());
 		EXPECT_EQ(23, testmod2->getTestValue());
 		EXPECT_EQ(42, testmod3->getTestValue());
+		
+		// release all modules after usage
+		safe_release(testmod1);
+		safe_release(testmod2);
+		safe_release(testmod3);
 	}
 
 	// after we left the scope, the registry should be empty
@@ -458,9 +473,9 @@ TEST(ModuleApi, CombinedOrder) {
 		ASSERT_EQ(3u, list2.size());
 
 		// get the moduiles
-		ITestModule *testmod1 = list2[0]->create();
-		ITestModule *testmod2 = list2[1]->create();
-		ITestModule *testmod3 = list2[2]->create();
+		ITestModule *testmod1 = keep(list2[0]->create());
+		ITestModule *testmod2 = keep(list2[1]->create());
+		ITestModule *testmod3 = keep(list2[2]->create());
 
 		// check if all modules were created
 		ASSERT_TRUE(NULL != testmod1);
@@ -471,6 +486,11 @@ TEST(ModuleApi, CombinedOrder) {
 		EXPECT_EQ(17, testmod1->getTestValue());
 		EXPECT_EQ(42, testmod2->getTestValue());
 		EXPECT_EQ(23, testmod3->getTestValue());
+		
+		// release all modules after usage
+		safe_release(testmod1);
+		safe_release(testmod2);
+		safe_release(testmod3);
 	}
 
 	// after we left the scope, the registry should be empty

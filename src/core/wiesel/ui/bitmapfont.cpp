@@ -61,14 +61,10 @@ BitmapFont::~BitmapFont() {
 
 void BitmapFont::setSpriteSheet(SpriteSheet* ss) {
 	if (ss != this->spritesheet) {
-		if (this->spritesheet) {
-			this->spritesheet->release();
-			this->spritesheet = NULL;
-		}
+		safe_release(this->spritesheet);
 
 		if (ss) {
-			this->spritesheet = ss;
-			this->spritesheet->retain();
+			this->spritesheet = keep(ss);
 		}
 	}
 
@@ -78,14 +74,10 @@ void BitmapFont::setSpriteSheet(SpriteSheet* ss) {
 
 void BitmapFont::setShader(video::Shader* shader) {
 	if (shader != this->shader) {
-		if (this->shader) {
-			this->shader->release();
-			this->shader = NULL;
-		}
+		safe_release(this->shader);
 
 		if (shader) {
-			this->shader = shader;
-			this->shader->retain();
+			this->shader = keep(shader);
 		}
 	}
 

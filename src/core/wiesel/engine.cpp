@@ -59,10 +59,9 @@ bool Engine::initialize(int argc, char* argv[]) {
 	if (this->platforms.empty()) {
 		std::vector<ModuleLoader<Platform>*> loaders = ModuleRegistry::getInstance()->findModules<Platform>();
 		for(std::vector<ModuleLoader<Platform>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
-			Platform *platform = (*it)->create();
+			Platform *platform = keep((*it)->create());
 
 			if (platform) {
-				platform->retain();
 				platform->onInit();
 
 				this->platforms.push_back(platform);
@@ -140,7 +139,7 @@ bool Engine::shutdown() {
 	for(std::vector<Platform*>::reverse_iterator it=platforms.rbegin(); it!=platforms.rend(); it++) {
 		Platform *platform = *it;
 		platform->onShutdown();
-		platform->release();
+		release(platform);
 	}
 
 	platforms.clear();
@@ -186,8 +185,7 @@ void Engine::run(Application *app) {
 	}
 
 	// initialize the application object
-	this->application = app;
-	this->application->retain();
+	this->application = keep(app);
 	this->application->onInit();
 
 	// reset the exit_requested flag before starting the main loop
@@ -225,8 +223,8 @@ void Engine::run(Application *app) {
 		// the application may decide itself, what to do in each state
 		application->onRun(dt);
 
-		// purge all dead objects at the end of each frame
-		SharedObject::purgeDeadObjects();
+		// free the latest autorelease object
+		autorelease(NULL);
 
 		// exit requested by application?
 		done |= exit_requested;
@@ -235,8 +233,7 @@ void Engine::run(Application *app) {
 
 	// release the application object
 	application->onShutdown();
-	application->release();
-	application = NULL;
+	safe_release(application);
 
 	return;
 }
@@ -251,8 +248,7 @@ void Engine::requestExit() {
 void Engine::registerUpdateable(IUpdateable* updateable) {
 	std::vector<IUpdateable*>::iterator it = std::find(updateables.begin(), updateables.end(), updateable);
 	if (it == updateables.end()) {
-		updateables.push_back(updateable);
-		updateable->retain();
+		updateables.push_back(keep(updateable));
 	}
 
 	return;
@@ -263,7 +259,7 @@ void Engine::unregisterUpdateable(IUpdateable* updateable) {
 	std::vector<IUpdateable*>::iterator it = std::find(updateables.begin(), updateables.end(), updateable);
 	if (it != updateables.end()) {
 		updateables.erase(it);
-		updateable->release();
+		release(updateable);
 	}
 
 	return;

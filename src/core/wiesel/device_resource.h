@@ -185,13 +185,13 @@ namespace wiesel {
 		void setContent(ContentClass *content) {
 			if (this->content != content) {
 				if (this->content) {
-					this->content->release();
+					release(this->content);
 					this->content = NULL;
 				}
 
 				if (content) {
 					this->content = content;
-					this->content->retain();
+					keep(this->content);
 				}
 			}
 		}

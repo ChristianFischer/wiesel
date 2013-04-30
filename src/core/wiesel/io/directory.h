@@ -39,7 +39,7 @@ namespace wiesel {
 
 
 	/// Alias type for directory lists.
-	typedef std::list<Directory*>	DirectoryList;
+	typedef wiesel::ref<Directory>::list	DirectoryList;
 
 
 	/**

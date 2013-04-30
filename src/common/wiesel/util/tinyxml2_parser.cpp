@@ -44,8 +44,7 @@ private:
 
 public:
 	LibTinyXml2ParserVisitor(XmlParserCallback *callback) {
-		this->parser = new XmlParser(callback);
-		this->parser->retain();
+		this->parser = keep(new XmlParser(callback));
 	}
 
 	virtual ~LibTinyXml2ParserVisitor() {

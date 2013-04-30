@@ -51,6 +51,8 @@ SdlVideoDeviceDriver::~SdlVideoDeviceDriver() {
 	if (platform) {
 		platform->removeReceiver(this);
 	}
+	
+	safe_release(render_context);
 
 	return;
 }
@@ -80,15 +82,11 @@ bool SdlVideoDeviceDriver::init(const dimension &size, unsigned int flags) {
 	}
 
 	// remove the old context, if any
-	if (render_context) {
-		render_context->release();
-		render_context = NULL;
-	}
+	safe_release(render_context);
 
 	// initialize the new render context
-	render_context = new SdlGlRenderContext(getScreen());
+	render_context = keep(new SdlGlRenderContext(getScreen()));
 	render_context->initContext();
-	render_context->retain();
 
 	// update screen size and projection
 	updateScreenSize(w, h);
@@ -101,10 +99,7 @@ bool SdlVideoDeviceDriver::init(const dimension &size, unsigned int flags) {
 
 
 bool SdlVideoDeviceDriver::shutdown() {
-	if (render_context) {
-		render_context->release();
-		render_context = NULL;
-	}
+	safe_release(render_context);
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 

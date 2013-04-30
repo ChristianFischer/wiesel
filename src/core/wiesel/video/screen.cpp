@@ -35,17 +35,14 @@ Screen::Screen() {
 	video_device_driver  = NULL;
 
 	touch_handler = new TouchHandler();
-	touch_handler->retain();
+	keep(touch_handler);
 
 	return;
 }
 
 Screen::~Screen() {
 	setVideoDeviceDriver(NULL);
-
-	if (touch_handler) {
-		touch_handler->release();
-	}
+	safe_release(touch_handler);
 
 	return;
 }
@@ -63,7 +60,7 @@ VideoState Screen::getState() const {
 bool Screen::loadVideoDevice(const dimension &resolution, unsigned int flags) {
 	std::vector<ModuleLoader<IVideoLoader>*> loaders = ModuleRegistry::getInstance()->findModules<IVideoLoader>();
 	for(std::vector<ModuleLoader<IVideoLoader>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
-		IVideoLoader *loader = (*it)->create();
+		ref<IVideoLoader> loader = (*it)->create();
 		if (loader == NULL) {
 			continue;
 		}
@@ -85,13 +82,13 @@ void Screen::setVideoDeviceDriver(VideoDeviceDriver *driver) {
 			// unload all resources
 			this->unloadAllResources();
 
-			this->video_device_driver->release();
+			release(this->video_device_driver);
 			this->video_device_driver = NULL;
 		}
 
 		if (driver) {
 			this->video_device_driver = driver;
-			this->video_device_driver->retain();
+			keep(this->video_device_driver);
 
 			// load all resources from the new driver
 			this->loadAllResources();

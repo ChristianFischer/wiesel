@@ -51,8 +51,7 @@ public:
 		Log::info << "start application HelloWiesel" << std::endl;
 
 		// at first, we create our screen object
-		screen = new Screen();
-		screen->retain();
+		screen = keep(new Screen());
 
 		// the screen needs to be initialized
 		screen->loadVideoDevice(dimension(640, 480), 0);
@@ -76,8 +75,7 @@ public:
 		File *tex_file = Engine::getInstance()->getAssetFileSystem()->findFile("/images/wiesel.png");
 		if (tex_file) {
 			Log::info << "load texture from: " << tex_file->getFullPath() << std::endl;
-			texture = Texture::fromFile(tex_file);
-			texture->retain();
+			texture = keep(Texture::fromFile(tex_file));
 			texture->loadContentFrom(screen);
 		}
 		else {
@@ -85,10 +83,9 @@ public:
 			texture = NULL;
 		}
 
-		sprite = new SpriteNode(texture);
+		sprite = keep(new SpriteNode(texture));
 		sprite->setPosition(center_x, center_y);
 		sprite->setScale(size / sprite->getContentSize().getMin());
-		sprite->retain();
 
 		// load the bitmap font
 		File*			font_file		= Engine::getInstance()->getAssetFileSystem()->findFile("/images/font.png");
@@ -104,15 +101,14 @@ public:
 		font_ss->createRasterFrames(16, 8, 97, 31, '!');
 		BitmapFont *font = new BitmapFont(font_ss);
 
-		label = new LabelNode();
+		label = keep(new LabelNode());
 		label->setFont(font);
 		label->setText("Hello Wiesel");
 		label->setPosition(center_x, 0.0f);
 		label->setPivot(0.5f, 0.0f);
 		label->setScale(screen_size.width / label->getContentSize().width * 0.95f);
-		label->retain();
 
-		Scene *scene = new Scene();
+		Scene *scene = keep(new Scene());
 		scene->addChild(sprite);
 		scene->addChild(label);
 		pushScene(scene);

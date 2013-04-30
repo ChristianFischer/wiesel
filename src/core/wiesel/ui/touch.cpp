@@ -58,13 +58,11 @@ bool Touch::claim(TouchReceiver* owner) {
 	assert(owner != NULL);
 
 	if (this->owner == NULL && owner != NULL) {
-		this->owner = owner;
-		this->owner->retain();
+		this->owner = keep(owner);
 
 		Node *node = dynamic_cast<Node*>(owner);
 		if (node) {
-			this->node = node;
-			this->node->retain();
+			this->node = keep(node);
 		}
 
 		return true;

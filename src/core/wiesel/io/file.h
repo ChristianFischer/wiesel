@@ -40,7 +40,7 @@ namespace wiesel {
 
 
 	/// Alias type for file lists.
-	typedef std::list<File*>	FileList;
+	typedef wiesel::ref<File>::list		FileList;
 
 
 	/**
@@ -93,23 +93,23 @@ namespace wiesel {
 		virtual DataSource *asDataSource();
 
 		/**
-		 * @brief get a \ref DataBuffer with the content of this file.
+		 * @brief loads a \ref DataBuffer with the content of this file.
 		 */
-		virtual DataBuffer *getContent() = 0;
+		virtual DataBuffer *loadContent() = 0;
 
 		/**
-		 * @brief get the full file content as string-object.
+		 * @brief load the full file content as string-object.
 		 * Binary files may return an empty string or garbage.
 		 * When the file couldn't be opened, an empty string will be returned.
 		 * To handle the case, a file was not readable, use \ref getContent().
 		 */
-		virtual std::string getContentAsString();
+		virtual std::string loadContentAsString();
 
 		/**
 		 * @brief read a text file's content as a vector of lines.
 		 * Binary files may return an empty list or garbage.
 		 */
-		virtual std::vector<std::string> getLines();
+		virtual std::vector<std::string> loadLines();
 
 		/**
 		 * @brief get the parent-directory of this file.
@@ -176,6 +176,8 @@ namespace wiesel {
 		~FileDataSource();
 
 		virtual DataBuffer *getDataBuffer();
+		
+		virtual void releaseDataBuffer();
 
 		/**
 		 * @brief Get the \ref File object associated with this file buffer.
@@ -183,7 +185,8 @@ namespace wiesel {
 		virtual File *getFile();
 
 	private:
-		File* file;
+		File* 			file;
+		DataBuffer*		content;
 	};
 
 } /* namespace wiesel */

@@ -117,8 +117,7 @@ bool LibXml2SaxParser::parse(DataBuffer *buffer, XmlParserCallback *callback) {
 	init_sax_handler(handler);
 
 	// create and initialize parser object
-	XmlParser *parser = new XmlParser(callback);
-	parser->retain();
+	XmlParser *parser = keep(new XmlParser(callback));
 	parser->start();
 
 	// start parsing
@@ -160,8 +159,7 @@ bool LibXml2SaxParser::parse(File* file, XmlParserCallback *callback) {
 		init_sax_handler(handler);
 
 		// create and initialize parser object
-		XmlParser *parser = new XmlParser(callback);
-		parser->retain();
+		XmlParser *parser = keep(new XmlParser(callback));
 		parser->start();
 
 		// start parsing

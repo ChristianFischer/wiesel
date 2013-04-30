@@ -37,13 +37,10 @@ XmlParser::XmlParser() {
 
 
 XmlParser::XmlParser(XmlParserCallback *callback) {
-	this->callback	= callback;
-	this->state		= NULL;
-
 	assert(callback);
-	if (callback) {
-		callback->retain();
-	}
+
+	this->callback	= keep(callback);
+	this->state		= NULL;
 
 	return;
 }
@@ -84,7 +81,7 @@ void XmlParser::start() {
 	}
 
 	state = new XmlDocumentState();
-	state->retain();
+	keep(state);
 
 	if (callback) {
 		callback->onDocumentStarted(state);

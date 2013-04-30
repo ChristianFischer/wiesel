@@ -87,9 +87,7 @@ SpriteNode::SpriteNode(SpriteFrame *sprite) {
 
 
 SpriteNode::~SpriteNode() {
-	if (vbo) {
-		vbo->release();
-	}
+	safe_release(vbo);
 
 	setTexture(NULL);
 	setShader(NULL);
@@ -99,21 +97,14 @@ SpriteNode::~SpriteNode() {
 
 
 void SpriteNode::setTexture(Texture* texture) {
-	if (this->texture) {
-		this->texture->release();
-		this->texture = NULL;
-	}
+	safe_release(this->texture);
 
 	if (texture) {
-		this->texture = texture;
-		this->texture->retain();
+		this->texture = keep(texture);
 	}
 
 	// reset current sprite, when texture was set manually
-	if (this->sprite) {
-		this->sprite->release();
-		this->sprite = NULL;
-	}
+	safe_release(this->sprite);
 
 	return;
 }
@@ -122,16 +113,14 @@ void SpriteNode::setTexture(Texture* texture) {
 void SpriteNode::setSpriteFrame(SpriteFrame* sprite) {
 	if (this->sprite != sprite) {
 		if (this->sprite) {
-			this->sprite->release();
-			this->sprite = NULL;
+			safe_release(this->sprite);
 			this->setTexture(NULL);
 		}
 
 		if (sprite) {
 			setTexture(sprite->getTexture());
 
-			this->sprite = sprite;
-			this->sprite->retain();
+			this->sprite = keep(sprite);
 
 			setBounds(rectangle(sprite->getSize()));
 			setTransformDirty();
@@ -200,8 +189,7 @@ void SpriteNode::onDraw(video::RenderContext *render_context) {
 
 void SpriteNode::rebuildVertexBuffer() {
 	if (vbo == NULL) {
-		vbo = new VertexBuffer();
-		vbo->retain();
+		vbo = keep(new VertexBuffer());
 	}
 
 	if (vbo_dirty) {

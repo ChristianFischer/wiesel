@@ -143,7 +143,7 @@ namespace wiesel {
 		virtual bool canWrite() const;
 		virtual std::string getName() const;
 		virtual std::string getNativePath() const;
-		virtual DataBuffer *getContent();
+		virtual DataBuffer *loadContent();
 
 	private:
 		File	*enclosed_file;
