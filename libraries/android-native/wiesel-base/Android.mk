@@ -17,9 +17,9 @@ MY_FILES := \
 # configure the module
 LOCAL_MODULE               := wiesel-base
 LOCAL_MODULE_FILENAME      := libwieselbase
-LOCAL_CFLAGS               := -Werror
+LOCAL_CFLAGS               :=
 LOCAL_LDLIBS               := 
-LOCAL_STATIC_LIBRARIES     := 
+LOCAL_STATIC_LIBRARIES     := pthread
 LOCAL_SRC_FILES            := $(MY_FILES)
 LOCAL_C_INCLUDES           := $(MY_LOCAL_FOLDERS)
 LOCAL_EXPORT_C_INCLUDES    := $(MY_LOCAL_FOLDERS)
