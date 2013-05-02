@@ -6,3 +6,6 @@
 #include "wiesel/android/util/log_writer_android.loadable_module"
 #include "wiesel/android/video/android_video_loader.loadable_module"
 #include "wiesel/android/android_platform.loadable_module"
+
+// various optional libraries
+// #include "wiesel/io/net/socket_connection.loadable_module"

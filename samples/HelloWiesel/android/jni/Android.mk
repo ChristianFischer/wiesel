@@ -25,8 +25,11 @@ MY_FILES := \
 LOCAL_MODULE                  := main
 LOCAL_SRC_FILES               := $(MY_FILES)
 LOCAL_LDLIBS                  :=
-LOCAL_STATIC_LIBRARIES        := wiesel-common wiesel-core 
+LOCAL_STATIC_LIBRARIES        := wiesel-common wiesel-core
 LOCAL_WHOLE_STATIC_LIBRARIES  := wiesel-android wiesel-opengl
+
+# optional libraries
+# LOCAL_STATIC_LIBRARIES        += wiesel-net
 
 # build the shared library
 include $(BUILD_SHARED_LIBRARY)
@@ -37,3 +40,4 @@ $(call import-module,wiesel-opengl)
 $(call import-module,wiesel-base)
 $(call import-module,wiesel-core)
 $(call import-module,wiesel-common)
+$(call import-module,wiesel-net)

@@ -1,0 +1,17 @@
+
+#include <wiesel/module_registry.h>
+#include "socket_connection.h"
+#include "connector.h"
+
+
+// add the module to the module registry
+namespace wiesel {
+	REGISTER_MODULE_SINGLETON(
+			IConnector,
+			SocketConnector,
+			&generic_create<SocketConnector>,
+			"Socket",
+			0x01000000u,
+			IModuleLoader::PriorityLow
+	)
+}
