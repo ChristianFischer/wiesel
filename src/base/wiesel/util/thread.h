@@ -82,6 +82,13 @@ namespace wiesel {
 
 	public:
 		/**
+		 * @brief Sleep for the given amount of time.
+		 * @param ms	Time to sleep in milliseconds.
+		 */
+		static void sleep(uint32_t ms);
+
+	public:
+		/**
 		 * @brief Starts this thread.
 		 * After starting, the caller should call either
 		 * \ref join() or \ref detach()
