@@ -21,6 +21,10 @@
  */
 #include "thread.h"
 
+#if linux
+#include <unistd.h>
+#endif
+
 using namespace wiesel;
 
 
@@ -103,6 +107,17 @@ void Thread::init() {
 	#endif
 
 	return;
+}
+
+
+void Thread::sleep(uint32_t ms) {
+	#if linux
+		usleep(ms * 1000);
+	#elif WIN32
+	    Sleep(ms);
+	#else
+		#error cannot sleep
+	#endif
 }
 
 
