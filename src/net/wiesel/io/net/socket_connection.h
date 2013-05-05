@@ -42,6 +42,9 @@ namespace wiesel {
 
 
 
+	/**
+	 * @brief Connection class to connect a socket to a host and port.
+	 */
 	class WIESEL_NET_EXPORT SocketConnection : public Connection
 	{
 	public:
@@ -49,14 +52,24 @@ namespace wiesel {
 		virtual ~SocketConnection();
 
 	public:
+		/**
+		 * @brief Try to connect to a remote host.
+		 * @param host	The remote host.
+		 * @param port	The port of the host to connect to.
+		 * @return \c true on success.
+		 */
 		virtual bool connect(const std::string& host, uint32_t port);
 
+	public:
 		virtual bool isConnected() const;
 
 		virtual void disconnect();
 
 		virtual bool send(const data_t* data, size_t size);
 		virtual int read(data_t *ptr, size_t size);
+
+	private:
+		void releaseSocket();
 
 	private:
 		int socket_handle;

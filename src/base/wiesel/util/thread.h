@@ -65,7 +65,7 @@ namespace wiesel {
 	{
 	friend void _thread_impl(Thread *thread);
 
-	protected:
+	public:
 		Thread();
 
 	public:

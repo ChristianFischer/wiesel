@@ -37,6 +37,8 @@ namespace wiesel {
 
 	class DataSource;
 	class FileSystem;
+	class IRunnable;
+	class Thread;
 	class TouchHandler;
 
 
@@ -147,12 +149,21 @@ namespace wiesel {
 		 */
 		void unregisterUpdateable(IUpdateable *updateable);
 
+		/**
+		 * @brief Registers a task, which will be executed on the main thread.
+		 * The task will be exewcuted only once and released after that.
+		 */
+		void runOnMainThread(IRunnable *runnable);
+
 	// static members
 	private:
 		static Engine					instance;
 	
 	// instance members
 	private:
+		ref<Thread>						mainthread;
+
+		std::vector<IRunnable*>			run_once;
 		std::vector<IUpdateable*>		updateables;
 
 		bool							exit_requested;
