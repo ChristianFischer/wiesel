@@ -27,6 +27,28 @@
 using namespace wiesel;
 
 
+ConnectionListener::ConnectionListener() {
+	return;
+}
+
+ConnectionListener::~ConnectionListener() {
+	return;
+}
+
+void ConnectionListener::onConnected(const std::string& address, Connection* connection) {
+	return;
+}
+
+void ConnectionListener::onConnectionFailed(const std::string& address) {
+	return;
+}
+
+void ConnectionListener::onDisconnected(const std::string& address, Connection* connection) {
+	return;
+}
+
+
+
 Connection::Connection() {
 }
 
@@ -49,4 +71,34 @@ Connection* Connection::createConnection(const std::string& address) {
 	}
 
 	return NULL;
+}
+
+
+void Connection::setCurrentAddress(const std::string& address) {
+	this->address = address;
+}
+
+
+void Connection::fireOnConnected() {
+	for(Listeners::const_iterator it=listeners_begin(); it!=listeners_end(); it++) {
+		(*it)->onConnected(getAddress(), this);
+	}
+
+	return;
+}
+
+void Connection::fireOnConnectionFailed() {
+	for(Listeners::const_iterator it=listeners_begin(); it!=listeners_end(); it++) {
+		(*it)->onConnectionFailed(getAddress());
+	}
+
+	return;
+}
+
+void Connection::fireOnDisconnected() {
+	for(Listeners::const_iterator it=listeners_begin(); it!=listeners_end(); it++) {
+		(*it)->onDisconnected(getAddress(), this);
+	}
+
+	return;
 }

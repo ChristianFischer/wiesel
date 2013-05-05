@@ -23,6 +23,7 @@
 
 #include <wiesel/util/shared_object.h>
 #include <wiesel/util/log.h>
+#include <wiesel/util/thread.h>
 #include <wiesel/module.h>
 #include <wiesel/module_registry.h>
 
@@ -42,6 +43,8 @@ Engine		Engine::instance;
 
 
 Engine::Engine() {
+	mainthread			= new Thread();
+
 	exit_requested		= false;
 	application			= NULL;
 
@@ -214,6 +217,20 @@ void Engine::run(Application *app) {
 		now_t  = clock();
 		float dt = (float(now_t - last_t) / CLOCKS_PER_SEC);
 
+		// run all 'runOnMainThread' objects
+		if (run_once.empty() == false) {
+			mainthread->lock();
+
+			for(std::vector<IRunnable*>::iterator it=run_once.begin(); it!=run_once.end();) {
+				(*it)->run();
+				release(*it);
+
+				it = run_once.erase(it);
+			}
+
+			mainthread->unlock();
+		}
+
 		// run all updateable objects
 		for(int i=updateables.size(); --i>=0;) {
 			updateables.at(i)->update(dt);
@@ -263,5 +280,17 @@ void Engine::unregisterUpdateable(IUpdateable* updateable) {
 	}
 
 	return;
+}
+
+
+void Engine::runOnMainThread(IRunnable* runnable) {
+	mainthread->lock();
+
+	std::vector<IRunnable*>::iterator it = std::find(run_once.begin(), run_once.end(), runnable);
+	if (it == run_once.end()) {
+		run_once.push_back(keep(runnable));
+	}
+
+	mainthread->unlock();
 }
 

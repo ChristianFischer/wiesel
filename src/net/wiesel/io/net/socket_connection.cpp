@@ -32,6 +32,7 @@
 #if WIESEL_PLATFORM_UNIX
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #endif
 
 #if WIESEL_PLATFORM_WINDOWS
@@ -93,33 +94,75 @@ SocketConnection::~SocketConnection() {
 }
 
 bool SocketConnection::connect(const std::string& host, uint32_t port) {
-	int result;
+	bool connected = false;
+	
+	// check if there's already an existing connection
+	assert(isConnected() == false);
+	if (isConnected()) {
+		return false;
+	}
+
+	// set the current address (the address should be updated, even if no connection could be established).
+	{
+		std::stringstream ss;
+		ss << host;
+		ss << ':';
+		ss << port;
+
+		setCurrentAddress(ss.str());
+	}
 
 	socket_handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (socket_handle == -1) {
 		return false;
 	}
 
+	hostent* he = gethostbyname(host.c_str());
+	if (he == NULL) {
+		return false;
+	}
+
 	sockaddr_in addr;
-	addr.sin_family			= AF_INET;
-	addr.sin_port			= htons(static_cast<uint16_t>(port));
-	addr.sin_addr.s_addr	= inet_addr(host.c_str());
+	addr.sin_family		= he->h_addrtype;
+	addr.sin_port		= htons(static_cast<uint16_t>(port));
 
-	if (addr.sin_addr.s_addr == INADDR_NONE) {
-		return false;
+	for(char **p=he->h_addr_list; *p; ++p) {
+		addr.sin_addr	= *reinterpret_cast<in_addr*>(*p);
+
+		if (addr.sin_addr.s_addr == INADDR_NONE) {
+			continue;
+		}
+
+		if (addr.sin_addr.s_addr == INADDR_ANY) {
+			continue;
+		}
+
+		int result = ::connect(socket_handle, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+		if (result == -1) {
+			disconnect();
+			continue;
+		}
+
+		// connection successful
+		connected = true;
+
+		break;
 	}
 
-	if (addr.sin_addr.s_addr == INADDR_ANY) {
-		return false;
+	// release the socket, when not connected
+	if (!connected) {
+		releaseSocket();
 	}
 
-	result = ::connect(socket_handle, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
-	if (result == -1) {
-		disconnect();
-		return false;
+	// fire notification
+	if (connected) {
+		fireOnConnected();
+	}
+	else {
+		fireOnConnectionFailed();
 	}
 
-	return true;
+	return connected;
 }
 
 
@@ -134,15 +177,8 @@ bool SocketConnection::isConnected() const {
 
 void SocketConnection::disconnect() {
 	if (socket_handle != -1) {
-		#if WIESEL_PLATFORM_UNIX
-			close(socket_handle);
-		#endif
-
-		#if WIESEL_PLATFORM_WINDOWS
-			closesocket(socket_handle);
-		#endif
-
-		socket_handle = -1;
+		releaseSocket();
+		fireOnDisconnected();
 	}
 
 	return;
@@ -168,8 +204,28 @@ bool SocketConnection::send(const data_t *data, size_t size) {
 
 
 int SocketConnection::read(data_t *ptr, size_t size) {
-	int result = ::recv(socket_handle, (char*)ptr, 1, 0);
+	int result = ::recv(socket_handle, (char*)ptr, size, 0);
+	if (result <= 0) {
+		disconnect();
+	}
+
 	return result;
 }
 
+
+void SocketConnection::releaseSocket() {
+	if (socket_handle != -1) {
+		#if WIESEL_PLATFORM_UNIX
+			close(socket_handle);
+		#endif
+
+		#if WIESEL_PLATFORM_WINDOWS
+			closesocket(socket_handle);
+		#endif
+
+		socket_handle = -1;
+	}
+
+	return;
+}
 

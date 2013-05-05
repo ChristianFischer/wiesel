@@ -42,6 +42,7 @@ namespace wiesel {
 	 */
 	class WIESEL_NET_EXPORT MessageDispatcher :
 			public virtual SharedObject,
+			public ListenerSupport<ConnectionListener>,
 			protected IRunnable
 	{
 	public:
