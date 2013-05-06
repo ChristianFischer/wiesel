@@ -117,7 +117,7 @@ void Node::sortChildren() {
 }
 
 
-void Node::setVisisble(bool visible) {
+void Node::setVisible(bool visible) {
 	this->visible = visible;
 }
 
