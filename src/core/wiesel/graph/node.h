@@ -118,6 +118,20 @@ namespace wiesel {
 		 */
 		void sortChildren();
 
+	// getter / setter
+	public:
+		/**
+		 * @brief Set the visibility of this node and all of it's children.
+		 */
+		void setVisisble(bool visible);
+
+		/**
+		 * @brief Tells whether this node is visible or not.
+		 */
+		inline bool isVisible() const {
+			return visible;
+		}
+
 	// matrix access and manipulation
 	public:
 		/**
@@ -213,6 +227,8 @@ namespace wiesel {
 		bool		transform_dirty;	//!< When true, the world transformation matrix has to be updated.
 
 	private:
+		bool		visible;
+
 		/// the parent node of this one.
 		Node*		parent;
 
