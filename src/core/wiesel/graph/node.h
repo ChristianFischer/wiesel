@@ -123,7 +123,7 @@ namespace wiesel {
 		/**
 		 * @brief Set the visibility of this node and all of it's children.
 		 */
-		void setVisisble(bool visible);
+		void setVisible(bool visible);
 
 		/**
 		 * @brief Tells whether this node is visible or not.
