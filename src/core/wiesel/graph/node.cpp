@@ -37,6 +37,7 @@ Node::Node()
 	local_transform(matrix4x4::identity),
 	world_transform(matrix4x4::identity),
 	transform_dirty(true),
+	visible(true),
 	parent(NULL)
 {
 	return;
@@ -116,6 +117,11 @@ void Node::sortChildren() {
 }
 
 
+void Node::setVisisble(bool visible) {
+	this->visible = visible;
+}
+
+
 void Node::setTransformDirty() {
 	transform_dirty = true;
 
@@ -165,6 +171,12 @@ vector3d Node::convertWorldToLocal(const vector3d& world) const {
 
 void Node::render(video::RenderContext *render_context) {
 	bool this_drawn = false;
+
+	// skip rendering when the node is not visible
+	// NOTE: it would be still possible to call onDraw directly
+	if (visible == false) {
+		return;
+	}
 
 	for(NodeList::iterator it=children.begin(); it!=children.end(); it++) {
 		Node *child = *it;
