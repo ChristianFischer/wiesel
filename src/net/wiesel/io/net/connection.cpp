@@ -22,6 +22,9 @@
 #include "connection.h"
 #include "connector.h"
 
+#include "connection_event_dispatcher.h"
+#include <wiesel/util/thread.h>
+
 #include <wiesel/module_registry.h>
 
 using namespace wiesel;
@@ -49,6 +52,51 @@ void ConnectionListener::onDisconnected(const std::string& address, Connection* 
 
 
 
+
+class CreateConnectionAsyncTask : public IRunnable
+{
+public:
+	CreateConnectionAsyncTask(const std::string& address, ConnectionListener *listener) {
+		this->address	= address;
+		this->listener	= keep(listener);
+	}
+
+	virtual ~CreateConnectionAsyncTask() {
+		safe_release(listener);
+	}
+
+	virtual void run() {
+		ConnectionEventDispatcher::ConnectionListeners listeners;
+		listeners.push_back(listener);
+
+		Connection *connection = Connection::createConnection(address);
+
+		// attach the listener to a successfully created connection
+		if (connection) {
+			connection->addListener(listener);
+		}
+
+		ConnectionEventDispatcher::dispatch(
+							listeners,
+							connection
+								? ConnectionEventDispatcher::ConnectionEvent_Connected
+								: ConnectionEventDispatcher::ConnectionEvent_ConnectionFailed,
+							address,
+							connection
+		);
+
+		return;
+	}
+
+private:
+	std::string				address;
+	ConnectionListener*		listener;
+};
+
+
+
+
+
 Connection::Connection() {
 }
 
@@ -71,6 +119,15 @@ Connection* Connection::createConnection(const std::string& address) {
 	}
 
 	return NULL;
+}
+
+
+void Connection::createConnectionAsync(const std::string& address, ConnectionListener* listener) {
+	Thread *thread = new Thread(new CreateConnectionAsyncTask(address, listener));
+	thread->start();
+	thread->detach();
+
+	return;
 }
 
 

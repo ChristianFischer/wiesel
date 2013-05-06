@@ -83,9 +83,19 @@ namespace wiesel {
 		/**
 		 * @brief Creates a new connection to a specific address.
 		 * For TCP Connections, this address should be in the format host:port
+		 * @param address	The address to connect to.
 		 * @return A new \ref Connection object or \c NULL, when the connection was not successful.
 		 */
 		static Connection* createConnection(const std::string& address);
+
+		/**
+		 * @brief Tries to connect to the given address within a seperate thread.
+		 * @param address	The address to connect to.
+		 * @param listener	The listener which will receive the created connection on success
+		 *					or an onConnectionFailed event, when no connection could be established.
+		 *					When successful, the listener will be attached to the created connection.
+		 */
+		static void createConnectionAsync(const std::string& address, ConnectionListener *listener);
 
 	public:
 		/// alias type for data sent via network.

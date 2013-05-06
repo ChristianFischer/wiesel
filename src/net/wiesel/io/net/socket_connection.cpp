@@ -119,6 +119,9 @@ bool SocketConnection::connect(const std::string& host, uint32_t port) {
 
 	hostent* he = gethostbyname(host.c_str());
 	if (he == NULL) {
+		releaseSocket();
+		fireOnConnectionFailed();
+
 		return false;
 	}
 
@@ -139,7 +142,6 @@ bool SocketConnection::connect(const std::string& host, uint32_t port) {
 
 		int result = ::connect(socket_handle, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 		if (result == -1) {
-			disconnect();
 			continue;
 		}
 
