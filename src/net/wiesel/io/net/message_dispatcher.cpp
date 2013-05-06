@@ -20,81 +20,12 @@
  * Boston, MA 02110-1301 USA
  */
 #include "message_dispatcher.h"
+#include "connection_event_dispatcher.h"
 #include "wiesel/util/log.h"
 #include "wiesel/engine.h"
 
 
 using namespace wiesel;
-
-
-
-enum ConnectionEvent {
-	ConnectionEvent_Connected,
-	ConnectionEvent_ConnectionFailed,
-	ConnectionEvent_Disconnected,
-};
-
-
-class ConnectionEventDispatcher : public IRunnable
-{
-public:
-	ConnectionEventDispatcher(
-			MessageDispatcher::Listeners	listeners,
-			ConnectionEvent					event,
-			std::string						address,
-			Connection*						connection
-	) :
-		listeners(listeners),
-		event(event),
-		address(address),
-		connection(connection)
-	{
-		return;
-	}
-
-	virtual ~ConnectionEventDispatcher() {
-		return;
-	}
-
-public:
-	virtual void run() {
-		switch(event) {
-			case ConnectionEvent_Connected: {
-				for(MessageDispatcher::Listeners::iterator it=listeners.begin(); it!=listeners.end(); it++) {
-					(*it)->onConnected(address, connection);
-				}
-
-				break;
-			}
-
-			case ConnectionEvent_ConnectionFailed: {
-				for(MessageDispatcher::Listeners::iterator it=listeners.begin(); it!=listeners.end(); it++) {
-					(*it)->onConnectionFailed(address);
-				}
-
-				break;
-			}
-
-			case ConnectionEvent_Disconnected: {
-				for(MessageDispatcher::Listeners::iterator it=listeners.begin(); it!=listeners.end(); it++) {
-					(*it)->onDisconnected(address, connection);
-				}
-
-				break;
-			}
-		}
-
-		return;
-	}
-
-private:
-	MessageDispatcher::Listeners	listeners;
-	ConnectionEvent					event;
-	std::string						address;
-	ref<Connection>					connection;
-};
-
-
 
 
 MessageDispatcher::IMessage::IMessage() {
@@ -178,12 +109,12 @@ void MessageDispatcher::run() {
 	do {
 		// delete connection, when interrupted
 		if (connection && (connection->isConnected() == false)) {
-			Engine::getInstance()->runOnMainThread(new ConnectionEventDispatcher(
+			ConnectionEventDispatcher::dispatch(
 					*(this->getListeners()),
-					ConnectionEvent_Disconnected,
+					ConnectionEventDispatcher::ConnectionEvent_Disconnected,
 					this->address,
 					connection
-			));
+			);
 
 			// release the object (we're creating a new one)
 			safe_release(connection);
@@ -200,20 +131,20 @@ void MessageDispatcher::run() {
 
 			// notify, when the connection was successful
 			if (connection) {
-				Engine::getInstance()->runOnMainThread(new ConnectionEventDispatcher(
+				ConnectionEventDispatcher::dispatch(
 						*(this->getListeners()),
-						ConnectionEvent_Connected,
+						ConnectionEventDispatcher::ConnectionEvent_Connected,
 						this->address,
 						connection
-				));
+				);
 			}
 			else {
-				Engine::getInstance()->runOnMainThread(new ConnectionEventDispatcher(
+				ConnectionEventDispatcher::dispatch(
 						*(this->getListeners()),
-						ConnectionEvent_ConnectionFailed,
+						ConnectionEventDispatcher::ConnectionEvent_ConnectionFailed,
 						this->address,
 						NULL
-				));
+				);
 			}
 		}
 
