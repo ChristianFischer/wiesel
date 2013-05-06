@@ -24,6 +24,7 @@ MY_FILES := \
 # configure the application's build
 LOCAL_MODULE                  := main
 LOCAL_SRC_FILES               := $(MY_FILES)
+LOCAL_C_INCLUDES              := $(MY_LOCAL_FOLDERS)
 LOCAL_LDLIBS                  :=
 LOCAL_STATIC_LIBRARIES        := wiesel-common wiesel-core
 LOCAL_WHOLE_STATIC_LIBRARIES  := wiesel-android wiesel-opengl

@@ -42,6 +42,15 @@ include(config/local/paths.cmake OPTIONAL)
 
 
 
+# some default preprocessor flags
+add_definitions(-DNOMINMAX)
+
+# windows specific preprocessor flags
+if (WIN32)
+	add_definitions(-DUNICODE)
+endif(WIN32)
+
+
 # enable warnings?
 option(WIESEL_BUILD_WARN_ALL "Enable all warnings on build. (gcc option -Wall)" ON)
 if (WIESEL_BUILD_WARN_ALL)

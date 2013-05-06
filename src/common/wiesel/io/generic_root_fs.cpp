@@ -34,6 +34,33 @@ using namespace wiesel;
 using namespace std;
 
 
+
+#if defined(_MSC_VER)
+	static std::wstring str2wstr(const std::string& str) {
+		wchar_t *buffer = new wchar_t[str.length() + 1];
+		buffer[str.size()] = '\0';
+		MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, (int)str.length());
+
+		std::wstring result = buffer;
+		delete[] buffer;
+
+		return result;
+	}
+
+
+	static std::string wstr2str(const std::wstring& wstr) {
+		char *buffer = new char[wstr.length() + 1];
+		buffer[wstr.size()] = '\0';
+		WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, (int)wstr.length(), NULL, NULL);
+
+		std::string result = buffer;
+		delete[] buffer;
+
+		return result;
+	}
+#endif
+
+
 GenericFileSystem::GenericFileSystem() {
 	root = new GenericFileSystemDirectory(this, NULL, "");
 	keep(root);
@@ -126,13 +153,13 @@ DirectoryList GenericFileSystemDirectory::getSubDirectories() {
 		HANDLE hFind;
 		WIN32_FIND_DATA ffd;
 
-		if ((hFind = FindFirstFile(fullpath.c_str(), &ffd)) != INVALID_HANDLE_VALUE){
+		if ((hFind = FindFirstFile(str2wstr(fullpath).c_str(), &ffd)) != INVALID_HANDLE_VALUE){
 			do {
 				if((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 					continue;
 				}
 
-				directories.push_back(new GenericFileSystemDirectory(fs, this, ffd.cFileName));
+				directories.push_back(new GenericFileSystemDirectory(fs, this, wstr2str(ffd.cFileName)));
 			}
 			while(FindNextFile(hFind, &ffd));
 
@@ -182,13 +209,13 @@ FileList GenericFileSystemDirectory::getFiles() {
 		HANDLE hFind;
 		WIN32_FIND_DATA ffd;
 
-		if ((hFind = FindFirstFile((getFullPath() + "/*").c_str(), &ffd)) != INVALID_HANDLE_VALUE){
+		if ((hFind = FindFirstFile(str2wstr(getFullPath() + "/*").c_str(), &ffd)) != INVALID_HANDLE_VALUE){
 			do {
 				if((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
 					continue;
 				}
 
-				files.push_back(new GenericFileSystemFile(this, ffd.cFileName));
+				files.push_back(new GenericFileSystemFile(this, wstr2str(ffd.cFileName)));
 			}
 			while(FindNextFile(hFind, &ffd));
 

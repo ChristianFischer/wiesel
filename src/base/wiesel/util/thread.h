@@ -26,6 +26,8 @@
 
 #include "wiesel/wiesel-base-config.h"
 
+#include <stdint.h>
+
 #if WIESEL_THREADAPI_PTHREAD
 #	include <pthread.h>
 #endif

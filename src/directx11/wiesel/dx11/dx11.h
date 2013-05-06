@@ -24,7 +24,6 @@
 
 #include <wiesel/wiesel-directx11.def>
 
-#define UNICODE
 #include <Windows.h>
 #include <d3dcommon.h>
 #include <d3d11.h>

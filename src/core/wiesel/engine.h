@@ -161,7 +161,7 @@ namespace wiesel {
 	
 	// instance members
 	private:
-		ref<Thread>						mainthread;
+		Thread*							mainthread;
 
 		std::vector<IRunnable*>			run_once;
 		std::vector<IUpdateable*>		updateables;

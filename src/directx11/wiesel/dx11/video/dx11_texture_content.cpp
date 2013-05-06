@@ -68,7 +68,7 @@ bool Dx11TextureContent::initializeTexture(DirectX11RenderContext *context) {
 	releaseTexture();
 
 	DataSource *data = getTexture()->getSource();
-	Image *image = NULL;
+	ref<Image> image = NULL;
 	dimension new_original_size;
 
 	std::vector<ModuleLoader<IImageLoader>*> loaders = ModuleRegistry::getInstance()->findModules<IImageLoader>();

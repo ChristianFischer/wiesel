@@ -26,6 +26,7 @@
 #include <wiesel/util/listener_support.h>
 #include <wiesel/wiesel-net.def>
 
+#include <stdint.h>
 #include <string>
 
 namespace wiesel {
