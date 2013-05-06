@@ -29,7 +29,6 @@
 #include <wiesel/wiesel-win32.def>
 
 #include <windows.h>
-#include <gdiplus.h>
 
 
 namespace wiesel {

@@ -106,7 +106,7 @@ namespace wiesel {
 		 * @brief Get the topmost scene in the scene stack.
 		 * @return the topmost scene, or \c NULL, when the scene stack is empty.
 		 */
-		inline Scene *getTopScene();
+		Scene *getTopScene();
 
 		/**
 		 * @brief Provides access to the scene stack.

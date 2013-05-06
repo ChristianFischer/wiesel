@@ -43,7 +43,7 @@ Engine		Engine::instance;
 
 
 Engine::Engine() {
-	mainthread			= new Thread();
+	mainthread			= keep(new Thread());
 
 	exit_requested		= false;
 	application			= NULL;
@@ -53,6 +53,9 @@ Engine::Engine() {
 
 Engine::~Engine() {
 	shutdown();
+
+	safe_release(mainthread);
+
 	return;
 }
 

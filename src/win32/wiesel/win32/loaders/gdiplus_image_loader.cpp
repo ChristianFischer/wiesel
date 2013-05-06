@@ -28,6 +28,14 @@
 #include <stdint.h>
 #include <string>
 
+// dirty, dirty...
+#if defined(NOMINMAX)
+#	define min(a,b)		std::min(a,b)
+#	define max(a,b)		std::max(a,b)
+#endif
+
+#include <gdiplus.h>
+
 
 using namespace wiesel;
 using namespace wiesel::win32;
