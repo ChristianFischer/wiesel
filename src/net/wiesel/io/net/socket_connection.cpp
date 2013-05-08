@@ -61,16 +61,18 @@ SocketConnector::~SocketConnector() {
 }
 
 
-Connection* SocketConnector::createConnection(const std::string& address) {
+Connection* SocketConnector::createConnection(const URI& uri) {
 	SocketConnection *connection = NULL;
 
-	std::string::size_type seperator = address.rfind(':');
-	if (seperator != std::string::npos) {
+	if (
+			(uri.getScheme() == "" || uri.getScheme() == "tcp")
+		&&	(uri.getPath() == "")
+		&&	(uri.getQueryString() == "")
+		&&	(uri.getFragment() == "")
+		&&	(uri.hasPort())
+	) {
 		connection = new SocketConnection();
-		bool success = connection->connect(
-									address.substr(0, seperator),
-									atoi(address.c_str() + seperator + 1)
-		);
+		bool success = connection->connect(uri);
 
 		if (!success) {
 			delete connection;
@@ -93,6 +95,21 @@ SocketConnection::~SocketConnection() {
 	disconnect();
 }
 
+
+bool SocketConnection::connect(const URI& uri) {
+	if (
+			(uri.getScheme() == "" || uri.getScheme() == "tcp")
+		&&	(uri.getPath() == "")
+		&&	(uri.getQueryString() == "")
+		&&	(uri.getFragment() == "")
+		&&	(uri.hasPort())
+	) {
+		return connect(uri.getHost(), uri.getPort());
+	}
+
+	return false;
+}
+
 bool SocketConnection::connect(const std::string& host, uint32_t port) {
 	bool connected = false;
 	
@@ -104,12 +121,12 @@ bool SocketConnection::connect(const std::string& host, uint32_t port) {
 
 	// set the current address (the address should be updated, even if no connection could be established).
 	{
-		std::stringstream ss;
-		ss << host;
-		ss << ':';
-		ss << port;
+		URI uri;
+		uri.setScheme("tcp");
+		uri.setHost(host);
+		uri.setPort(port);
 
-		setCurrentAddress(ss.str());
+		setCurrentURI(uri);
 	}
 
 	socket_handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);

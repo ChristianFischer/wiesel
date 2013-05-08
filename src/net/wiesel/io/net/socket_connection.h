@@ -36,7 +36,7 @@ namespace wiesel {
 		SocketConnector();
 		virtual ~SocketConnector();
 
-		virtual Connection* createConnection(const std::string& address);
+		virtual Connection* createConnection(const URI& uri);
 	};
 
 
@@ -52,6 +52,13 @@ namespace wiesel {
 		virtual ~SocketConnection();
 
 	public:
+		/**
+		 * @brief Try to connect to a remote host.
+		 * @param uri	An URI with a host and port to connect to.
+		 * @return \c true on success.
+		 */
+		virtual bool connect(const URI& uri);
+
 		/**
 		 * @brief Try to connect to a remote host.
 		 * @param host	The remote host.

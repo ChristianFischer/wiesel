@@ -29,11 +29,11 @@ using namespace wiesel;
 void ConnectionEventDispatcher::dispatch(
 			const ConnectionListeners&		listeners,
 			ConnectionEvent					event,
-			std::string						address,
+			const URI&						uri,
 			Connection*						connection
 ) {
 	ConnectionEventDispatcher *dispatcher = new ConnectionEventDispatcher(
-			listeners, event, address, connection
+			listeners, event, uri, connection
 	);
 
 	Engine::getInstance()->runOnMainThread(dispatcher);
@@ -43,12 +43,12 @@ void ConnectionEventDispatcher::dispatch(
 ConnectionEventDispatcher::ConnectionEventDispatcher(
 			const ConnectionListeners&		listeners,
 			ConnectionEvent					event,
-			std::string						address,
+			const URI&						uri,
 			Connection*						connection
 ) :
 	listeners(listeners),
 	event(event),
-	address(address),
+	uri(uri),
 	connection(connection)
 {
 	return;
@@ -63,7 +63,7 @@ void ConnectionEventDispatcher::run() {
 	switch(event) {
 		case ConnectionEvent_Connected: {
 			for(ConnectionListeners::iterator it=listeners.begin(); it!=listeners.end(); it++) {
-				(*it)->onConnected(address, connection);
+				(*it)->onConnected(uri, connection);
 			}
 
 			break;
@@ -71,7 +71,7 @@ void ConnectionEventDispatcher::run() {
 
 		case ConnectionEvent_ConnectionFailed: {
 			for(ConnectionListeners::iterator it=listeners.begin(); it!=listeners.end(); it++) {
-				(*it)->onConnectionFailed(address);
+				(*it)->onConnectionFailed(uri);
 			}
 
 			break;
@@ -79,7 +79,7 @@ void ConnectionEventDispatcher::run() {
 
 		case ConnectionEvent_Disconnected: {
 			for(ConnectionListeners::iterator it=listeners.begin(); it!=listeners.end(); it++) {
-				(*it)->onDisconnected(address, connection);
+				(*it)->onDisconnected(uri, connection);
 			}
 
 			break;

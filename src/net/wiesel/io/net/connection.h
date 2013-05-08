@@ -22,6 +22,7 @@
 #ifndef __WIESEL_IO_NET_CONNECTION_H__
 #define	__WIESEL_IO_NET_CONNECTION_H__
 
+#include <wiesel/io/uri.h>
 #include <wiesel/util/shared_object.h>
 #include <wiesel/util/listener_support.h>
 #include <wiesel/wiesel-net.def>
@@ -46,23 +47,23 @@ namespace wiesel {
 	public:
 		/**
 		 * @brief Notification when the connection was successfully created.
-		 * @param address		The address of the connection.
+		 * @param uri			The address of the connection.
 		 * @param connection	The created connection.
 		 */
-		virtual void onConnected(const std::string& address, Connection* connection);
+		virtual void onConnected(const URI& uri, Connection* connection);
 
 		/**
 		 * @brief The connection couldn't be created successfully.
-		 * @param address		The address of the connection.
+		 * @param uri			The address of the connection.
 		 */
-		virtual void onConnectionFailed(const std::string& address);
+		virtual void onConnectionFailed(const URI& uri);
 
 		/**
 		 * @brief The connection was closed.
-		 * @param address		The address of the connection.
+		 * @param uri			The address of the connection.
 		 * @param connection	The connection which was closed.
 		 */
-		virtual void onDisconnected(const std::string& address, Connection* connection);
+		virtual void onDisconnected(const URI& uri, Connection* connection);
 	};
 
 
@@ -89,6 +90,13 @@ namespace wiesel {
 		static Connection* createConnection(const std::string& address);
 
 		/**
+		 * @brief Creates a new connection to a specific address.
+		 * @param uri		The address to connect to.
+		 * @return A new \ref Connection object or \c NULL, when the connection was not successful.
+		 */
+		static Connection* createConnection(const URI& uri);
+
+		/**
 		 * @brief Tries to connect to the given address within a seperate thread.
 		 * @param address	The address to connect to.
 		 * @param listener	The listener which will receive the created connection on success
@@ -96,6 +104,15 @@ namespace wiesel {
 		 *					When successful, the listener will be attached to the created connection.
 		 */
 		static void createConnectionAsync(const std::string& address, ConnectionListener *listener);
+
+		/**
+		 * @brief Tries to connect to the given address within a seperate thread.
+		 * @param uri		The address to connect to.
+		 * @param listener	The listener which will receive the created connection on success
+		 *					or an onConnectionFailed event, when no connection could be established.
+		 *					When successful, the listener will be attached to the created connection.
+		 */
+		static void createConnectionAsync(const URI& uri, ConnectionListener *listener);
 
 	public:
 		/// alias type for data sent via network.
@@ -134,14 +151,14 @@ namespace wiesel {
 		 * @brief Set the current address of this connection.
 		 * This should be used by subclasses only, when trying to establish a connection.
 		 */
-		void setCurrentAddress(const std::string& address);
+		void setCurrentURI(const URI& uri);
 
 	public:
 		/**
 		 * @brief Get the address of this connection.
 		 */
-		const std::string& getAddress() const {
-			return address;
+		const URI& getURI() const {
+			return uri;
 		}
 
 	protected:
@@ -150,7 +167,7 @@ namespace wiesel {
 		void fireOnDisconnected();
 
 	private:
-		std::string address;
+		URI uri;
 	};
 
 }

@@ -47,14 +47,14 @@ namespace wiesel {
 		static void dispatch(
 				const ConnectionListeners&	listeners,
 				ConnectionEvent				event,
-				std::string					address,
+				const URI&					uri,
 				Connection*					connection
 		);
 
 		ConnectionEventDispatcher(
 				const ConnectionListeners&	listeners,
 				ConnectionEvent				event,
-				std::string					address,
+				const URI&					uri,
 				Connection*					connection
 		);
 
@@ -66,7 +66,7 @@ namespace wiesel {
 	private:
 		ConnectionListeners		listeners;
 		ConnectionEvent			event;
-		std::string				address;
+		URI						uri;
 		ref<Connection>			connection;
 	};
 

@@ -22,6 +22,7 @@
 #ifndef __WIESEL_IO_NET_CONNECTOR_H__
 #define	__WIESEL_IO_NET_CONNECTOR_H__
 
+#include <wiesel/io/uri.h>
 #include <wiesel/module.h>
 #include <wiesel/wiesel-net.def>
 
@@ -39,7 +40,7 @@ namespace wiesel {
 	public:
 		virtual ~IConnector();
 
-		virtual Connection* createConnection(const std::string& address) = 0;
+		virtual Connection* createConnection(const URI& uri) = 0;
 	};
 
 }

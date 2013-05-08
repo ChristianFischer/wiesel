@@ -22,6 +22,7 @@
 #ifndef __WIESEL_IO_NET_MESSAGEDISPATCHER_H__
 #define	__WIESEL_IO_NET_MESSAGEDISPATCHER_H__
 
+#include <wiesel/io/uri.h>
 #include <wiesel/util/shared_object.h>
 #include <wiesel/wiesel-net.def>
 
@@ -98,6 +99,11 @@ namespace wiesel {
 		virtual void start(const std::string& address);
 
 		/**
+		 * @brief Tries to connect to the given URI and starts reading message from the connection.
+		 */
+		virtual void start(const URI& uri);
+
+		/**
 		 * @brief Stops listening for messages and closes the connection.
 		 */
 		virtual void stop();
@@ -149,7 +155,7 @@ namespace wiesel {
 		virtual void run();
 
 	private:
-		std::string		address;
+		URI				uri;
 		Thread*			thread;
 		Connection*		connection;
 		uint32_t		flags;
