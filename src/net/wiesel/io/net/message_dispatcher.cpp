@@ -66,8 +66,16 @@ bool MessageDispatcher::hasFlag(DispatchFlag flag) const {
 
 
 void MessageDispatcher::start(const std::string& address) {
+	URI uri = URI::parse(address);
+	if (uri.empty() == false) {
+		start(uri);
+	}
+}
+
+
+void MessageDispatcher::start(const URI& uri) {
 	if (thread == NULL) {
-		this->address = address;
+		this->uri     = uri;
 		this->stopped = false;
 
 		thread = keep(new Thread(this));
@@ -112,7 +120,7 @@ void MessageDispatcher::run() {
 			ConnectionEventDispatcher::dispatch(
 					*(this->getListeners()),
 					ConnectionEventDispatcher::ConnectionEvent_Disconnected,
-					this->address,
+					this->uri,
 					connection
 			);
 
@@ -127,14 +135,14 @@ void MessageDispatcher::run() {
 
 		// try to reconnect, if neccessary
 		if (connection == NULL) {
-			connection = keep(Connection::createConnection(this->address));
+			connection = keep(Connection::createConnection(this->uri));
 
 			// notify, when the connection was successful
 			if (connection) {
 				ConnectionEventDispatcher::dispatch(
 						*(this->getListeners()),
 						ConnectionEventDispatcher::ConnectionEvent_Connected,
-						this->address,
+						this->uri,
 						connection
 				);
 			}
@@ -142,7 +150,7 @@ void MessageDispatcher::run() {
 				ConnectionEventDispatcher::dispatch(
 						*(this->getListeners()),
 						ConnectionEventDispatcher::ConnectionEvent_ConnectionFailed,
-						this->address,
+						this->uri,
 						NULL
 				);
 			}

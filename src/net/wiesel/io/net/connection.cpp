@@ -38,15 +38,15 @@ ConnectionListener::~ConnectionListener() {
 	return;
 }
 
-void ConnectionListener::onConnected(const std::string& address, Connection* connection) {
+void ConnectionListener::onConnected(const URI& uri, Connection* connection) {
 	return;
 }
 
-void ConnectionListener::onConnectionFailed(const std::string& address) {
+void ConnectionListener::onConnectionFailed(const URI& uri) {
 	return;
 }
 
-void ConnectionListener::onDisconnected(const std::string& address, Connection* connection) {
+void ConnectionListener::onDisconnected(const URI& uri, Connection* connection) {
 	return;
 }
 
@@ -56,8 +56,8 @@ void ConnectionListener::onDisconnected(const std::string& address, Connection* 
 class CreateConnectionAsyncTask : public IRunnable
 {
 public:
-	CreateConnectionAsyncTask(const std::string& address, ConnectionListener *listener) {
-		this->address	= address;
+	CreateConnectionAsyncTask(const URI& uri, ConnectionListener *listener) {
+		this->uri		= uri;
 		this->listener	= keep(listener);
 	}
 
@@ -69,7 +69,7 @@ public:
 		ConnectionEventDispatcher::ConnectionListeners listeners;
 		listeners.push_back(listener);
 
-		Connection *connection = Connection::createConnection(address);
+		Connection *connection = Connection::createConnection(uri);
 
 		// attach the listener to a successfully created connection
 		if (connection) {
@@ -81,7 +81,7 @@ public:
 							connection
 								? ConnectionEventDispatcher::ConnectionEvent_Connected
 								: ConnectionEventDispatcher::ConnectionEvent_ConnectionFailed,
-							address,
+							uri,
 							connection
 		);
 
@@ -89,7 +89,7 @@ public:
 	}
 
 private:
-	std::string				address;
+	URI						uri;
 	ConnectionListener*		listener;
 };
 
@@ -105,6 +105,16 @@ Connection::~Connection() {
 
 
 Connection* Connection::createConnection(const std::string& address) {
+	URI uri = URI::parse(address);
+	if (uri.empty() == false) {
+		return createConnection(uri);
+	}
+
+	return NULL;
+}
+
+
+Connection* Connection::createConnection(const URI& uri) {
 	std::vector<ModuleLoader<IConnector>*> loaders = ModuleRegistry::getInstance()->findModules<IConnector>();
 	for(std::vector<ModuleLoader<IConnector>*>::iterator it=loaders.begin(); it!=loaders.end(); it++) {
 		ref<IConnector> connector = (*it)->create();
@@ -112,7 +122,7 @@ Connection* Connection::createConnection(const std::string& address) {
 			continue;
 		}
 
-		Connection *connection = connector->createConnection(address);
+		Connection *connection = connector->createConnection(uri);
 		if (connection) {
 			return connection;
 		}
@@ -123,7 +133,17 @@ Connection* Connection::createConnection(const std::string& address) {
 
 
 void Connection::createConnectionAsync(const std::string& address, ConnectionListener* listener) {
-	Thread *thread = new Thread(new CreateConnectionAsyncTask(address, listener));
+	URI uri = URI::parse(address);
+	if (uri.empty() == false) {
+		return createConnectionAsync(uri, listener);
+	}
+
+	return;
+}
+
+
+void Connection::createConnectionAsync(const URI& uri, ConnectionListener* listener) {
+	Thread *thread = new Thread(new CreateConnectionAsyncTask(uri, listener));
 	thread->start();
 	thread->detach();
 
@@ -131,14 +151,14 @@ void Connection::createConnectionAsync(const std::string& address, ConnectionLis
 }
 
 
-void Connection::setCurrentAddress(const std::string& address) {
-	this->address = address;
+void Connection::setCurrentURI(const URI& uri) {
+	this->uri = uri;
 }
 
 
 void Connection::fireOnConnected() {
 	for(Listeners::const_iterator it=listeners_begin(); it!=listeners_end(); it++) {
-		(*it)->onConnected(getAddress(), this);
+		(*it)->onConnected(getURI(), this);
 	}
 
 	return;
@@ -146,7 +166,7 @@ void Connection::fireOnConnected() {
 
 void Connection::fireOnConnectionFailed() {
 	for(Listeners::const_iterator it=listeners_begin(); it!=listeners_end(); it++) {
-		(*it)->onConnectionFailed(getAddress());
+		(*it)->onConnectionFailed(getURI());
 	}
 
 	return;
@@ -154,7 +174,7 @@ void Connection::fireOnConnectionFailed() {
 
 void Connection::fireOnDisconnected() {
 	for(Listeners::const_iterator it=listeners_begin(); it!=listeners_end(); it++) {
-		(*it)->onDisconnected(getAddress(), this);
+		(*it)->onDisconnected(getURI(), this);
 	}
 
 	return;
