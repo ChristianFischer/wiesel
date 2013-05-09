@@ -1,0 +1,17 @@
+
+#include <wiesel/module_registry.h>
+#include "http_connection.h"
+#include "connector.h"
+
+
+// add the module to the module registry
+namespace wiesel {
+	REGISTER_MODULE_SINGLETON(
+			IConnector,
+			HttpConnector,
+			&generic_create<HttpConnector>,
+			"HTTP",
+			0x01010000u,
+			IModuleLoader::PriorityHigh
+	)
+}
