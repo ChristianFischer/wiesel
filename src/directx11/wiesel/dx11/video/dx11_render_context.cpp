@@ -46,18 +46,12 @@ DirectX11RenderContext::DirectX11RenderContext(Screen *screen) : RenderContext(s
 	this->active_shader				= NULL;
 	this->active_shader_content		= NULL;
 
-	this->cb_modelview_content		= NULL;
-	this->cb_projection_content		= NULL;
-
 	return;
 }
 
 
 DirectX11RenderContext::~DirectX11RenderContext() {
 	releaseContext();
-
-	safe_release(cb_modelview_content);
-	safe_release(cb_projection_content);
 
 	return;
 }
@@ -538,18 +532,6 @@ void DirectX11RenderContext::preRender() {
 	blendFactor[3] = 0.0f;
 	d3d_device_context->OMSetBlendState(blendstate_enabled, blendFactor, 0xffffffff);
 
-	// prepare the default constant buffers
-	if(!cb_modelview->isLoaded()) {
-		cb_modelview->loadContentFrom(getScreen());
-	}
-
-	if(!cb_projection->isLoaded()) {
-		cb_projection->loadContentFrom(getScreen());
-	}
-
-	cb_modelview_content  = keep(dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_modelview->getContent()));
-	cb_projection_content = keep(dynamic_cast<Dx11ShaderConstantBufferContent*>(cb_projection->getContent()));
-
 	return;
 }
 
@@ -558,10 +540,6 @@ void DirectX11RenderContext::postRender() {
 	// reset all gl objects
 	setShader(NULL);
 	clearTextures();
-
-	// clear temporary members
-	safe_release(cb_modelview_content);
-	safe_release(cb_projection_content);
 
 	// display screen
 	if (vsync) {
@@ -577,32 +555,39 @@ void DirectX11RenderContext::postRender() {
 
 
 void DirectX11RenderContext::setProjectionMatrix(const matrix4x4& matrix) {
-	assert(cb_projection);
-
 	this->projection = matrix;
-	this->cb_projection->setShaderValue(Shaders::UNIFORM_PROJECTION_MATRIX, this->projection);
-
-	if (active_shader_content) {
-		active_shader_content->assignShaderConstantBuffer(
-									Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
-									this->cb_projection_content
-		);
-	}
-
 	return;
 }
 
 
 void DirectX11RenderContext::setModelviewMatrix(const matrix4x4& matrix) {
-	assert(cb_modelview);
+	if (active_shader && active_shader_content) {
 
-	this->cb_modelview->setShaderValue(Shaders::UNIFORM_MODELVIEW_MATRIX, matrix);
+		// get the active shader's matrix buffer template
+		ShaderConstantBufferTemplate *modelview_buffer_template;
+		modelview_buffer_template = active_shader->getModelviewMatrixConstantBufferTemplate();
 
-	if (active_shader_content) {
-		active_shader_content->assignShaderConstantBuffer(
-									Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX,
-									this->cb_modelview_content
-		);
+		if (modelview_buffer_template) {
+			// get the template's shared buffer
+			ShaderConstantBuffer *modelview_buffer = modelview_buffer_template->getSharedBuffer();
+
+			// update the modelview value
+			bool was_set = modelview_buffer->setShaderValueAt(0, matrix);
+			assert(was_set);
+
+			// get the buffer's content
+			ShaderConstantBufferContent *modelview_buffer_content = modelview_buffer->getContent();
+			if (modelview_buffer_content == NULL) {
+				modelview_buffer->loadContentFrom(getScreen());
+				modelview_buffer_content = modelview_buffer->getContent();
+				assert(modelview_buffer_content);
+			}
+
+			active_shader_content->assignShaderConstantBuffer(
+										modelview_buffer_template,
+										modelview_buffer_content
+			);
+		}
 	}
 
 	return;
@@ -636,11 +621,40 @@ void DirectX11RenderContext::setShader(Shader* shader) {
 		if (active_shader_content) {
 			active_shader_content->bind(this);
 
-			// update projection matrix for the current shader
-			active_shader_content->assignShaderConstantBuffer(
-										Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
-										this->cb_projection_content
-			);
+			// get the shader's projection matrix buffer template
+			ShaderConstantBufferTemplate *projection_buffer_template;
+			projection_buffer_template = active_shader->getProjectionMatrixConstantBufferTemplate();
+
+			if (projection_buffer_template) {
+				// get the template's shared buffer
+				ShaderConstantBuffer *projection_buffer = projection_buffer_template->getSharedBuffer();
+
+				// get the data pointer
+				ShaderConstantBuffer::data_t projection_data_ptr = projection_buffer->getShaderDataPointer(
+													Shaders::UNIFORM_PROJECTION_MATRIX,
+													TypeMatrix4x4f,
+													1
+				);
+
+				// check if the projection matrix has changed
+				if (this->projection != *(reinterpret_cast<const matrix4x4*>(projection_data_ptr))) {
+					projection_buffer->setShaderValueAt(0, this->projection);
+				}
+
+				// get the buffer's content
+				ShaderConstantBufferContent *projection_buffer_content = projection_buffer->getContent();
+				if (projection_buffer_content == NULL) {
+					projection_buffer->loadContentFrom(getScreen());
+					projection_buffer_content = projection_buffer->getContent();
+					assert(projection_buffer_content);
+				}
+
+				// update projection matrix for the current shader
+				active_shader_content->assignShaderConstantBuffer(
+											projection_buffer_template,
+											projection_buffer_content
+				);
+			}
 		}
 		else {
 			d3d_device_context->VSSetShader(NULL, NULL, 0);
@@ -652,7 +666,7 @@ void DirectX11RenderContext::setShader(Shader* shader) {
 }
 
 
-bool DirectX11RenderContext::assignShaderConstantBuffer(const std::string &name, wiesel::video::ShaderConstantBuffer *buffer) {
+bool DirectX11RenderContext::assignShaderConstantBuffer(const wiesel::video::ShaderConstantBufferTemplate *buffer_template, wiesel::video::ShaderConstantBuffer *buffer) {
 	if (active_shader_content) {
 		// load on demand
 		if(!buffer->isLoaded()) {
@@ -663,7 +677,7 @@ bool DirectX11RenderContext::assignShaderConstantBuffer(const std::string &name,
 			}
 		}
 
-		active_shader_content->assignShaderConstantBuffer(name, buffer->getContent());
+		active_shader_content->assignShaderConstantBuffer(buffer_template, buffer->getContent());
 	}
 
 	return false;

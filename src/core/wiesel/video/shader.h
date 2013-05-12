@@ -168,6 +168,20 @@ namespace video {
 		 */
 		const ConstantBufferTplList *getConstantBufferTemplates() const;
 
+		/**
+		 * @brief Get the assigned ShaderConstantBufferTemplate for the shader's projection matrix, if any.
+		 */
+		inline ShaderConstantBufferTemplate* getProjectionMatrixConstantBufferTemplate() {
+			return constant_buffer_template_projection;
+		}
+
+		/**
+		 * @brief Get the assigned ShaderConstantBufferTemplate for the shader's modelview matrix, if any.
+		 */
+		inline ShaderConstantBufferTemplate* getModelviewMatrixConstantBufferTemplate() {
+			return constant_buffer_template_modelview;
+		}
+
 	// DeviceResource implementation
 	protected:
 		virtual bool doLoadContent();
@@ -183,6 +197,10 @@ namespace video {
 
 		/// A list of all constant buffers assigned to this shader.
 		ConstantBufferTplList		constant_buffers;
+
+	private:
+		ShaderConstantBufferTemplate*		constant_buffer_template_projection;
+		ShaderConstantBufferTemplate*		constant_buffer_template_modelview;
 	};
 
 
@@ -212,7 +230,7 @@ namespace video {
 	// setters
 	public:
 		/// assigns a constant buffer to the current shader instance.
-		virtual bool assignShaderConstantBuffer(const std::string &name, ShaderConstantBufferContent *buffer_content) = 0;
+		virtual bool assignShaderConstantBuffer(const ShaderConstantBufferTemplate *buffer_template, ShaderConstantBufferContent *buffer_content) = 0;
 
 	private:
 		Shader*		shader;

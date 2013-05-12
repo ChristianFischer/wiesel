@@ -100,9 +100,17 @@ namespace video {
 			return size;
 		}
 
+		/**
+		 * @brief Get or create a constant buffer, which can be used
+		 * shared between all instances of this template
+		 * @return
+		 */
+		ShaderConstantBuffer* getSharedBuffer();
+
 	private:
-		EntryList		entries;
-		size_t			size;
+		ref<ShaderConstantBuffer>		shared_buffer;
+		EntryList						entries;
+		size_t							size;
 	};
 
 
@@ -116,10 +124,15 @@ namespace video {
 	class WIESEL_CORE_EXPORT ShaderConstantBufferWriter : public virtual SharedObject
 	{
 	public:
+		/// pointer type
+		typedef unsigned char* data_t;
+
+	public:
 		ShaderConstantBufferWriter();
 
 		virtual ~ShaderConstantBufferWriter();
 
+	// setter (by name)
 	public:
 		/**
 		 * @brief Set an integer value for the current shader constant buffer.
@@ -165,6 +178,18 @@ namespace video {
 		 */
 		bool setShaderValue(const std::string &name, ValueType type, size_t elements, const void *pValue);
 
+	// overridables
+	public:
+		/**
+		 * @brief Get a pointer to the value of the given variable.
+		 * @param name		Name of the variable to get.
+		 * @param type		Type of the variables.
+		 * @param elements	Number of elements of this variable, when this variable is an array.
+		 * @return A pointer to the requested variable, or \c NULL, when the variable was not found
+		 *			or does not match the given types.
+		 */
+		virtual const data_t getShaderDataPointer(const std::string &name, ValueType type, size_t elements) const = 0;
+
 	/// overridables
 	protected:
 		/**
@@ -190,11 +215,11 @@ namespace video {
 			public ShaderConstantBufferWriter
 	{
 	public:
-		/// pointer type
-		typedef unsigned char* data_t;
-
 		/// type for the constant buffer version number
 		typedef uint16_t version_t;
+
+		/// type for indices of the values within this buffer
+		typedef signed int index_t;
 
 		ShaderConstantBuffer(ShaderConstantBufferTemplate *buffer_template);
 		virtual ~ShaderConstantBuffer();
@@ -210,8 +235,61 @@ namespace video {
 			return buffer_template;
 		}
 
+	// setter (by index))
+	public:
+		/**
+		 * @brief Set an integer value for the current shader constant buffer.
+		 * @param index		The index of the variable to set.
+		 * @param i			The integer value for the shader attribute.
+		 */
+		bool setShaderValueAt(index_t index, int32_t i);
+
+		/**
+		 * @brief Set a float value for the current shader constant buffer.
+		 * @param index		The index of the variable to set.
+		 * @param f			The float value for the shader attribute.
+		 */
+		bool setShaderValueAt(index_t index, float f);
+
+		/**
+		 * @brief Set a 2D-vector value for the current shader constant buffer.
+		 * @param index		The index of the variable to set.
+		 * @param v			The vector value for the shader attribute.
+		 */
+		bool setShaderValueAt(index_t index, const vector2d &v);
+
+		/**
+		 * @brief Set a 3D-vector value for the current shader constant buffer.
+		 * @param index		The index of the variable to set.
+		 * @param v			The vector value for the shader attribute.
+		 */
+		bool setShaderValueAt(index_t index, const vector3d &v);
+
+		/**
+		 * @brief Set a 4x4 matrix value for the current shader constant buffer.
+		 * @param index		The index of the variable to set.
+		 * @param m			The matrix value for the shader attribute.
+		 */
+		bool setShaderValueAt(index_t index, const matrix4x4 &m);
+
+		/**
+		 * @brief Set a single value of a shader constant buffer.
+		 * @param index		The index of the variable to set.
+		 * @param type		The value type.
+		 * @param elements	The number of elements of this value, to use an array of values.
+		 * @param pValue	Pointer to the value, which will be written into the constant buffer.
+		 */
+		bool setShaderValueAt(index_t index, ValueType type, size_t elements, const void *pValue);
+
 	// data access
 	public:
+		/**
+		 * @brief Get the index of a specific shader value.
+		 * @param name		Name of the variable to get.
+		 * @return The index of the requested variable or \c -1, when not found.
+		 */
+		index_t getShaderValueIndex(const std::string& name) const;
+
 		/**
 		 * @brief Writes raw data to a given offset.
 		 * The buffer needs to be large enough to store the whole data block,
@@ -244,6 +322,10 @@ namespace video {
 
 	// ShaderConstantBufferWriter
 	public:
+		virtual const data_t getShaderDataPointer(const std::string &name, ValueType type, size_t elements) const;
+
+	// ShaderConstantBufferWriter
+	protected:
 		virtual bool doSetShaderValue(const std::string &name, ValueType type, size_t elements, const void *pValue);
 
 	// DeviceResource implementation

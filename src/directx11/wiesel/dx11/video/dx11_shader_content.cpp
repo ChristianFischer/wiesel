@@ -268,19 +268,18 @@ bool Dx11ShaderContent::bindAttributes(DirectX11RenderContext *context) {
 }
 
 
-bool Dx11ShaderContent::assignShaderConstantBuffer(const std::string &name, ShaderConstantBufferContent *buffer_content) {
+bool Dx11ShaderContent::assignShaderConstantBuffer(const wiesel::video::ShaderConstantBufferTemplate *buffer_template, ShaderConstantBufferContent *buffer_content) {
 	Dx11ShaderConstantBufferContent *dx11_buffer_content = dynamic_cast<Dx11ShaderConstantBufferContent*>(buffer_content);
 
 	if (dx11_buffer_content) {
-		return assignShaderConstantBuffer(name, dx11_buffer_content);
+		return assignShaderConstantBuffer(buffer_template, dx11_buffer_content);
 	}
 
 	return false;
 }
 
 
-bool Dx11ShaderContent::assignShaderConstantBuffer(const std::string &name, Dx11ShaderConstantBufferContent *buffer_content) {
-	const ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(name);
+bool Dx11ShaderContent::assignShaderConstantBuffer(const wiesel::video::ShaderConstantBufferTemplate *buffer_template, Dx11ShaderConstantBufferContent *buffer_content) {
 	if (buffer_template) {
 		ShaderConstantBuffer::version_t new_version = buffer_content->getShaderConstantBuffer()->getChangeVersion();
 		ShaderConstantBufferEntryMap::iterator entry = shader_constant_buffer_entries.find(buffer_template);
