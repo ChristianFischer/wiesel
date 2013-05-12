@@ -24,6 +24,7 @@
 #include "video_driver.h"
 
 #include "wiesel/util/log.h"
+#include "shaders.h"
 #include <assert.h>
 #include <map>
 
@@ -146,6 +147,15 @@ bool Shader::addConstantBuffer(const std::string& name, uint16_t context, Shader
 	// store the buffer
 	constant_buffers.push_back(entry);
 	keep(entry.buffer_template);
+
+	// store special buffers
+	if (name == Shaders::CONSTANTBUFFER_PROJECTION_MATRIX) {
+		constant_buffer_template_projection = buffer_template;
+	}
+
+	if (name == Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX) {
+		constant_buffer_template_modelview = buffer_template;
+	}
 
 	return true;
 }

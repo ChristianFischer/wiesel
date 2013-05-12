@@ -63,7 +63,7 @@ namespace gl {
 
 	public:
 		virtual void setShader(Shader *shader);
-		virtual bool assignShaderConstantBuffer(const std::string &name, ShaderConstantBuffer *buffer);
+		virtual bool assignShaderConstantBuffer(const ShaderConstantBufferTemplate *buffer_template, ShaderConstantBuffer *buffer);
 
 		virtual void setTexture(uint16_t index, Texture *texture);
 		virtual void prepareTextureLayers(uint16_t layers);
@@ -84,9 +84,6 @@ namespace gl {
 		GlShaderContent*					active_shader_content;
 		std::vector<Texture*>				active_textures;
 		std::vector<GlTextureContent*>		active_textures_content;
-
-		GlShaderConstantBufferContent*		cb_modelview_content;
-		GlShaderConstantBufferContent*		cb_projection_content;
 	};
 
 }

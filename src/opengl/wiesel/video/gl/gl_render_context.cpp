@@ -41,18 +41,12 @@ OpenGlRenderContext::OpenGlRenderContext(Screen *screen) : RenderContext(screen)
 	this->active_shader				= NULL;
 	this->active_shader_content		= NULL;
 
-	this->cb_modelview_content		= NULL;
-	this->cb_projection_content		= NULL;
-
 	return;
 }
 
 
 OpenGlRenderContext::~OpenGlRenderContext() {
 	releaseContext();
-
-	safe_release(cb_modelview_content);
-	safe_release(cb_projection_content);
 
 	return;
 }
@@ -91,21 +85,6 @@ void OpenGlRenderContext::preRender() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	CHECK_GL_ERROR;
 
-	// prepare the default constant buffers
-	if(!cb_modelview->isLoaded()) {
-		cb_modelview->loadContentFrom(getScreen());
-	}
-
-	if(!cb_projection->isLoaded()) {
-		cb_projection->loadContentFrom(getScreen());
-	}
-
-	cb_modelview_content  = dynamic_cast<GlShaderConstantBufferContent*>(cb_modelview->getContent());
-	keep(cb_modelview_content);
-
-	cb_projection_content = dynamic_cast<GlShaderConstantBufferContent*>(cb_projection->getContent());
-	keep(cb_projection_content);
-
 	return;
 }
 
@@ -115,42 +94,44 @@ void OpenGlRenderContext::postRender() {
 	setShader(NULL);
 	clearTextures();
 
-	// clear temporary members
-	safe_release(cb_modelview_content);
-	safe_release(cb_projection_content);
-
 	return;
 }
 
 
 
 void OpenGlRenderContext::setProjectionMatrix(const matrix4x4& matrix) {
-	assert(cb_projection);
-
 	this->projection = matrix;
-	this->cb_projection->setShaderValue(Shaders::UNIFORM_PROJECTION_MATRIX, this->projection);
-
-	if (active_shader_content) {
-		active_shader_content->assignShaderConstantBuffer(
-									Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
-									this->cb_projection_content
-		);
-	}
-
-	return;
 }
 
 
 void OpenGlRenderContext::setModelviewMatrix(const matrix4x4& matrix) {
-	assert(cb_modelview);
+	if (active_shader && active_shader_content) {
 
-	this->cb_modelview->setShaderValue(Shaders::UNIFORM_MODELVIEW_MATRIX, matrix);
+		// get the active shader's matrix buffer template
+		ShaderConstantBufferTemplate *modelview_buffer_template = NULL;
+		modelview_buffer_template = active_shader->getModelviewMatrixConstantBufferTemplate();
 
-	if (active_shader_content) {
-		active_shader_content->assignShaderConstantBuffer(
-									Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX,
-									this->cb_modelview_content
-		);
+		if (modelview_buffer_template) {
+			// get the template's shared buffer
+			ShaderConstantBuffer *modelview_buffer = modelview_buffer_template->getSharedBuffer();
+
+			// update the modelview value
+			bool was_set = modelview_buffer->setShaderValueAt(0, matrix);
+			assert(was_set);
+
+			// get the buffer's content
+			ShaderConstantBufferContent *modelview_buffer_content = modelview_buffer->getContent();
+			if (modelview_buffer_content == NULL) {
+				modelview_buffer->loadContentFrom(getScreen());
+				modelview_buffer_content = modelview_buffer->getContent();
+				assert(modelview_buffer_content);
+			}
+
+			active_shader_content->assignShaderConstantBuffer(
+										modelview_buffer_template,
+										modelview_buffer_content
+			);
+		}
 	}
 
 	return;
@@ -184,11 +165,40 @@ void OpenGlRenderContext::setShader(Shader* shader) {
 		if (active_shader_content) {
 			glUseProgram(active_shader_content->getGlHandle());
 
-			// update projection matrix for the current shader
-			active_shader_content->assignShaderConstantBuffer(
-										Shaders::CONSTANTBUFFER_PROJECTION_MATRIX,
-										this->cb_projection_content
-			);
+			// get the shader's projection matrix buffer template
+			ShaderConstantBufferTemplate *projection_buffer_template;
+			projection_buffer_template = active_shader->getProjectionMatrixConstantBufferTemplate();
+
+			if (projection_buffer_template) {
+				// get the template's shared buffer
+				ShaderConstantBuffer *projection_buffer = projection_buffer_template->getSharedBuffer();
+
+				// get the data pointer
+				ShaderConstantBuffer::data_t projection_data_ptr = projection_buffer->getShaderDataPointer(
+													Shaders::UNIFORM_PROJECTION_MATRIX,
+													TypeMatrix4x4f,
+													1
+				);
+
+				// check if the projection matrix has changed
+				if (this->projection != *(reinterpret_cast<const matrix4x4*>(projection_data_ptr))) {
+					projection_buffer->setShaderValueAt(0, this->projection);
+				}
+
+				// get the buffer's content
+				ShaderConstantBufferContent *projection_buffer_content = projection_buffer->getContent();
+				if (projection_buffer_content == NULL) {
+					projection_buffer->loadContentFrom(getScreen());
+					projection_buffer_content = projection_buffer->getContent();
+					assert(projection_buffer_content);
+				}
+
+				// update projection matrix for the current shader
+				active_shader_content->assignShaderConstantBuffer(
+											projection_buffer_template,
+											projection_buffer_content
+				);
+			}
 		}
 		else {
 			glUseProgram(0);
@@ -201,7 +211,7 @@ void OpenGlRenderContext::setShader(Shader* shader) {
 }
 
 
-bool OpenGlRenderContext::assignShaderConstantBuffer(const std::string &name, ShaderConstantBuffer *buffer) {
+bool OpenGlRenderContext::assignShaderConstantBuffer(const ShaderConstantBufferTemplate *buffer_template, ShaderConstantBuffer *buffer) {
 	if (active_shader_content) {
 		// load on demand
 		if (buffer->isLoaded() == false) {
@@ -213,7 +223,7 @@ bool OpenGlRenderContext::assignShaderConstantBuffer(const std::string &name, Sh
 			}
 		}
 
-		return active_shader_content->assignShaderConstantBuffer(name, buffer->getContent());
+		return active_shader_content->assignShaderConstantBuffer(buffer_template, buffer->getContent());
 	}
 
 	return false;
@@ -240,10 +250,18 @@ void OpenGlRenderContext::setTexture(uint16_t index, Texture* texture) {
 		if (texture) {
 			active_texture = keep(texture);
 
-			GlTextureContent *gl_texture_content = dynamic_cast<GlTextureContent*>(active_texture->getContent());
-			if (gl_texture_content) {
-				active_texture_content = keep(gl_texture_content);
-			}
+			active_texture_content = dynamic_cast<GlTextureContent*>(active_texture->getContent());
+		}
+
+		if (active_texture_content) {
+			keep(active_texture_content);
+
+			glActiveTexture(GL_TEXTURE0 + index);
+			glBindTexture(GL_TEXTURE_2D, active_texture_content->getGlHandle());
+		}
+		else {
+			glActiveTexture(GL_TEXTURE0 + index);
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
 		// write active textures into the texture list
@@ -502,8 +520,8 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 				if (texture_content && attr_vertex_texture != -1) {
 					assert(attr_vertex_texture  != -1);
 
-					glActiveTexture(GL_TEXTURE0 + i);
-					glBindTexture(GL_TEXTURE_2D, texture_content->getGlHandle());
+				//	glActiveTexture(GL_TEXTURE0 + i);
+				//	glBindTexture(GL_TEXTURE_2D, texture_content->getGlHandle());
 					glUniform1i(attr_vertex_texture, i);
 					CHECK_GL_ERROR;
 				}
@@ -528,7 +546,7 @@ void OpenGlRenderContext::unbind(const VertexBuffer* vertex_buffer) {
 		}
 
 		if (vertex_buffer->hasNormals()) {
-			GLint attr_vertex_normals =active_shader_content->getAttribHandle(Shader::VertexNormal, 0);
+			GLint attr_vertex_normals = active_shader_content->getAttribHandle(Shader::VertexNormal, 0);
 			glDisableVertexAttribArray(attr_vertex_normals);
 		}
 

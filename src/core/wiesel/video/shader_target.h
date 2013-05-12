@@ -63,6 +63,10 @@ namespace video {
 		}
 
 	// ConstantBufferSetter
+	public:
+		virtual const data_t getShaderDataPointer(const std::string &name, ValueType type, size_t elements) const;
+
+	// ConstantBufferSetter
 	protected:
 		virtual bool doSetShaderValue(const std::string &name, ValueType type, size_t elements, const void *pValue);
 

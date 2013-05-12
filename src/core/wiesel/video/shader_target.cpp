@@ -97,12 +97,30 @@ bool ShaderTarget::doSetShaderValue(const std::string &name, ValueType type, siz
 }
 
 
+const ShaderTarget::data_t ShaderTarget::getShaderDataPointer(const std::string& name, ValueType type, size_t elements) const {
+	for(BufferMap::const_iterator it=buffers.begin(); it!=buffers.end(); it++) {
+		data_t result = it->second->getShaderDataPointer(name, type, elements);
+
+		if (result) {
+			return result;
+		}
+	}
+
+	return NULL;
+}
+
 
 void ShaderTarget::applyShaderConfigTo(RenderContext* rc) {
 	rc->setShader(getShader());
 
-	for(BufferMap::iterator it=buffers.begin(); it!=buffers.end(); it++) {
-		rc->assignShaderConstantBuffer(it->first, it->second);
+	if (getShader()) {
+		for(BufferMap::iterator it=buffers.begin(); it!=buffers.end(); it++) {
+			ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(it->first);
+
+			if (buffer_template) {
+				rc->assignShaderConstantBuffer(buffer_template, it->second);
+			}
+		}
 	}
 
 	return;

@@ -89,15 +89,29 @@ namespace gl {
 		GLint getAttribHandle(Shader::Attribute attr, uint8_t index) const;
 
 		/// assigns a constant buffer to the current shader instance.
-		virtual bool assignShaderConstantBuffer(const std::string &name, ShaderConstantBufferContent *buffer_content);
+		virtual bool assignShaderConstantBuffer(const ShaderConstantBufferTemplate *buffer_template, ShaderConstantBufferContent *buffer_content);
+
+	protected:
+		/// set a uniform shader value
+		bool setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue);
 
 		/// set a uniform shader value
-		virtual bool setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue);
+		bool setShaderValue(GLint attrib_handle, ValueType type, size_t elements, void *pValue);
 
 	private:
+		struct UniformEntry {
+			const ShaderConstantBufferTemplate::Entry*	entry;
+			GLint										handle;
+		};
+
+		/// alias type for a list of uniform entries
+		typedef std::vector<UniformEntry>				UniformEntryList;
+
 		struct BufferEntry {
-			ShaderConstantBuffer*				buffer;
-			ShaderConstantBuffer::version_t		version;
+			ShaderConstantBuffer*						buffer;
+			ShaderConstantBuffer::version_t				version;
+
+			UniformEntryList							buffer_uniforms;
 		};
 
 		/// Alias type for an indiced list of attribute names

@@ -36,23 +36,10 @@ RenderContext::RenderContext() {
 RenderContext::RenderContext(Screen *screen) {
 	this->screen = screen;
 
-	// create default constant buffers
-	ShaderConstantBufferTemplate*	cb_tpl_modelview;
-	cb_tpl_modelview				= Shaders::instance()->getModelviewMatrixBufferTemplate();
-	this->cb_modelview				= new ShaderConstantBuffer(cb_tpl_modelview);
-	keep(this->cb_modelview);
-
-	ShaderConstantBufferTemplate*	cb_tpl_projection;
-	cb_tpl_projection				= Shaders::instance()->getProjectionMatrixBufferTemplate();
-	this->cb_projection				= new ShaderConstantBuffer(cb_tpl_projection);
-	keep(this->cb_projection);
-
 	return;
 }
 
 
 RenderContext::~RenderContext() {
-	release(cb_modelview);
-	release(cb_projection);
 	return;
 }

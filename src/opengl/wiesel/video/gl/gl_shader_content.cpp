@@ -304,16 +304,19 @@ void GlShaderContent::bindAttributes() {
 
 
 GLint GlShaderContent::getAttribHandle(Shader::Attribute attr, uint8_t index) const {
-	if (attribute_handles.size() >= attr && attribute_handles[attr].size() >= index) {
-		return attribute_handles[attr][index];
+	if (attribute_handles.size() >= attr) {
+		const AttributeHandlesByIndex* attrib_handles_by_index = &(attribute_handles[attr]);
+
+		if (attrib_handles_by_index->size() >= index) {
+			return (*attrib_handles_by_index)[index];
+		}
 	}
 
 	return -1;
 }
 
 
-bool GlShaderContent::assignShaderConstantBuffer(const std::string& name, ShaderConstantBufferContent* buffer_content) {
-	const ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(name);
+bool GlShaderContent::assignShaderConstantBuffer(const ShaderConstantBufferTemplate *buffer_template, ShaderConstantBufferContent* buffer_content) {
 	if (buffer_template) {
 		ShaderConstantBuffer::version_t new_version = buffer_content->getShaderConstantBuffer()->getChangeVersion();
 		BufferEntryMap::iterator entry = buffer_entries.find(buffer_template);
@@ -322,7 +325,21 @@ bool GlShaderContent::assignShaderConstantBuffer(const std::string& name, Shader
 		if (entry == buffer_entries.end()) {
 			BufferEntry buffer_entry;
 			buffer_entry.buffer  = buffer_content->getShaderConstantBuffer();
-			buffer_entry.version = buffer_content->getShaderConstantBuffer()->getChangeVersion();
+			buffer_entry.version = 0;
+
+			// store uniform informations for each uniform, which belongs to this buffer
+			const ShaderConstantBufferTemplate::EntryList *entries = buffer_template->getEntries();
+			for(ShaderConstantBufferTemplate::EntryList::const_iterator it_unif=entries->begin(); it_unif!=entries->end(); it_unif++) {
+				std::map<std::string,GLint>::iterator it_handle = uniform_attributes.find(it_unif->name);
+
+				if (it_handle != uniform_attributes.end()) {
+					UniformEntry uniform_entry;
+					uniform_entry.entry  = &(*it_unif);
+					uniform_entry.handle = it_handle->second;
+					buffer_entry.buffer_uniforms.push_back(uniform_entry);
+				}
+			}
+
 			buffer_entries[buffer_template] = buffer_entry;
 
 			entry = buffer_entries.find(buffer_template);
@@ -337,13 +354,13 @@ bool GlShaderContent::assignShaderConstantBuffer(const std::string& name, Shader
 			entry->second.version = new_version;
 			entry->second.buffer  = buffer_content->getShaderConstantBuffer();
 
-			const ShaderConstantBufferTemplate::EntryList *entries = buffer_template->getEntries();
-			for(ShaderConstantBufferTemplate::EntryList::const_iterator it=entries->begin(); it!=entries->end(); it++) {
+			const UniformEntryList *uniform_entries = &(entry->second.buffer_uniforms);
+			for(UniformEntryList::const_iterator it=uniform_entries->begin(); it!=uniform_entries->end(); it++) {
 				bool success = setShaderValue(
-									it->name,
-									it->type,
-									it->elements,
-									buffer_content->getShaderConstantBuffer()->getDataPtr() + it->offset
+									it->handle,
+									it->entry->type,
+									it->entry->elements,
+									buffer_content->getShaderConstantBuffer()->getDataPtr() + it->entry->offset
 				);
 
 				assert(success);
@@ -359,10 +376,16 @@ bool GlShaderContent::assignShaderConstantBuffer(const std::string& name, Shader
 
 bool GlShaderContent::setShaderValue(const std::string &name, ValueType type, size_t elements, void *pValue) {
 	std::map<std::string,GLint>::iterator it = uniform_attributes.find(name);
-
-	if (it != uniform_attributes.end() && it->second != -1) {
+	if (it != uniform_attributes.end()) {
 		GLint attrib_handle = it->second;
+		return setShaderValue(attrib_handle, type, elements, pValue);
+	}
 
+	return false;
+}
+
+bool GlShaderContent::setShaderValue(GLint attrib_handle, ValueType type, size_t elements, void *pValue) {
+	if (attrib_handle != -1) {
 		switch(type) {
 			case TypeInt32: {
 				if (elements == 1) {
@@ -404,6 +427,10 @@ bool GlShaderContent::setShaderValue(const std::string &name, ValueType type, si
 			case TypeMatrix4x4f: {
 				glUniformMatrix4fv(attrib_handle, elements, false, reinterpret_cast<GLfloat*>(pValue));
 				break;
+			}
+
+			default: {
+				return false;
 			}
 		}
 

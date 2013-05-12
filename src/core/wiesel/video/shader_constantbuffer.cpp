@@ -85,6 +85,15 @@ const ShaderConstantBufferTemplate::Entry *ShaderConstantBufferTemplate::findEnt
 }
 
 
+ShaderConstantBuffer *ShaderConstantBufferTemplate::getSharedBuffer() {
+	if (shared_buffer == NULL) {
+		shared_buffer = new ShaderConstantBuffer(this);
+	}
+
+	return shared_buffer;
+}
+
+
 
 
 
@@ -159,6 +168,82 @@ ShaderConstantBuffer::~ShaderConstantBuffer() {
 	}
 
 	return;
+}
+
+
+
+bool ShaderConstantBuffer::setShaderValueAt(index_t index, int32_t i) {
+	return setShaderValueAt(index, TypeInt32, 1, &i);
+}
+
+bool ShaderConstantBuffer::setShaderValueAt(index_t index, float f) {
+	return setShaderValueAt(index, TypeFloat, 1, &f);
+}
+
+bool ShaderConstantBuffer::setShaderValueAt(index_t index, const vector2d &v) {
+	return setShaderValueAt(index, TypeVector2f, 1, (const float*)v);
+}
+
+bool ShaderConstantBuffer::setShaderValueAt(index_t index, const vector3d &v) {
+	return setShaderValueAt(index, TypeVector3f, 1, (const float*)v);
+}
+
+bool ShaderConstantBuffer::setShaderValueAt(index_t index, const matrix4x4 &m) {
+	return setShaderValueAt(index, TypeMatrix4x4f, 1, (const float*)m);
+}
+
+bool ShaderConstantBuffer::setShaderValueAt(index_t index, ValueType type, size_t elements, const void *pValue) {
+	assert(index >= 0);
+
+	if (getTemplate()) {
+		const ShaderConstantBufferTemplate::EntryList* entries = getTemplate()->getEntries();
+		assert(index < static_cast<index_t>(entries->size()));
+
+		return writeDataAtOffset(
+					(*entries)[index].offset,
+					pValue,
+					elements * getTypeSize(type)
+		);
+	}
+
+	return false;
+}
+
+
+
+
+ShaderConstantBuffer::index_t ShaderConstantBuffer::getShaderValueIndex(const std::string& name) const {
+	if (getTemplate()) {
+		for(index_t i=getTemplate()->getEntries()->size(); --i>=0;) {
+			if ((*(getTemplate()->getEntries()))[i].name == name) {
+				return i;
+			}
+		}
+	}
+
+	return -1;
+}
+
+
+
+const ShaderConstantBuffer::data_t ShaderConstantBuffer::getShaderDataPointer(const std::string &name, ValueType type, size_t elements) const {
+	if (getTemplate()) {
+		for(
+				ShaderConstantBufferTemplate::EntryList::const_iterator
+				it  = getTemplate()->getEntries()->begin();
+				it != getTemplate()->getEntries()->end();
+				it++
+		) {
+			if (it->name == name) {
+				assert(it->type == type);
+				assert(it->elements >= elements);
+
+				return data + it->offset;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 

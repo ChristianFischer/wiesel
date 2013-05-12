@@ -73,10 +73,10 @@ namespace video {
 
 	public:
 		/// assigns a constant buffer to the current shader instance.
-		virtual bool assignShaderConstantBuffer(const std::string &name, wiesel::video::ShaderConstantBufferContent *buffer_content);
+		virtual bool assignShaderConstantBuffer(const wiesel::video::ShaderConstantBufferTemplate *buffer_template, wiesel::video::ShaderConstantBufferContent *buffer_content);
 
 		/// assigns a constant buffer to the current shader instance.
-		bool assignShaderConstantBuffer(const std::string &name, Dx11ShaderConstantBufferContent *buffer_content);
+		bool assignShaderConstantBuffer(const wiesel::video::ShaderConstantBufferTemplate *buffer_template, Dx11ShaderConstantBufferContent *buffer_content);
 
 		/// bind this shader to the context
 		bool bind(DirectX11RenderContext *render_context);
