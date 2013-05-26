@@ -106,6 +106,9 @@ void SpriteNode::setTexture(Texture* texture) {
 	// reset current sprite, when texture was set manually
 	safe_release(this->sprite);
 
+	// need to update the vertex buffer
+	vbo_dirty = true;
+
 	return;
 }
 
@@ -124,6 +127,7 @@ void SpriteNode::setSpriteFrame(SpriteFrame* sprite) {
 
 			setBounds(rectangle(sprite->getSize()));
 			setTransformDirty();
+			vbo_dirty = true;
 		}
 	}
 
