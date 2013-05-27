@@ -150,22 +150,22 @@ void Sdl2VideoDeviceDriver::onEvent(const SDL_Event& event) {
 	switch(event.type) {
 		case SDL_MOUSEBUTTONDOWN: {
 			vector2d location = convertScreenToWorld(vector2d(event.button.x, event.button.y));
-			getScreen()->getTouchHandler()->startTouch(event.button.button, location.x, location.y);
+			getScreen()->getTouchHandler()->startTouch(event.button.button - 1, location.x, location.y);
 			break;
 		}
 
 		case SDL_MOUSEMOTION: {
 			vector2d location = convertScreenToWorld(vector2d(event.motion.x, event.motion.y));
 
-			for(int button=0; button<5; button++) {
-				getScreen()->getTouchHandler()->updateTouchLocation(button, location.x, location.y);
+			for(int button=1; button<=5; button++) {
+				getScreen()->getTouchHandler()->updateTouchLocation(button - 1, location.x, location.y);
 			}
 
 			break;
 		}
 
 		case SDL_MOUSEBUTTONUP: {
-			getScreen()->getTouchHandler()->releaseTouch(event.button.button);
+			getScreen()->getTouchHandler()->releaseTouch(event.button.button - 1);
 			break;
 		}
 	}
