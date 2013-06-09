@@ -24,6 +24,8 @@
 
 #include <wiesel/util/log.h>
 
+#include <sstream>
+
 using namespace wiesel;
 using namespace wiesel::video;
 using namespace wiesel::video::gl;
@@ -51,11 +53,40 @@ static GLuint compile(GLenum type, DataSource *source) {
 	GLint  compiled = 0;
 	GLuint shader = 0;
 
+	// check, if this source is a FileDataSource
+	FileDataSource *file_data_source = dynamic_cast<FileDataSource*>(source);
+
+	// sources data
+	std::vector<const GLchar*>	list_sources;
+	std::vector<GLint>			list_sources_length;
+	std::string					source_line_string;
+
+	// when the source comes from a file, we're adding a line-hint
+	// before the source to get the filename included in our error messages
+	if (file_data_source) {
+		std::stringstream ss;
+		ss << "#line 0 ";
+		ss << '"';
+		ss << file_data_source->getFile()->getFullPath();
+		ss << '"';
+		ss << std::endl;
+
+		// prevent this from becoming out of scope
+		source_line_string = ss.str();
+
+		list_sources.push_back(source_line_string.c_str());
+		list_sources_length.push_back(source_line_string.length());
+	}
+
+	// add the actual shader code
+	list_sources.push_back(src_string);
+	list_sources_length.push_back(src_length);
+
 	// create the shader object
 	shader = glCreateShader(type);
 
 	// assign the shader source
-	glShaderSource(shader, 1, &src_string, &src_length);
+	glShaderSource(shader, list_sources.size(), list_sources.data(), list_sources_length.data());
 	CHECK_GL_ERROR;
 
 	// compile the shader
@@ -66,29 +97,41 @@ static GLuint compile(GLenum type, DataSource *source) {
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 	CHECK_GL_ERROR;
 
-	if (!compiled) {
-		// get the info message, which caused the compile to fail
-		GLint infoLen = 0;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-		logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG,
-				"Could not compile shader:\n%s",
-				std::string(src_string, src_length).c_str()
-		);
+	// always check the info log to see warning messages
+	GLint infoLen = 0;
+	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
 
-		if (infoLen) {
-			char *buffer = new char[infoLen];
+	if (!compiled || infoLen > 1) {
+		LogLevel loglevel = compiled ? LogLevel_Warning : LogLevel_Error;
 
-			if (buffer) {
-				GLint length_read = 0;
-				glGetShaderInfoLog(shader, infoLen, &length_read, buffer);
-				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "%s", buffer);
-				delete buffer;
-			}
-			else {
-				logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "unknown reason.");
-			}
+		if (file_data_source) {
+			logmsg(loglevel, WIESEL_GL_LOG_TAG,
+					"In shader %s",
+					file_data_source->getFile()->getFullPath().c_str()
+			);
+		}
+		else {
+			// print the shader source, which has failed
+			logmsg(loglevel, WIESEL_GL_LOG_TAG,
+					"Shader code:\n%s",
+					std::string(src_string, src_length).c_str()
+			);
 		}
 
+		// get the error log
+		if (infoLen > 1) {
+			char *buffer = new char[infoLen];
+			GLint length_read = 0;
+			glGetShaderInfoLog(shader, infoLen, &length_read, buffer);
+			logmsg(loglevel, WIESEL_GL_LOG_TAG, "%s", buffer);
+			delete buffer;
+		}
+		else {
+			logmsg(loglevel, WIESEL_GL_LOG_TAG, "unknown error.");
+		}
+	}
+
+	if (!compiled) {
 		glDeleteShader(shader);
 		shader = 0;
 	}
@@ -144,23 +187,36 @@ static bool link(GLuint program) {
 		GLint linkStatus = GL_FALSE;
 		glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
 
-		if (linkStatus != GL_TRUE) {
-			GLint length = 0;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+		GLint infoLen = 0;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLen);
 
-			if (length) {
-				char* buffer = new char[length];
-				if (buffer) {
-					GLint length_read = 0;
-					glGetProgramInfoLog(program, length, &length_read, buffer);
-					logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Could not link program:\n%s\n", buffer);
-					delete buffer;
-				}
-				else {
-					logmsg(LogLevel_Error, WIESEL_GL_LOG_TAG, "Could not link program for unknown reason.");
-				}
+		if (linkStatus != GL_TRUE || infoLen > 1) {
+			LogLevel loglevel = linkStatus == GL_TRUE ? LogLevel_Warning : LogLevel_Error;
+
+			if (infoLen) {
+				char* buffer = new char[infoLen];
+				GLint length_read = 0;
+				glGetProgramInfoLog(program, infoLen, &length_read, buffer);
+
+				logmsg(
+						loglevel,
+						WIESEL_GL_LOG_TAG,
+						"On linking shader program:\n%s\n",
+						buffer
+				);
+
+				delete buffer;
 			}
+			else {
+				logmsg(
+						loglevel,
+						WIESEL_GL_LOG_TAG,
+						"Could not link program for unknown reason."
+				);
+			}
+		}
 
+		if (linkStatus != GL_TRUE) {
 			return false;
 		}
 
@@ -292,10 +348,12 @@ void GlShaderContent::bindAttributes() {
 				e_it++
 		) {
 			GLint handle = glGetUniformLocation(program_handle, e_it->name.c_str());
-			assert(handle != -1);
+		//	assert(handle != -1);
 			CHECK_GL_ERROR;
 
-			uniform_attributes[e_it->name] = handle;
+			if (handle != -1) {
+				uniform_attributes[e_it->name] = handle;
+			}
 		}
 	}
 
@@ -355,15 +413,19 @@ bool GlShaderContent::assignShaderConstantBuffer(const ShaderConstantBufferTempl
 			entry->second.buffer  = buffer_content->getShaderConstantBuffer();
 
 			const UniformEntryList *uniform_entries = &(entry->second.buffer_uniforms);
-			for(UniformEntryList::const_iterator it=uniform_entries->begin(); it!=uniform_entries->end(); it++) {
-				bool success = setShaderValue(
-									it->handle,
-									it->entry->type,
-									it->entry->elements,
-									buffer_content->getShaderConstantBuffer()->getDataPtr() + it->entry->offset
-				);
+			const ShaderConstantBuffer::data_t data_ptr = buffer_content->getShaderConstantBuffer()->getDataPtr();
 
-				assert(success);
+			for(UniformEntryList::const_iterator it=uniform_entries->begin(); it!=uniform_entries->end(); it++) {
+				if (it->handle != -1) {
+					bool success = setShaderValue(
+										it->handle,
+										it->entry->type,
+										it->entry->elements,
+										data_ptr + it->entry->offset
+					);
+
+					assert(success);
+				}
 			}
 		}
 
