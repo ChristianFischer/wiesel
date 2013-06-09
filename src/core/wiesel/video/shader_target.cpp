@@ -86,6 +86,54 @@ void ShaderTarget::setShader(Shader* shader) {
 }
 
 
+bool ShaderTarget::assignShaderConstantBuffer(const std::string& name, ShaderConstantBuffer* buffer) {
+	// buffer needs to be valid - no empty buffer slots are allowed
+	assert(buffer);
+	if (buffer == NULL) {
+		return false;
+	}
+
+	// the shader needs to be set before assigning buffers
+	assert(getShader());
+
+	if (getShader()) {
+		ShaderConstantBufferTemplate *tpl = getShader()->findConstantBufferTemplate(name);
+		assert(tpl);
+
+		if (tpl) {
+			assert(tpl == buffer->getTemplate());
+
+			if (tpl == buffer->getTemplate()) {
+				BufferMap::iterator it = buffers.find(name);
+				if (it != buffers.end()) {
+					if (it->second != buffer) {
+						release(it->second);
+						it->second = keep(buffer);
+					}
+				}
+				else {
+					buffers[name] = keep(buffer);
+				}
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+ShaderConstantBuffer* ShaderTarget::findAssignedShaderConstantBuffer(const std::string& name) {
+	BufferMap::iterator it = buffers.find(name);
+	if (it != buffers.end()) {
+		return it->second;
+	}
+
+	return NULL;
+}
+
+
 bool ShaderTarget::doSetShaderValue(const std::string &name, ValueType type, size_t elements, const void *pValue) {
 	bool success = false;
 

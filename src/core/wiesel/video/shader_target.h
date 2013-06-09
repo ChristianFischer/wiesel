@@ -62,6 +62,24 @@ namespace video {
 			return shader;
 		}
 
+		/**
+		 * @brief Assigns a n existing shader constant buffer to this target.
+		 * A buffer may be used for multiple targets.
+		 * The shader has to be set before assigning a buffer and the buffer
+		 * must belong to the target's current shader.
+		 * @param name		The name of the buffer, which will be assigned.
+		 * @param buffer	The buffer to be assigned.
+		 * @return \c true on success, \c false otherwise.
+		 */
+		bool assignShaderConstantBuffer(const std::string& name, ShaderConstantBuffer *buffer);
+
+		/**
+		 * @brief Get a constant buffer, which is currently assigned to this shader target.
+		 * @param name		The name of the requested buffer.
+		 * @return The requested buffer, or \c NULL, when no buffer was found.
+		 */
+		ShaderConstantBuffer* findAssignedShaderConstantBuffer(const std::string& name);
+
 	// ConstantBufferSetter
 	public:
 		virtual const data_t getShaderDataPointer(const std::string &name, ValueType type, size_t elements) const;
