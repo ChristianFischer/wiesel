@@ -85,6 +85,18 @@ const ShaderConstantBufferTemplate::Entry *ShaderConstantBufferTemplate::findEnt
 }
 
 
+ShaderConstantBufferTemplate::index_t ShaderConstantBufferTemplate::findShaderValueIndex(const std::string& name) const {
+	for(index_t i=getEntries()->size(); --i>=0;) {
+		if ((*(getEntries()))[i].name == name) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+
+
 ShaderConstantBuffer *ShaderConstantBufferTemplate::getSharedBuffer() {
 	if (shared_buffer == NULL) {
 		shared_buffer = new ShaderConstantBuffer(this);
@@ -212,20 +224,6 @@ bool ShaderConstantBuffer::setShaderValueAt(index_t index, ValueType type, size_
 
 
 
-ShaderConstantBuffer::index_t ShaderConstantBuffer::getShaderValueIndex(const std::string& name) const {
-	if (getTemplate()) {
-		for(index_t i=getTemplate()->getEntries()->size(); --i>=0;) {
-			if ((*(getTemplate()->getEntries()))[i].name == name) {
-				return i;
-			}
-		}
-	}
-
-	return -1;
-}
-
-
-
 const ShaderConstantBuffer::data_t ShaderConstantBuffer::getShaderDataPointer(const std::string &name, ValueType type, size_t elements) const {
 	if (getTemplate()) {
 		for(
@@ -240,6 +238,20 @@ const ShaderConstantBuffer::data_t ShaderConstantBuffer::getShaderDataPointer(co
 
 				return data + it->offset;
 			}
+		}
+	}
+
+	return NULL;
+}
+
+
+const ShaderConstantBuffer::data_t ShaderConstantBuffer::getShaderDataPointerAt(ShaderConstantBufferTemplate::index_t index) const {
+	if (getTemplate()) {
+		const ShaderConstantBufferTemplate::EntryList *entries = getTemplate()->getEntries();
+		assert(index < static_cast<int>(entries->size()));
+
+		if (index >= 0 && index < static_cast<int>(entries->size())) {
+			return data + entries->at(index).offset;
 		}
 	}
 

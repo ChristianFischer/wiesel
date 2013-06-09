@@ -135,6 +135,11 @@ void Node::setTransformDirty() {
 
 
 void Node::updateTransform() {
+	// update the parent's transform first, if neccessary
+	if (getParent() && getParent()->isTransformDirty()) {
+		getParent()->updateTransform();
+	}
+
 	// compute the local transform
 	local_transform = matrix4x4::identity;
 	computeLocalTransform(&local_transform);

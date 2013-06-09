@@ -64,6 +64,9 @@ namespace video {
 		/// Alias type for a list of entries
 		typedef std::vector<Entry>		EntryList;
 
+		/// type for indices of the values within this buffer
+		typedef signed int index_t;
+
 	public:
 		ShaderConstantBufferTemplate();
 
@@ -85,6 +88,13 @@ namespace video {
 		 * or \c NULL, if no entry with that name was found.
 		 */
 		const Entry *findEntry(const std::string &name) const;
+
+		/**
+		 * @brief Tries to find the index of a specific shader value.
+		 * @param name		Name of the variable to get.
+		 * @return The index of the requested variable or \c -1, when not found.
+		 */
+		index_t findShaderValueIndex(const std::string& name) const;
 
 		/**
 		 * @brief Returns the list of all entries, contained in this buffer.
@@ -284,13 +294,6 @@ namespace video {
 	// data access
 	public:
 		/**
-		 * @brief Get the index of a specific shader value.
-		 * @param name		Name of the variable to get.
-		 * @return The index of the requested variable or \c -1, when not found.
-		 */
-		index_t getShaderValueIndex(const std::string& name) const;
-
-		/**
 		 * @brief Writes raw data to a given offset.
 		 * The buffer needs to be large enough to store the whole data block,
 		 * otherwise the operation will fail.
@@ -322,6 +325,13 @@ namespace video {
 
 	// ShaderConstantBufferWriter
 	public:
+		/**
+		 * @brief Get a pointer to the value of a variable by it's index.
+		 * @param index		The index of the requested variable.
+		 * @return A pointer to the requested variable, or \c NULL, when the variable was not found.
+		 */
+		virtual const data_t getShaderDataPointerAt(ShaderConstantBufferTemplate::index_t index) const;
+
 		virtual const data_t getShaderDataPointer(const std::string &name, ValueType type, size_t elements) const;
 
 	// ShaderConstantBufferWriter

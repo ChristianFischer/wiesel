@@ -174,11 +174,7 @@ void OpenGlRenderContext::setShader(Shader* shader) {
 				ShaderConstantBuffer *projection_buffer = projection_buffer_template->getSharedBuffer();
 
 				// get the data pointer
-				ShaderConstantBuffer::data_t projection_data_ptr = projection_buffer->getShaderDataPointer(
-													Shaders::UNIFORM_PROJECTION_MATRIX,
-													TypeMatrix4x4f,
-													1
-				);
+				ShaderConstantBuffer::data_t projection_data_ptr = projection_buffer->getShaderDataPointerAt(0);
 
 				// check if the projection matrix has changed
 				if (this->projection != *(reinterpret_cast<const matrix4x4*>(projection_data_ptr))) {
