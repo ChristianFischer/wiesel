@@ -20,7 +20,10 @@
  * Boston, MA 02110-1301 USA
  */
 #include "shaders.h"
+#include "shader_constantbuffer_builder.h"
 #include "wiesel/util/log.h"
+#include "shader_builder.h"
+
 #include <sstream>
 #include <string>
 
@@ -82,28 +85,29 @@ Shader *Shaders::getShaderFor(VertexBuffer* vbo) {
 	// check, if there's already an shader in the vertex shader cache
 	Shader *shader = getShaderCache()->get(key);
 	if (shader == NULL) {
-		shader = new Shader();
-		DataSource *src_vert_glsl = getGlslVertexShaderSourceFor(shader, vbo);
-		DataSource *src_frag_glsl = getGlslFragmentShaderSourceFor(shader, vbo);
-		DataSource *src_vert_hlsl = getHlslVertexShaderSourceFor(shader, vbo);
-		DataSource *src_pixl_hlsl = getHlslFragmentShaderSourceFor(shader, vbo);
+		ShaderBuilder shader_builder;
+		DataSource *src_vert_glsl = getGlslVertexShaderSourceFor(&shader_builder, vbo);
+		DataSource *src_frag_glsl = getGlslFragmentShaderSourceFor(&shader_builder, vbo);
+		DataSource *src_vert_hlsl = getHlslVertexShaderSourceFor(&shader_builder, vbo);
+		DataSource *src_pixl_hlsl = getHlslFragmentShaderSourceFor(&shader_builder, vbo);
 
 		if (src_vert_glsl) {
-			shader->setSource(Shader::GLSL_VERTEX_SHADER,   src_vert_glsl);
+			shader_builder.setSource(Shader::GLSL_VERTEX_SHADER,   src_vert_glsl);
 		}
 
 		if (src_frag_glsl) {
-			shader->setSource(Shader::GLSL_FRAGMENT_SHADER, src_frag_glsl);
+			shader_builder.setSource(Shader::GLSL_FRAGMENT_SHADER, src_frag_glsl);
 		}
 
 		if (src_vert_hlsl) {
-			shader->setSource(Shader::HLSL_VERTEX_SHADER,   src_vert_hlsl);
+			shader_builder.setSource(Shader::HLSL_VERTEX_SHADER,   src_vert_hlsl);
 		}
 
 		if (src_pixl_hlsl) {
-			shader->setSource(Shader::HLSL_FRAGMENT_SHADER, src_pixl_hlsl);
+			shader_builder.setSource(Shader::HLSL_FRAGMENT_SHADER, src_pixl_hlsl);
 		}
 
+		shader = shader_builder.create();
 		getShaderCache()->add(key, shader);
 	}
 
@@ -117,8 +121,9 @@ ShaderConstantBufferTemplate *Shaders::getProjectionMatrixBufferTemplate() {
 	// check, if there's already a template in the cache
 	projection_template = getShaderConstantBufferTemplateCache()->get(CONSTANTBUFFER_PROJECTION_MATRIX);
 	if (projection_template == NULL) {
-		projection_template = new ShaderConstantBufferTemplate();
-		projection_template->addEntry(TypeMatrix4x4f, 1, UNIFORM_PROJECTION_MATRIX);
+		ShaderConstantBufferTemplateBuilder builder;
+		builder.addEntry(TypeMatrix4x4f, 1, UNIFORM_PROJECTION_MATRIX);
+		projection_template = builder.create();
 
 		getShaderConstantBufferTemplateCache()->add(CONSTANTBUFFER_PROJECTION_MATRIX, projection_template);
 	}
@@ -133,8 +138,9 @@ ShaderConstantBufferTemplate *Shaders::getModelviewMatrixBufferTemplate() {
 	// check, if there's already a template in the cache
 	modelview_template = getShaderConstantBufferTemplateCache()->get(CONSTANTBUFFER_MODELVIEW_MATRIX);
 	if (modelview_template == NULL) {
-		modelview_template = new ShaderConstantBufferTemplate();
-		modelview_template->addEntry(TypeMatrix4x4f, 1, UNIFORM_MODELVIEW_MATRIX);
+		ShaderConstantBufferTemplateBuilder builder;
+		builder.addEntry(TypeMatrix4x4f, 1, UNIFORM_MODELVIEW_MATRIX);
+		modelview_template = builder.create();
 
 		getShaderConstantBufferTemplateCache()->add(CONSTANTBUFFER_MODELVIEW_MATRIX, modelview_template);
 	}
@@ -143,7 +149,7 @@ ShaderConstantBufferTemplate *Shaders::getModelviewMatrixBufferTemplate() {
 }
 
 
-DataSource *Shaders::getGlslVertexShaderSourceFor(Shader *shader, VertexBuffer* vbo) {
+DataSource *Shaders::getGlslVertexShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer* vbo) {
 	string key = vbo->getDefaultShaderName();
 
 	// check, if there's already an shader in the vertex shader cache
@@ -201,42 +207,30 @@ DataSource *Shaders::getGlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 	}
 
 	// when given a shader, configure all data members
-	if (shader) {
-		shader->setAttributeName(Shader::VertexPosition,   0, ATTRIBUTE_VERTEX_POSITION);
+	if (shader_builder) {
+		shader_builder->setDefaultAttributeName(Shader::VertexPosition,   0);
 
 		if (vbo->hasNormals()) {
-			shader->setAttributeName(Shader::VertexNormal, 0, ATTRIBUTE_VERTEX_NORMAL);
+			shader_builder->setDefaultAttributeName(Shader::VertexNormal, 0);
 		}
 
 		if (vbo->hasColors()) {
-			shader->setAttributeName(Shader::VertexColor,  0, ATTRIBUTE_VERTEX_COLOR);
+			shader_builder->setDefaultAttributeName(Shader::VertexColor,  0);
 		}
 
 		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
-			stringstream tex_attr;
-			tex_attr << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
-			tex_attr << i;
-			shader->setAttributeName(Shader::VertexTextureCoordinate, i, tex_attr.str());
+			shader_builder->setDefaultAttributeName(Shader::VertexTextureCoordinate, i);
 		}
 
-		shader->addConstantBuffer(
-								CONSTANTBUFFER_MODELVIEW_MATRIX,
-								Shader::Context_VertexShader,
-								getModelviewMatrixBufferTemplate()
-		);
-
-		shader->addConstantBuffer(
-								CONSTANTBUFFER_PROJECTION_MATRIX,
-								Shader::Context_VertexShader,
-								getProjectionMatrixBufferTemplate()
-		);
+		shader_builder->addDefaultModelviewMatrixConstantBuffer();
+		shader_builder->addDefaultProjectionMatrixConstantBuffer();
 	}
 
 	return data_source;
 }
 
 
-DataSource *Shaders::getGlslFragmentShaderSourceFor(Shader *shader, VertexBuffer* vbo) {
+DataSource *Shaders::getGlslFragmentShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer* vbo) {
 	string key = vbo->getDefaultShaderName();
 
 	// check, if there's already an shader in the vertex shader cache
@@ -328,12 +322,9 @@ DataSource *Shaders::getGlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 		getGlslFragmentShaderCache()->add(key, data_source);
 	}
 
-	if (shader) {
+	if (shader_builder) {
 		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
-			stringstream tex_attr;
-			tex_attr << UNIFORM_TEXTURE;
-			tex_attr << i;
-			shader->setAttributeName(Shader::Texture, i, tex_attr.str());
+			shader_builder->setDefaultAttributeName(Shader::Texture, i);
 		}
 	}
 
@@ -343,7 +334,7 @@ DataSource *Shaders::getGlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 
 
 
-DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* vbo) {
+DataSource *Shaders::getHlslVertexShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer* vbo) {
 	string key = vbo->getDefaultShaderName();
 
 	// check, if there's already an shader in the vertex shader cache
@@ -432,42 +423,30 @@ DataSource *Shaders::getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer* 
 	}
 
 	// when given a shader, configure all data members
-	if (shader) {
-		shader->setAttributeName(Shader::VertexPosition,   0, ATTRIBUTE_VERTEX_POSITION);
+	if (shader_builder) {
+		shader_builder->setDefaultAttributeName(Shader::VertexPosition,   0);
 
 		if (vbo->hasNormals()) {
-			shader->setAttributeName(Shader::VertexNormal, 0, ATTRIBUTE_VERTEX_NORMAL);
+			shader_builder->setDefaultAttributeName(Shader::VertexNormal, 0);
 		}
 
 		if (vbo->hasColors()) {
-			shader->setAttributeName(Shader::VertexColor,  0, ATTRIBUTE_VERTEX_COLOR);
+			shader_builder->setDefaultAttributeName(Shader::VertexColor,  0);
 		}
 
 		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
-			stringstream tex_attr;
-			tex_attr << ATTRIBUTE_VERTEX_TEXTURE_COORDINATE;
-			tex_attr << i;
-			shader->setAttributeName(Shader::VertexTextureCoordinate, i, tex_attr.str());
+			shader_builder->setDefaultAttributeName(Shader::VertexTextureCoordinate, i);
 		}
 
-		shader->addConstantBuffer(
-								CONSTANTBUFFER_MODELVIEW_MATRIX,
-								Shader::Context_VertexShader,
-								getModelviewMatrixBufferTemplate()
-		);
-
-		shader->addConstantBuffer(
-								CONSTANTBUFFER_PROJECTION_MATRIX,
-								Shader::Context_VertexShader,
-								getProjectionMatrixBufferTemplate()
-		);
+		shader_builder->addDefaultModelviewMatrixConstantBuffer();
+		shader_builder->addDefaultProjectionMatrixConstantBuffer();
 	}
 
 	return data_source;
 }
 
 
-DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer* vbo) {
+DataSource *Shaders::getHlslFragmentShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer* vbo) {
 	string key = vbo->getDefaultShaderName();
 
 	// check, if there's already an shader in the vertex shader cache
@@ -583,12 +562,9 @@ DataSource *Shaders::getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer
 		getHlslFragmentShaderCache()->add(key, data_source);
 	}
 
-	if (shader) {
+	if (shader_builder) {
 		for(int i=0; i<vbo->getNumberOfTextureLayers(); i++) {
-			stringstream tex_attr;
-			tex_attr << UNIFORM_TEXTURE;
-			tex_attr << i;
-			shader->setAttributeName(Shader::Texture, i, tex_attr.str());
+			shader_builder->setDefaultAttributeName(Shader::Texture, i);
 		}
 	}
 

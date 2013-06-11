@@ -22,6 +22,8 @@
 #include "lighting_manager_builder.h"
 #include "lighting_manager.h"
 
+#include "wiesel/video/shader_constantbuffer_builder.h"
+
 #include <sstream>
 
 using namespace wiesel;
@@ -181,7 +183,7 @@ void LightingManagerBuilder::finishLightInfoMembers() {
 		}
 
 		if (getLightsCountUniformName().empty() == false) {
-			getConstantBufferTemplate()->addEntry(TypeInt32, 1, getLightsCountUniformName());
+			getConstantBufferTemplateBuilder()->addEntry(TypeInt32, 1, getLightsCountUniformName());
 		}
 
 		// fill the constant buffer template with all required members
@@ -192,7 +194,7 @@ void LightingManagerBuilder::finishLightInfoMembers() {
 				ss << '[' << light << ']';
 				ss << '.' << it->name;
 
-				getConstantBufferTemplate()->addEntry(it->type, 1, ss.str());
+				getConstantBufferTemplateBuilder()->addEntry(it->type, 1, ss.str());
 			}
 		}
 
@@ -212,7 +214,7 @@ void LightingManagerBuilder::finishLightInfoMembers() {
 				ss << '.' << it->name;
 
 				ShaderConstantBufferTemplate::index_t idx;
-				idx = getConstantBufferTemplate()->findShaderValueIndex(ss.str());
+				idx = getConstantBufferTemplateBuilder()->findShaderValueIndex(ss.str());
 				assert(idx != -1);
 
 				info_member.member_index_per_light[light] = idx;
@@ -224,18 +226,12 @@ void LightingManagerBuilder::finishLightInfoMembers() {
 		// get the index of the lights count member
 		if (getLightsCountUniformName().empty() == false) {
 			ShaderConstantBufferTemplate::index_t idx;
-			idx = getConstantBufferTemplate()->findShaderValueIndex(getLightsCountUniformName());
+			idx = getConstantBufferTemplateBuilder()->findShaderValueIndex(getLightsCountUniformName());
 			manager->memberindex_lights_count = idx;
 		}
 		else {
 			manager->memberindex_lights_count = -1;
 		}
-
-		// create the constant buffer based on this template
-		manager->buffer = new ShaderConstantBuffer(manager->getConstantBufferTemplate());
-
-		// initialize the buffer with zero active lights
-		manager->getConstantBuffer()->setShaderValue(getLightsCountUniformName(), 0);
 
 		lightinfo_created = true;
 	}
@@ -246,12 +242,13 @@ void LightingManagerBuilder::finishLightInfoMembers() {
 
 
 
-ShaderConstantBufferTemplate* LightingManagerBuilder::getConstantBufferTemplate() {
-	if (manager) {
-		return manager->buffer_template;
-	}
+ShaderConstantBufferTemplateBuilder* LightingManagerBuilder::getConstantBufferTemplateBuilder() {
+	return &buffer_builder;
+}
 
-	return NULL;
+
+const ShaderConstantBufferTemplateBuilder* LightingManagerBuilder::getConstantBufferTemplateBuilder() const {
+	return &buffer_builder;
 }
 
 
@@ -262,6 +259,15 @@ LightingManager* LightingManagerBuilder::create() {
 		if (this->lightinfo_created == false) {
 			finishLightInfoMembers();
 		}
+
+		// create the constant buffer template
+		manager->buffer_template = buffer_builder.create();
+
+		// create the constant buffer based on this template
+		manager->buffer = new ShaderConstantBuffer(manager->getConstantBufferTemplate());
+
+		// initialize the buffer with zero active lights
+		manager->getConstantBuffer()->setShaderValue(getLightsCountUniformName(), 0);
 
 		// clear the object reference to the created manager
 		// and set the builder's state to 'finished'

@@ -97,7 +97,7 @@ bool ShaderTarget::assignShaderConstantBuffer(const std::string& name, ShaderCon
 	assert(getShader());
 
 	if (getShader()) {
-		ShaderConstantBufferTemplate *tpl = getShader()->findConstantBufferTemplate(name);
+		const ShaderConstantBufferTemplate *tpl = getShader()->findConstantBufferTemplate(name);
 		assert(tpl);
 
 		if (tpl) {
@@ -163,7 +163,7 @@ void ShaderTarget::applyShaderConfigTo(RenderContext* rc) {
 
 	if (getShader()) {
 		for(BufferMap::iterator it=buffers.begin(); it!=buffers.end(); it++) {
-			ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(it->first);
+			const ShaderConstantBufferTemplate *buffer_template = getShader()->findConstantBufferTemplate(it->first);
 
 			if (buffer_template) {
 				rc->assignShaderConstantBuffer(buffer_template, it->second);

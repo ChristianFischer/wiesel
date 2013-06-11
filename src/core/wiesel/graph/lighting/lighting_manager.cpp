@@ -28,7 +28,7 @@ using namespace wiesel::video;
 LightingManager::LightingManager() {
 	this->max_light_sources			= 4;
 	this->memberindex_lights_count	= -1;
-	this->buffer_template			= new ShaderConstantBufferTemplate();
+	this->buffer_template			= NULL;
 }
 
 

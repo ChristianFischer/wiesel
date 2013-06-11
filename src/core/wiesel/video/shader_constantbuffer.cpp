@@ -35,45 +35,18 @@ using namespace std;
 
 
 
-ShaderConstantBufferTemplate::ShaderConstantBufferTemplate() {
+ShaderConstantBufferTemplateBase::ShaderConstantBufferTemplateBase() {
 	this->size	= 0;
 	return;
 }
 
 
-ShaderConstantBufferTemplate::~ShaderConstantBufferTemplate() {
+ShaderConstantBufferTemplateBase::~ShaderConstantBufferTemplateBase() {
 	return;
 }
 
 
-bool ShaderConstantBufferTemplate::addEntry(ValueType type, size_t elements, const std::string& name) {
-	size_t offset = 0;
-
-	// check, if there's already an entry with the same name
-	for(EntryList::iterator it=entries.begin(); it!=entries.end(); it++) {
-		if (it->name == name) {
-			return false;
-		}
-
-		offset += it->elements * getTypeSize(it->type);
-	}
-
-	Entry entry;
-	entry.type		= type;
-	entry.elements	= elements;
-	entry.offset	= offset;
-	entry.name		= name;
-
-	entries.push_back(entry);
-
-	// update the buffer's size
-	this->size = offset + (entry.elements * getTypeSize(entry.type));
-
-	return true;
-}
-
-
-const ShaderConstantBufferTemplate::Entry *ShaderConstantBufferTemplate::findEntry(const std::string& name) const {
+const ShaderConstantBufferTemplateBase::Entry *ShaderConstantBufferTemplateBase::findEntry(const std::string& name) const {
 	// check, if there's already an entry with the same name
 	for(EntryList::const_iterator it=entries.begin(); it!=entries.end(); it++) {
 		if (it->name == name) {
@@ -85,7 +58,7 @@ const ShaderConstantBufferTemplate::Entry *ShaderConstantBufferTemplate::findEnt
 }
 
 
-ShaderConstantBufferTemplate::index_t ShaderConstantBufferTemplate::findShaderValueIndex(const std::string& name) const {
+ShaderConstantBufferTemplateBase::index_t ShaderConstantBufferTemplateBase::findShaderValueIndex(const std::string& name) const {
 	for(index_t i=getEntries()->size(); --i>=0;) {
 		if ((*(getEntries()))[i].name == name) {
 			return i;
@@ -95,6 +68,18 @@ ShaderConstantBufferTemplate::index_t ShaderConstantBufferTemplate::findShaderVa
 	return -1;
 }
 
+
+
+
+
+ShaderConstantBufferTemplate::ShaderConstantBufferTemplate() {
+	return;
+}
+
+
+ShaderConstantBufferTemplate::~ShaderConstantBufferTemplate() {
+	return;
+}
 
 
 ShaderConstantBuffer *ShaderConstantBufferTemplate::getSharedBuffer() {
@@ -154,7 +139,9 @@ ShaderConstantBuffer::ShaderConstantBuffer() {
 }
 
 
-ShaderConstantBuffer::ShaderConstantBuffer(ShaderConstantBufferTemplate *buffer_template) {
+ShaderConstantBuffer::ShaderConstantBuffer(const ShaderConstantBufferTemplate *buffer_template) {
+	assert(buffer_template);
+
 	this->buffer_template	= buffer_template;
 	this->data				= NULL;
 	this->change_ver		= 1;

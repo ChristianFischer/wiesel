@@ -339,7 +339,7 @@ void GlShaderContent::bindAttributes() {
 			tpl_it != buffer_templates->end();
 			tpl_it++
 	) {
-		ShaderConstantBufferTemplate *buffer_template = tpl_it->buffer_template;
+		const ShaderConstantBufferTemplate *buffer_template = tpl_it->buffer_template;
 		const ShaderConstantBufferTemplate::EntryList *buffer_template_entries = buffer_template->getEntries();
 
 		for(ShaderConstantBufferTemplate::EntryList::const_iterator
