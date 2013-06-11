@@ -42,12 +42,13 @@ namespace video {
 	class ShaderConstantBuffer;
 	class ShaderConstantBufferContent;
 	class ShaderConstantBufferTemplate;
+	class ShaderConstantBufferTemplateBuilder;
 
 
 	/**
-	 * @brief A class which describes the content of a constant buffer.
+	 * @brief An abstract baseclass for \ref ShaderConstantBufferTemplate.
 	 */
-	class WIESEL_CORE_EXPORT ShaderConstantBufferTemplate : public virtual SharedObject
+	class WIESEL_CORE_EXPORT ShaderConstantBufferTemplateBase : public virtual SharedObject
 	{
 	public:
 		/**
@@ -67,22 +68,13 @@ namespace video {
 		/// type for indices of the values within this buffer
 		typedef signed int index_t;
 
-	public:
-		ShaderConstantBufferTemplate();
-
-		virtual ~ShaderConstantBufferTemplate();
+	protected:
+		ShaderConstantBufferTemplateBase();
 
 	public:
-		/**
-		 * @brief Adds a new entry for this constant buffer.
-		 * @param type		The type of the new entry.
-		 * @param elements	The number of elements, which belongs to this entry.
-		 *					This can be used to create an array of values.
-		 * @param name		The name of the new entry.
-		 * @return \c true, when the uniform was added successfully.
-		 */
-		bool addEntry(ValueType type, size_t elements, const std::string &name);
+		virtual ~ShaderConstantBufferTemplateBase();
 
+	public:
 		/**
 		 * @brief Find an entry entry matching the given name,
 		 * or \c NULL, if no entry with that name was found.
@@ -110,6 +102,28 @@ namespace video {
 			return size;
 		}
 
+	protected:
+		EntryList						entries;
+		size_t							size;
+	};
+
+
+
+
+	/**
+	 * @brief A class which describes the content of a constant buffer.
+	 */
+	class WIESEL_CORE_EXPORT ShaderConstantBufferTemplate : public ShaderConstantBufferTemplateBase
+	{
+	friend class ShaderConstantBufferTemplateBuilder;
+
+	private:
+		ShaderConstantBufferTemplate();
+
+	public:
+		virtual ~ShaderConstantBufferTemplate();
+
+	public:
 		/**
 		 * @brief Get or create a constant buffer, which can be used
 		 * shared between all instances of this template
@@ -119,9 +133,8 @@ namespace video {
 
 	private:
 		ref<ShaderConstantBuffer>		shared_buffer;
-		EntryList						entries;
-		size_t							size;
 	};
+
 
 
 
@@ -231,7 +244,7 @@ namespace video {
 		/// type for indices of the values within this buffer
 		typedef signed int index_t;
 
-		ShaderConstantBuffer(ShaderConstantBufferTemplate *buffer_template);
+		ShaderConstantBuffer(const ShaderConstantBufferTemplate *buffer_template);
 		virtual ~ShaderConstantBuffer();
 
 	private:
@@ -350,7 +363,7 @@ namespace video {
 		void incrementChangeVersion();
 
 	private:
-		ShaderConstantBufferTemplate*		buffer_template;
+		const ShaderConstantBufferTemplate*	buffer_template;
 		data_t								data;
 		version_t							change_ver;
 	};

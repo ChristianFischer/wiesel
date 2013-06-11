@@ -44,14 +44,17 @@ namespace video {
 
 
 	class Shader;
+	class ShaderBuilder;
 	class ShaderContent;
 
 
 	/**
 	 * @brief A class handling a shader object.
 	 */
-	class WIESEL_CORE_EXPORT Shader : public TDeviceResource<Screen,ShaderContent>
+	class WIESEL_CORE_EXPORT ShaderBase : public virtual SharedObject
 	{
+	friend class ShaderBuilder;
+
 	public:
 		static const char* GLSL_VERTEX_SHADER;		//!< Source type for GLSL vertex shaders.
 		static const char* GLSL_FRAGMENT_SHADER;	//!< Source type for GLSL fragment shaders.
@@ -83,12 +86,20 @@ namespace video {
 
 
 		/**
+		 * @brief A single entry of a \ref DataSource for this shader.
+		 */
+		struct DataSourceEntry {
+			ref<DataSource>						source;
+		};
+
+
+		/**
 		 * @brief Entry of a constant buffer within this shader.
 		 */
 		struct ConstantBufferTplEntry {
-			std::string						name;
-			uint16_t						context;
-			ShaderConstantBufferTemplate*	buffer_template;
+			std::string							name;
+			uint16_t							context;
+			ref<ShaderConstantBufferTemplate>	buffer_template;
 		};
 
 
@@ -99,25 +110,16 @@ namespace video {
 		typedef std::vector<AttributeNamesByIndex>		AttributeList;
 
 		/// Alias type for a list of sources
-		typedef std::map<std::string,DataSource*>		SourcesList;
+		typedef std::map< std::string,DataSourceEntry>	SourcesList;
 
 		/// Alias type for a list of constant buffer templates
 		typedef std::vector<ConstantBufferTplEntry>		ConstantBufferTplList;
 
+	protected:
+		ShaderBase();
+
 	public:
-		Shader();
-
-		virtual ~Shader();
-
-		/**
-		 * @brief Set a specific source.
-		 * @param name		The source name. Valid values are:
-		 *			0		<ul><li>\ref GLSL_VERTEX_SHADER</li>
-		 *					    <li>\ref GLSL_FRAGMENT_SHADER</li>
-		 *					</ul>
-		 * @param source	The source object to store.
-		 */
-		void setSource(const std::string &name, DataSource *source);
+		virtual ~ShaderBase();
 
 		/**
 		 * @brief Get a specific source assigned to this shader.
@@ -132,11 +134,6 @@ namespace video {
 
 	public:
 		/**
-		 * @brief Sets the name of a shader attribute.
-		 */
-		void setAttributeName(Attribute attr, uint8_t index, const std::string &name);
-
-		/**
 		 * @brief Get the name of a shader attribute.
 		 */
 		std::string getAttributeName(Attribute attr, uint8_t index) const;
@@ -147,21 +144,11 @@ namespace video {
 		const AttributeList* getAttributes() const;
 
 		/**
-		 * @brief Adds a new constant buffer template to this shader.
-		 * @param name				The name of the new constant buffer.
-		 * @param context			One or more flags of \ref Context to determine,
-		 *							which shader stages are using this buffer.
-		 * @param buffer_template	The constant buffer template, which
-		 * @return \c true on success, \c false otherwise.
-		 */
-		bool addConstantBuffer(const std::string &name, uint16_t context, ShaderConstantBufferTemplate *buffer_template);
-
-		/**
 		 * @brief Find a constant buffer template with the given name, which is assigned to this shader.
 		 * @param name	The name of the requested constant buffer.
 		 * @return the requested constant buffer, or \c NULL, when no buffer was found.
 		 */
-		ShaderConstantBufferTemplate *findConstantBufferTemplate(const std::string &name) const;
+		const ShaderConstantBufferTemplate *findConstantBufferTemplate(const std::string &name) const;
 
 		/**
 		 * @brief Get the list of all constant buffers, assigned to this shader.
@@ -182,13 +169,8 @@ namespace video {
 			return constant_buffer_template_modelview;
 		}
 
-	// DeviceResource implementation
-	protected:
-		virtual bool doLoadContent();
-		virtual bool doUnloadContent();
-
 	// attributes
-	private:
+	protected:
 		/// list of all data sources of this shader
 		SourcesList					sources;
 
@@ -198,9 +180,33 @@ namespace video {
 		/// A list of all constant buffers assigned to this shader.
 		ConstantBufferTplList		constant_buffers;
 
+	protected:
+		ref<ShaderConstantBufferTemplate>		constant_buffer_template_projection;
+		ref<ShaderConstantBufferTemplate>		constant_buffer_template_modelview;
+	};
+
+
+
+
+	/**
+	 * @brief A class handling a shader object.
+	 */
+	class WIESEL_CORE_EXPORT Shader :
+			public TDeviceResource<Screen,ShaderContent>,
+			public ShaderBase
+	{
+	friend class ShaderBuilder;
+
 	private:
-		ShaderConstantBufferTemplate*		constant_buffer_template_projection;
-		ShaderConstantBufferTemplate*		constant_buffer_template_modelview;
+		Shader();
+
+	public:
+		virtual ~Shader();
+
+	// DeviceResource implementation
+	protected:
+		virtual bool doLoadContent();
+		virtual bool doUnloadContent();
 	};
 
 

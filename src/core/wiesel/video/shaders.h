@@ -127,16 +127,16 @@ namespace video {
 
 	public:
 		/// get a suitable vertex shader source for a given \ref VertexBuffer.
-		DataSource *getGlslVertexShaderSourceFor(Shader *shader, VertexBuffer *vbo);
+		DataSource *getGlslVertexShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer *vbo);
 
 		/// get a suitable fragment shader source for a given \ref VertexBuffer.
-		DataSource *getGlslFragmentShaderSourceFor(Shader *shader, VertexBuffer *vbo);
+		DataSource *getGlslFragmentShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer *vbo);
 
 		/// get a suitable vertex shader source for a given \ref VertexBuffer.
-		DataSource *getHlslVertexShaderSourceFor(Shader *shader, VertexBuffer *vbo);
+		DataSource *getHlslVertexShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer *vbo);
 
 		/// get a suitable fragment shader source for a given \ref VertexBuffer.
-		DataSource *getHlslFragmentShaderSourceFor(Shader *shader, VertexBuffer *vbo);
+		DataSource *getHlslFragmentShaderSourceFor(ShaderBuilder *shader_builder, VertexBuffer *vbo);
 
 	private:
 		DataSourceCache			cached_glsl_vertex_shaders;

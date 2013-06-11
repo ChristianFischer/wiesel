@@ -33,83 +33,44 @@ using namespace wiesel::video;
 using namespace std;
 
 
-const char* Shader::GLSL_VERTEX_SHADER		= "glsl.vert";
-const char* Shader::GLSL_FRAGMENT_SHADER	= "glsl.frag";
+const char* ShaderBase::GLSL_VERTEX_SHADER		= "glsl.vert";
+const char* ShaderBase::GLSL_FRAGMENT_SHADER	= "glsl.frag";
 
-const char* Shader::HLSL_VERTEX_SHADER		= "hlsl.vert";
-const char* Shader::HLSL_FRAGMENT_SHADER	= "hlsl.pixel";
+const char* ShaderBase::HLSL_VERTEX_SHADER		= "hlsl.vert";
+const char* ShaderBase::HLSL_FRAGMENT_SHADER	= "hlsl.pixel";
 
 
 
-Shader::Shader() {
+ShaderBase::ShaderBase() {
 	return;
 }
 
 
-Shader::~Shader() {
-	for(ConstantBufferTplList::iterator it=constant_buffers.begin(); it!=constant_buffers.end(); it++) {
-		release(it->buffer_template);
-	}
-
+ShaderBase::~ShaderBase() {
 	constant_buffers.clear();
-
-	for(SourcesList::iterator it=sources.begin(); it!=sources.end(); it++) {
-		release(it->second);
-	}
-
 	sources.clear();
 
 	return;
 }
 
 
-void Shader::setSource(const std::string &name, DataSource *source) {
-	// find old source for this name, if any
+DataSource *ShaderBase::getSource(const std::string &name) {
 	SourcesList::iterator it = sources.find(name);
 	if (it != sources.end()) {
-		release(it->second);
-		sources.erase(it);
-	}
-
-	sources[name] = source;
-	keep(source);
-
-	return;
-}
-
-
-DataSource *Shader::getSource(const std::string &name) {
-	SourcesList::iterator it = sources.find(name);
-	if (it != sources.end()) {
-		return it->second;
+		return it->second.source;
 	}
 
 	return NULL;
 }
 
 
-const Shader::SourcesList *Shader::getSources() const {
+const ShaderBase::SourcesList *ShaderBase::getSources() const {
 	return &sources;
 }
 
 
 
-void Shader::setAttributeName(Shader::Attribute attr, uint8_t index, const std::string &name) {
-	if (attributes.size() <= attr) {
-		attributes.resize(attr + 1);
-	}
-
-	if (attributes[attr].size() <= index) {
-		attributes[attr].resize(index + 1);
-	}
-
-	attributes[attr][index] = name;
-
-	return;
-}
-
-
-std::string Shader::getAttributeName(Shader::Attribute attr, uint8_t index) const {
+std::string ShaderBase::getAttributeName(Shader::Attribute attr, uint8_t index) const {
 	if (attributes.size() > attr && attributes[attr].size() > index) {
 		return attributes[attr][index];
 	}
@@ -118,50 +79,12 @@ std::string Shader::getAttributeName(Shader::Attribute attr, uint8_t index) cons
 }
 
 
-const Shader::AttributeList *Shader::getAttributes() const {
+const ShaderBase::AttributeList *ShaderBase::getAttributes() const {
 	return &attributes;
 }
 
 
-bool Shader::addConstantBuffer(const std::string& name, uint16_t context, ShaderConstantBufferTemplate* buffer_template) {
-	for(ConstantBufferTplList::iterator it=constant_buffers.begin(); it!=constant_buffers.end(); it++) {
-		if (it->name == name) {
-			// when the existing entry matches the "new" buffer, just add the context (if changed)
-			if (it->buffer_template == buffer_template) {
-				it->context |= context;
-				return true;
-			}
-			else {
-				// otherwise, adding the buffer failed.
-				return false;
-			}
-		}
-	}
-
-	// create a new buffer entry
-	ConstantBufferTplEntry entry;
-	entry.name				= name;
-	entry.context			= context;
-	entry.buffer_template	= buffer_template;
-
-	// store the buffer
-	constant_buffers.push_back(entry);
-	keep(entry.buffer_template);
-
-	// store special buffers
-	if (name == Shaders::CONSTANTBUFFER_PROJECTION_MATRIX) {
-		constant_buffer_template_projection = buffer_template;
-	}
-
-	if (name == Shaders::CONSTANTBUFFER_MODELVIEW_MATRIX) {
-		constant_buffer_template_modelview = buffer_template;
-	}
-
-	return true;
-}
-
-
-ShaderConstantBufferTemplate *Shader::findConstantBufferTemplate(const std::string& name) const {
+const ShaderConstantBufferTemplate *ShaderBase::findConstantBufferTemplate(const std::string& name) const {
 	for(ConstantBufferTplList::const_iterator it=constant_buffers.begin(); it!=constant_buffers.end(); it++) {
 		if (it->name == name) {
 			return it->buffer_template;
@@ -172,8 +95,21 @@ ShaderConstantBufferTemplate *Shader::findConstantBufferTemplate(const std::stri
 }
 
 
-const Shader::ConstantBufferTplList *Shader::getConstantBufferTemplates() const {
+const ShaderBase::ConstantBufferTplList *ShaderBase::getConstantBufferTemplates() const {
 	return &constant_buffers;
+}
+
+
+
+
+
+Shader::Shader() {
+	return;
+}
+
+
+Shader::~Shader() {
+	return;
 }
 
 

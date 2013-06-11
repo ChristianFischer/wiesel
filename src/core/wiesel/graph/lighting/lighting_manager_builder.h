@@ -24,6 +24,7 @@
 
 #include <wiesel/wiesel-core.def>
 
+#include "wiesel/video/shader_constantbuffer_builder.h"
 #include "lighting_manager.h"
 
 
@@ -134,11 +135,18 @@ namespace wiesel {
 
 	public:
 		/**
-		 * @brief Provides access to the lighting managers constant buffer template
+		 * @brief Provides access to the lighting managers constant buffer template builder
 		 * to add custom attributes to it, which are not under control of the
 		 * generated lighting manager.
 		 */
-		video::ShaderConstantBufferTemplate* getConstantBufferTemplate();
+		video::ShaderConstantBufferTemplateBuilder* getConstantBufferTemplateBuilder();
+
+		/**
+		 * @brief Provides access to the lighting managers constant buffer template builder
+		 * to add custom attributes to it, which are not under control of the
+		 * generated lighting manager.
+		 */
+		const video::ShaderConstantBufferTemplateBuilder* getConstantBufferTemplateBuilder() const;
 
 		/**
 		 * @brief Finally creates the instance of the generated lighting manager.
@@ -147,6 +155,8 @@ namespace wiesel {
 		virtual LightingManager* create();
 
 	private:
+		video::ShaderConstantBufferTemplateBuilder	buffer_builder;
+
 		LightingManager*	manager;
 
 		LightInfoStruct		lightinfo_struct;
