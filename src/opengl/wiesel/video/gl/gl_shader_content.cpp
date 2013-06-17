@@ -46,7 +46,7 @@ GlShaderContent::~GlShaderContent() {
 }
 
 
-static GLuint compile(GLenum type, DataSource *source) {
+static GLuint compile(const Shader *shader_object, GLenum type, DataSource *source) {
 	DataBuffer *src_buffer = source->getDataBuffer();
 	const char *src_string = src_buffer->getDataAsCharPtr();
 	GLint  src_length      = src_buffer->getSize();
@@ -59,24 +59,34 @@ static GLuint compile(GLenum type, DataSource *source) {
 	// sources data
 	std::vector<const GLchar*>	list_sources;
 	std::vector<GLint>			list_sources_length;
-	std::string					source_line_string;
+	std::stringstream			extra_source;
+
+	const Shader::PreprocessorConstantList *ppc_consts = shader_object->getPreprocessorConstants();
+	for(Shader::PreprocessorConstantList::const_iterator it=ppc_consts->begin(); it!=ppc_consts->end(); it++) {
+		extra_source << "#define ";
+		extra_source << it->name;
+
+		if (it->value.empty() != false) {
+			extra_source << ' ';
+			extra_source << it->value;
+		}
+
+		extra_source << std::endl;
+	}
 
 	// when the source comes from a file, we're adding a line-hint
 	// before the source to get the filename included in our error messages
 	if (file_data_source) {
-		std::stringstream ss;
-		ss << "#line 0 ";
-		ss << '"';
-		ss << file_data_source->getFile()->getFullPath();
-		ss << '"';
-		ss << std::endl;
-
-		// prevent this from becoming out of scope
-		source_line_string = ss.str();
-
-		list_sources.push_back(source_line_string.c_str());
-		list_sources_length.push_back(source_line_string.length());
+		extra_source << "#line 0 ";
+		extra_source << '"';
+		extra_source << file_data_source->getFile()->getFullPath();
+		extra_source << '"';
+		extra_source << std::endl;
 	}
+
+	std::string extra_source_string = extra_source.str();
+	list_sources.push_back(extra_source_string.c_str());
+	list_sources_length.push_back(extra_source_string.length());
 
 	// add the actual shader code
 	list_sources.push_back(src_string);
@@ -165,8 +175,8 @@ static bool attach(GLuint program, GLuint shader) {
 }
 
 
-static GLuint compile_and_attach(GLuint program, GLenum type, DataSource *source) {
-	GLuint shader = compile(type, source);
+static GLuint compile_and_attach(Shader *shader_object, GLuint program, GLenum type, DataSource *source) {
+	GLuint shader = compile(shader_object, type, source);
 
 	if (shader) {
 		return attach(program, shader);
@@ -237,13 +247,13 @@ GlShaderContent *GlShaderContent::createContentFor(Shader* shader) {
 
 		source = shader->getSource(Shader::GLSL_VERTEX_SHADER);
 		if (source) {
-			success &= compile_and_attach(gl_shader->program_handle, GL_VERTEX_SHADER, source);
+			success &= compile_and_attach(shader, gl_shader->program_handle, GL_VERTEX_SHADER, source);
 			assert(success);
 		}
 
 		source = shader->getSource(Shader::GLSL_FRAGMENT_SHADER);
 		if (source) {
-			success &= compile_and_attach(gl_shader->program_handle, GL_FRAGMENT_SHADER, source);
+			success &= compile_and_attach(shader, gl_shader->program_handle, GL_FRAGMENT_SHADER, source);
 			assert(success);
 		}
 
