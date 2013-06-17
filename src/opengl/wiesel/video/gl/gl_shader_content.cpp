@@ -338,7 +338,6 @@ void GlShaderContent::bindAttributes() {
 				Log::warn << "Could not find member '" << name << "' in current shader." << std::endl;
 			}
 
-			assert(handle != -1);
 			attribute_handles[attr][index] = handle;
 		}
 	}
@@ -372,10 +371,10 @@ void GlShaderContent::bindAttributes() {
 
 
 GLint GlShaderContent::getAttribHandle(Shader::Attribute attr, uint8_t index) const {
-	if (attribute_handles.size() >= attr) {
+	if (attribute_handles.size() > attr) {
 		const AttributeHandlesByIndex* attrib_handles_by_index = &(attribute_handles[attr]);
 
-		if (attrib_handles_by_index->size() >= index) {
+		if (attrib_handles_by_index->size() > index) {
 			return (*attrib_handles_by_index)[index];
 		}
 	}
