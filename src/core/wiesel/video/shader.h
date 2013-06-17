@@ -94,6 +94,16 @@ namespace video {
 
 
 		/**
+		 * @brief An entry for a single preprocessor constant in this shader.
+		 * The constant contains a name and an optional value.
+		 */
+		struct PreprocessorConstantEntry {
+			std::string							name;
+			std::string							value;
+		};
+
+
+		/**
 		 * @brief Entry of a constant buffer within this shader.
 		 */
 		struct ConstantBufferTplEntry {
@@ -111,6 +121,9 @@ namespace video {
 
 		/// Alias type for a list of sources
 		typedef std::map< std::string,DataSourceEntry>	SourcesList;
+
+		/// Alias type for a list of preprocessor constants
+		typedef std::vector<PreprocessorConstantEntry>	PreprocessorConstantList;
 
 		/// Alias type for a list of constant buffer templates
 		typedef std::vector<ConstantBufferTplEntry>		ConstantBufferTplList;
@@ -133,6 +146,24 @@ namespace video {
 		const SourcesList *getSources() const;
 
 	public:
+		/**
+		 * @brief Checks, whether a specific preprocessor constant ist defined or not.
+		 * @param name		Name of the constant to check.
+		 */
+		bool isDefined(const std::string& name) const;
+
+		/**
+		 * @brief Get the value of a specific preprocessor constant.
+		 * @param name		Name of the constant to check.
+		 * @returns The constant's value or \c NULL, if the constant was not found.
+		 */
+		std::string getPreprocessorConstantValue(const std::string& name) const;
+
+		/**
+		 * @brief Get the list of all preprocessor constants defined for this shader.
+		 */
+		const PreprocessorConstantList* getPreprocessorConstants() const;
+
 		/**
 		 * @brief Get the name of a shader attribute.
 		 */
@@ -173,6 +204,9 @@ namespace video {
 	protected:
 		/// list of all data sources of this shader
 		SourcesList					sources;
+
+		/// A list of all preprocessor constants
+		PreprocessorConstantList	preprocessor_constants;
 
 		/// A list of attributes according to this shader
 		AttributeList				attributes;

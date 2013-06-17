@@ -88,6 +88,39 @@ bool ShaderBuilder::setSourcesFromFiles(FileSystem* fs, const std::string& filen
 
 
 
+void ShaderBuilder::setPreprocessorConstant(const std::string& name, const std::string& value) {
+	for(PreprocessorConstantList::iterator it=preprocessor_constants.begin(); it!=preprocessor_constants.end(); ++it) {
+		if (it->name == name) {
+			it->value = value;
+			return;
+		}
+	}
+
+	PreprocessorConstantEntry entry;
+	entry.name  = name;
+	entry.value = value;
+
+	preprocessor_constants.push_back(entry);
+
+	return;
+}
+
+
+void ShaderBuilder::undefPreprocessorConstant(const std::string& name) {
+	for(PreprocessorConstantList::iterator it=preprocessor_constants.begin(); it!=preprocessor_constants.end();) {
+		if (it->name == name) {
+			it = preprocessor_constants.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+
+	return;
+}
+
+
+
 bool ShaderBuilder::setAttributeName(Shader::Attribute attr, uint8_t index, const std::string &name) {
 	if (attributes.size() <= attr) {
 		attributes.resize(attr + 1);
@@ -214,9 +247,10 @@ bool ShaderBuilder::addDefaultProjectionMatrixConstantBuffer() {
 Shader* ShaderBuilder::create() const {
 	Shader *shader = new Shader();
 
-	shader->attributes			= this->attributes;
-	shader->sources				= this->sources;
-	shader->constant_buffers	= this->constant_buffers;
+	shader->attributes				= this->attributes;
+	shader->sources					= this->sources;
+	shader->preprocessor_constants	= this->preprocessor_constants;
+	shader->constant_buffers		= this->constant_buffers;
 
 	shader->constant_buffer_template_projection = this->constant_buffer_template_projection;
 	shader->constant_buffer_template_modelview  = this->constant_buffer_template_modelview;

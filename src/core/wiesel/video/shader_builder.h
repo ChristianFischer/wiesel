@@ -72,6 +72,23 @@ namespace video {
 		bool setSourcesFromFiles(FileSystem *fs, const std::string& filename);
 
 		/**
+		 * @brief Set a preprocessor constant to a new value.
+		 * The constant will be added, if it does not exist. When a constant with the name
+		 * already exists, the value will be updated.
+		 * All constants will be added to the source in the same order, as they were added.
+		 * @param name		The constant's name.
+		 * @param value		The constant's value.
+		 *					When omitted, the constant has no value, but still exists.
+		 */
+		void setPreprocessorConstant(const std::string& name, const std::string& value=std::string());
+
+		/**
+		 * @brief Removes a given preprocessor constant from this shader.
+		 * @param name		The constant's name.
+		 */
+		void undefPreprocessorConstant(const std::string& name);
+
+		/**
 		 * @brief Sets the name of a shader attribute.
 		 * @param attr		The type of the attribute to set.
 		 * @param index		The index of the attribute to set, if an attribute has

@@ -54,6 +54,33 @@ ShaderBase::~ShaderBase() {
 }
 
 
+bool ShaderBase::isDefined(const std::string& name) const {
+	for(PreprocessorConstantList::const_iterator it=preprocessor_constants.begin(); it!=preprocessor_constants.end(); ++it) {
+		if (it->name == name) {
+			return false;
+		}
+	}
+
+	return false;
+}
+
+
+std::string ShaderBase::getPreprocessorConstantValue(const std::string& name) const {
+	for(PreprocessorConstantList::const_iterator it=preprocessor_constants.begin(); it!=preprocessor_constants.end(); ++it) {
+		if (it->name == name) {
+			return it->value;
+		}
+	}
+
+	return std::string();
+}
+
+
+const ShaderBase::PreprocessorConstantList* ShaderBase::getPreprocessorConstants() const {
+	return &preprocessor_constants;
+}
+
+
 DataSource *ShaderBase::getSource(const std::string &name) {
 	SourcesList::iterator it = sources.find(name);
 	if (it != sources.end()) {
