@@ -426,7 +426,6 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 		// assign vertex positions
 		if (vertex_buffer->hasPositions()) {
 			GLint  attr_vertex_position = active_shader_content->getAttribHandle(Shader::VertexPosition, 0);
-			assert(attr_vertex_position != -1);
 
 			if (attr_vertex_position != -1) {
 				glVertexAttribPointer(
@@ -441,15 +440,11 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 				glEnableVertexAttribArray(attr_vertex_position);
 				CHECK_GL_ERROR;
 			}
-			else {
-				return false;
-			}
 		}
 
 		// assign vertex normals
 		if (vertex_buffer->hasNormals()) {
 			GLint  attr_vertex_normals = active_shader_content->getAttribHandle(Shader::VertexNormal, 0);
-			assert(attr_vertex_normals != -1);
 
 			if (attr_vertex_normals != -1) {
 				glVertexAttribPointer(
@@ -464,15 +459,11 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 				glEnableVertexAttribArray(attr_vertex_normals);
 				CHECK_GL_ERROR;
 			}
-			else {
-				return false;
-			}
 		}
 
 		// assign vertex colors
 		if (vertex_buffer->hasColors()) {
 			GLint  attr_vertex_colors = active_shader_content->getAttribHandle(Shader::VertexColor, 0);
-			assert(attr_vertex_colors != -1);
 
 			if (attr_vertex_colors != -1) {
 				glVertexAttribPointer(
@@ -487,9 +478,6 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 				glEnableVertexAttribArray(attr_vertex_colors);
 				CHECK_GL_ERROR;
 			}
-			else {
-				return false;
-			}
 		}
 
 		// assign textures
@@ -497,7 +485,6 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 		for(int i=0; i<num_textures; i++) {
 			GLint  attr_vertex_texcoord = active_shader_content->getAttribHandle(Shader::VertexTextureCoordinate, i);
 			GLint  attr_vertex_texture  = active_shader_content->getAttribHandle(Shader::Texture, i);
-			assert(attr_vertex_texcoord != -1);
 
 			if (attr_vertex_texcoord != -1) {
 				glVertexAttribPointer(
@@ -511,19 +498,17 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 
 				glEnableVertexAttribArray(attr_vertex_texcoord);
 				CHECK_GL_ERROR;
+			}
 
+			if (attr_vertex_texture != -1) {
 				GlTextureContent *texture_content = active_textures_content[i];
-				if (texture_content && attr_vertex_texture != -1) {
-					assert(attr_vertex_texture  != -1);
 
+				if (texture_content) {
 				//	glActiveTexture(GL_TEXTURE0 + i);
 				//	glBindTexture(GL_TEXTURE_2D, texture_content->getGlHandle());
 					glUniform1i(attr_vertex_texture, i);
 					CHECK_GL_ERROR;
 				}
-			}
-			else {
-				return false;
 			}
 		}
 
