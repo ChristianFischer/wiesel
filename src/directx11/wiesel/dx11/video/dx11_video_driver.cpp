@@ -319,3 +319,8 @@ TextureContent *Dx11VideoDeviceDriver::createTextureContent(Texture *texture) {
 	return Dx11TextureContent::createContentFor(this->render_context, texture);
 }
 
+RenderBufferContent *Dx11VideoDeviceDriver::createRenderBufferContent(wiesel::video::RenderBuffer *render_buffer) {
+	// TODO: implement me
+	return NULL;
+}
+

@@ -26,6 +26,7 @@
 #include "gl_shader_content.h"
 #include "gl_shader_constantbuffer_content.h"
 #include "gl_texture_content.h"
+#include "gl_render_buffer_content.h"
 
 #include <wiesel/util/log.h>
 #include <wiesel/ui/touchhandler.h>
@@ -143,5 +144,9 @@ ShaderConstantBufferContent *OpenGlVideoDeviceDriver::createConstantBufferConten
 
 TextureContent *OpenGlVideoDeviceDriver::createTextureContent(Texture *texture) {
 	return GlTextureContent::createContentFor(texture);
+}
+
+RenderBufferContent *OpenGlVideoDeviceDriver::createRenderBufferContent(RenderBuffer *render_buffer) {
+	return GlRenderBufferContent::createContentFor(render_buffer);
 }
 

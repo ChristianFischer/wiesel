@@ -30,6 +30,7 @@
 #include <wiesel/device.h>
 #include <wiesel/geometry.h>
 
+#include <stack>
 #include <stdint.h>
 #include <string>
 
@@ -40,6 +41,7 @@ namespace video {
 
 	class IndexBuffer;
 	class Shader;
+	class RenderBuffer;
 	class Texture;
 	class VertexBuffer;
 
@@ -140,6 +142,24 @@ namespace video {
 		 */
 		virtual void prepareTextureLayers(uint16_t layers) = 0;
 
+
+	// renderbuffer stack
+	public:
+		/**
+		 * @brief Push a new \ref RenderBuffer to the renderbuffer-stack.
+		 * The new renderbuffer will receive all draw calls until the buffer was popped from the stack.
+		 */
+		virtual bool pushRenderBuffer(RenderBuffer *render_buffer);
+
+		/**
+		 * @brief Pops the given \ref RenderBuffer from the stack.
+		 * If there's any other renderbuffer on the stack, this buffer will receive all
+		 * draw calls from now on, if there's no more renderbuffer left, the draw calls
+		 * will be rendered on the screen again.
+		 */
+		virtual void popRenderBuffer(RenderBuffer *render_buffer);
+
+
 	// draw primitives
 	public:
 		/**
@@ -169,6 +189,9 @@ namespace video {
 	protected:
 		Screen*			screen;
 		matrix4x4		projection;
+
+		std::stack<RenderBuffer*>		renderbuffer_stack;
+		RenderBuffer*					active_renderbuffer;
 	};
 
 }
