@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301 USA
  */
 #include "render_context.h"
+#include "render_buffer.h"
 #include "shaders.h"
 
 using namespace wiesel;
@@ -41,5 +42,49 @@ RenderContext::RenderContext(Screen *screen) {
 
 
 RenderContext::~RenderContext() {
+	return;
+}
+
+
+bool RenderContext::pushRenderBuffer(RenderBuffer* render_buffer) {
+	if (renderbuffer_stack.empty() || renderbuffer_stack.top() != render_buffer) {
+		if (render_buffer->getContent() && render_buffer->getContent()->enableRenderBuffer(this)) {
+			render_buffer->getContent()->preRender(this);
+			renderbuffer_stack.push(keep(render_buffer));
+			active_renderbuffer = keep(render_buffer);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+void RenderContext::popRenderBuffer(RenderBuffer* render_buffer) {
+	if (renderbuffer_stack.empty() == false) {
+		assert(renderbuffer_stack.top() == render_buffer);
+
+		if (renderbuffer_stack.top() == render_buffer) {
+			if (render_buffer->getContent()) {
+				render_buffer->getContent()->postRender(this);
+				render_buffer->getContent()->disableRenderBuffer(this);
+			}
+
+			release(renderbuffer_stack.top());
+			renderbuffer_stack.pop();
+
+			safe_release(active_renderbuffer);
+		}
+
+		// when there are still renderbuffers available, enable the top one
+		if (renderbuffer_stack.empty() == false) {
+			if (renderbuffer_stack.top()->getContent()) {
+				if (renderbuffer_stack.top()->getContent()->enableRenderBuffer(this)) {
+					active_renderbuffer = keep(renderbuffer_stack.top());
+				}
+			}
+		}
+	}
+
 	return;
 }

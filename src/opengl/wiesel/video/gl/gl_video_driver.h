@@ -58,6 +58,7 @@ namespace gl {
 		virtual ShaderContent *createShaderContent(Shader *shader);
 		virtual ShaderConstantBufferContent *createConstantBufferContent(ShaderConstantBuffer *shader_constant_buffer);
 		virtual TextureContent *createTextureContent(Texture *texture);
+		virtual RenderBufferContent *createRenderBufferContent(RenderBuffer *render_buffer);
 	};
 
 }
