@@ -27,6 +27,7 @@
 #include <wiesel/geometry.h>
 #include <wiesel/io/datasource.h>
 #include <wiesel/io/file.h>
+#include <wiesel/resources/graphics/image.h>
 #include <wiesel/video/texture.h>
 #include <string>
 
@@ -64,8 +65,13 @@ namespace gl {
 		}
 
 	private:
+		bool initTexture();
+
+		bool loadEmptyTexture(PixelFormat format, const dimension& size);
+		bool loadTextureFromSource(DataSource *data);
+
 		/// creates the texture on hardware
-		bool createHardwareTexture();
+		bool createHardwareTexture(PixelFormat format, const dimension& size, DataBuffer* data);
 
 		/// release the texture.
 		void releaseTexture();
