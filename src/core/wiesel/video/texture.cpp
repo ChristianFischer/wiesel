@@ -35,6 +35,7 @@ using namespace std;
 
 
 Texture::Texture() {
+	data = NULL;
 	return;
 }
 
@@ -54,6 +55,13 @@ Texture *Texture::fromDataSource(DataSource *data) {
 	texture->data = data;
 	keep(texture->data);
 
+	return texture;
+}
+
+
+Texture *Texture::createEmptyTexture(const dimension& size) {
+	Texture *texture = new Texture();
+	texture->requested_size = size;
 	return texture;
 }
 

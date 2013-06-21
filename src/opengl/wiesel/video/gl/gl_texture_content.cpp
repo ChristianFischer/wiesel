@@ -27,6 +27,8 @@
 #include <wiesel/resources/graphics/image_loader.h>
 #include <wiesel/module_registry.h>
 
+#include <string.h>
+
 
 using namespace wiesel;
 using namespace wiesel::video;
@@ -50,7 +52,7 @@ GlTextureContent::~GlTextureContent() {
 GlTextureContent *GlTextureContent::createContentFor(Texture *texture) {
 	GlTextureContent *gl_texture = new GlTextureContent(texture);
 
-	if (gl_texture->createHardwareTexture() == false) {
+	if (gl_texture->initTexture() == false) {
 		delete gl_texture;
 
 		return NULL;
@@ -60,13 +62,52 @@ GlTextureContent *GlTextureContent::createContentFor(Texture *texture) {
 }
 
 
-bool GlTextureContent::createHardwareTexture() {
+bool GlTextureContent::initTexture() {
 	assert(handle == 0);
 
 	// release the previous buffer
 	releaseTexture();
 
-	DataSource *data = getTexture()->getSource();
+	if (getTexture()->getSource()) {
+		return loadTextureFromSource(getTexture()->getSource());
+	}
+
+	if (getTexture()->getRequestedSize().getMin() > 0.0f) {
+		return loadEmptyTexture(PixelFormat_RGBA_8888, getTexture()->getRequestedSize());
+	}
+
+	return false;
+}
+
+
+bool GlTextureContent::loadEmptyTexture(PixelFormat format, const dimension& size) {
+	dimension new_size = size;
+
+	// convert into power-of-two
+	new_size.width  = getNextPowerOfTwo(static_cast<unsigned int>(size.width));
+	new_size.height = getNextPowerOfTwo(static_cast<unsigned int>(size.height));
+
+	size_t data_size = new_size.width * new_size.height * getBytesPerPixel(format);
+
+	// create an empty buffer containing the initial texture data
+	ref<DataBuffer> data = ExclusiveDataBuffer::create(data_size);
+	if (data->getData() == NULL) {
+		return false;
+	}
+
+	memset(data->getMutableData(), 0, data_size);
+
+	if (!createHardwareTexture(PixelFormat_RGBA_8888, new_size, data)) {
+		return false;
+	}
+
+	this->original_size = size;
+
+	return true;
+}
+
+
+bool GlTextureContent::loadTextureFromSource(DataSource *data) {
 	ref<Image> image = NULL;
 	dimension new_original_size;
 
@@ -94,12 +135,23 @@ bool GlTextureContent::createHardwareTexture() {
 	if (image->ensurePowerOfTwo() == false) {
 		return false;
 	}
+	
+	if (!createHardwareTexture(image->getPixelFormat(), image->getSize(), image->getPixelData())) {
+		return false;
+	}
 
+	original_size = new_original_size;
+	
+	return true;
+}
+
+
+bool GlTextureContent::createHardwareTexture(PixelFormat format, const dimension& size, DataBuffer *data) {
 	GLint internalFormat;
 	GLenum image_format;
 	GLenum image_type;
 
-	switch(image->getPixelFormat()) {
+	switch(format) {
 		case PixelFormat_RGBA_8888: {
 			internalFormat = GL_RGBA;
 			image_format   = GL_RGBA;
@@ -124,18 +176,17 @@ bool GlTextureContent::createHardwareTexture() {
 	glBindTexture(GL_TEXTURE_2D, handle);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+	
 	glTexImage2D(
 					GL_TEXTURE_2D, 0,
 					internalFormat,
-					image->getSize().width, image->getSize().height,
+					size.width, size.height,
 					0,
 					image_format, image_type,
-					image->getPixelData()->getData()
+					data->getData()
 	);
 
-	size          = image->getSize();
-	original_size = new_original_size;
+	this->size = size;
 
 	return true;
 }

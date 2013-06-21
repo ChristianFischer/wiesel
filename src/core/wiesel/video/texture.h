@@ -59,10 +59,22 @@ namespace video {
 		static Texture *fromDataSource(DataSource *data);
 
 		/**
+		 * @brief Creates an empty texture.
+		 */
+		static Texture *createEmptyTexture(const dimension& size);
+
+		/**
 		 * @brief Get the datasource, where we get the texture's data from.
 		 */
 		inline DataSource *getSource() {
 			return data;
+		}
+
+		/**
+		 * @brief Get the requested size for this texture.
+		 */
+		inline const dimension& getRequestedSize() const {
+			return requested_size;
 		}
 
 		/**
@@ -90,6 +102,8 @@ namespace video {
 
 	private:
 		DataSource*		data;
+		dimension		requested_size;
+
 		dimension		size;
 		dimension		original_size;
 	};
