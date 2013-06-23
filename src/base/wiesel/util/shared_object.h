@@ -161,13 +161,22 @@ namespace wiesel {
 		}
 		
 	public:
-		inline T* operator=(T* p) {
+		inline const ref<T> operator=(T* p) {
 			if (this->pointer != p) {
 				safe_release(this->pointer);
 				this->pointer = keep(p);
 			}
 
-			return this->pointer;
+			return *this;
+		}
+
+		inline const ref<T> operator=(const ref<T>& other) {
+			if (this->pointer != other.pointer) {
+				safe_release(this->pointer);
+				this->pointer = keep(other.pointer);
+			}
+
+			return *this;
 		}
 
 	public:

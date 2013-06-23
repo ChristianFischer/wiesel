@@ -22,6 +22,7 @@
 #include "gtest/gtest.h"
 
 #include <wiesel/util/shared_object.h>
+#include <stdio.h>
 
 using namespace wiesel;
 
@@ -409,6 +410,86 @@ TEST(SharedObject, RefList) {
 	
 	// the object's state should be 'destroyed'
 	EXPECT_EQ(State_Destroyed, state);
+}
+
+
+/**
+ * Test the lifetime of an object,
+ * which is stored in a smartpointer vector.
+ */
+TEST(SharedObject, RefVector) {
+	const unsigned int NUM_OBJECTS = 10;
+	TestObjectState states[NUM_OBJECTS];
+	TestObject* objects[NUM_OBJECTS];
+
+	// initialize some test objects
+	for(unsigned int create_index=0; create_index<NUM_OBJECTS; create_index++) {
+		states[create_index]  = State_Uninitialized;
+		objects[create_index] = new TestObject(&states[create_index]);
+
+		// each object should be in state 'constructed' with no references
+		EXPECT_EQ(State_Constructed, states[create_index]) << "create_index=" << create_index;
+		EXPECT_EQ(0, objects[create_index]->getReferenceCount()) << "create_index=" << create_index;
+	}
+
+	// scope begin
+	{
+		ref<TestObject>::vector references;
+
+		for(unsigned int add_index=0; add_index<NUM_OBJECTS; add_index++) {
+			// put the according object into our list
+			references.push_back(objects[add_index]);
+
+			// the object should be in state 'constructed'
+			EXPECT_EQ(State_Constructed, states[add_index]) << "add_index=" << add_index;
+
+			// the reference counter should be at one
+			// because the object will be kept by the ref
+			EXPECT_EQ(1, objects[add_index]->getReferenceCount()) << "add_index=" << add_index;
+
+			// check each element in the vector
+			for(unsigned int check_index=0; check_index<=add_index; check_index++) {
+				// the referenced object should be the same as the one in our array
+				EXPECT_EQ(objects[check_index], *(references[check_index]))
+						<< "add_index=" << add_index << ", check_index=" << check_index
+				;
+
+				// the object's state should be 'constructed'
+				EXPECT_EQ(State_Constructed, states[check_index])
+						<< "add_index=" << add_index << ", check_index=" << check_index
+				;
+
+				// all objects should have only one reference
+				EXPECT_EQ(1, objects[check_index]->getReferenceCount())
+						<< "add_index=" << add_index << ", check_index=" << check_index
+				;
+			}
+		}
+
+		// all objects should have been added
+		EXPECT_EQ(NUM_OBJECTS, references.size());
+
+		// we start to delete some of the objects
+		for(unsigned int delete_index=0; delete_index<NUM_OBJECTS/2; delete_index++) {
+			// erase the first remaining object
+			references.erase(references.begin());
+
+			// check if the object was deleted
+			EXPECT_EQ(State_Destroyed, states[delete_index]) << "delete_index=" << delete_index;
+
+			// all other objects should still be alive
+			for(unsigned int check_index=delete_index+1; check_index<NUM_OBJECTS; check_index++) {
+				EXPECT_EQ(State_Constructed, states[check_index])
+						<< "delete_index=" << delete_index << ", check_index=" << check_index
+				;
+			}
+		}
+	}
+
+	// check if all objects were deleted
+	for(unsigned int check_index=0; check_index<NUM_OBJECTS; check_index++) {
+		EXPECT_EQ(State_Destroyed, states[check_index]) << "check_index=" << check_index;
+	}
 }
 
 
