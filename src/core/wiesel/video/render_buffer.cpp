@@ -70,7 +70,7 @@ void RenderBuffer::setTargetTexture(uint8_t index, Texture* texture) {
 
 	if (target_textures[index].texture != texture) {
 		if (target_textures[index].texture) {
-			safe_release(target_textures[index].texture);
+			clear_ref(target_textures[index].texture);
 		}
 
 		if (texture) {
@@ -94,7 +94,7 @@ Texture *RenderBuffer::getTargetTexture(uint8_t index) const {
 void RenderBuffer::clearTextures() {
 	for(TextureList::iterator it=target_textures.begin(); it!=target_textures.end(); ++it) {
 		if (it->texture) {
-			safe_release(it->texture);
+			clear_ref(it->texture);
 		}
 	}
 

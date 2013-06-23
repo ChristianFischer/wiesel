@@ -56,7 +56,7 @@ MultiSpriteNode::MultiSpriteNode(Texture *texture) {
 
 
 MultiSpriteNode::~MultiSpriteNode() {
-	safe_release(vbo);
+	clear_ref(vbo);
 
 	setTexture(NULL);
 	clear();
@@ -66,7 +66,7 @@ MultiSpriteNode::~MultiSpriteNode() {
 
 
 void MultiSpriteNode::setTexture(Texture* texture) {
-	safe_release(this->texture);
+	clear_ref(this->texture);
 
 	if (texture) {
 		this->texture = keep(texture);

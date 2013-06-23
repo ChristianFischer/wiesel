@@ -74,7 +74,7 @@ GenericFileSystem::GenericFileSystem(const std::string &root_path) {
 }
 
 GenericFileSystem::~GenericFileSystem() {
-	safe_release(root);
+	clear_ref(root);
 	return;
 }
 

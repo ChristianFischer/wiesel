@@ -87,7 +87,7 @@ SpriteNode::SpriteNode(SpriteFrame *sprite) {
 
 
 SpriteNode::~SpriteNode() {
-	safe_release(vbo);
+	clear_ref(vbo);
 
 	setTexture(NULL);
 	setShader(NULL);
@@ -97,14 +97,14 @@ SpriteNode::~SpriteNode() {
 
 
 void SpriteNode::setTexture(Texture* texture) {
-	safe_release(this->texture);
+	clear_ref(this->texture);
 
 	if (texture) {
 		this->texture = keep(texture);
 	}
 
 	// reset current sprite, when texture was set manually
-	safe_release(this->sprite);
+	clear_ref(this->sprite);
 
 	// need to update the vertex buffer
 	vbo_dirty = true;
@@ -116,7 +116,7 @@ void SpriteNode::setTexture(Texture* texture) {
 void SpriteNode::setSpriteFrame(SpriteFrame* sprite) {
 	if (this->sprite != sprite) {
 		if (this->sprite) {
-			safe_release(this->sprite);
+			clear_ref(this->sprite);
 			this->setTexture(NULL);
 		}
 

@@ -42,7 +42,7 @@ Screen::Screen() {
 
 Screen::~Screen() {
 	setVideoDeviceDriver(NULL);
-	safe_release(touch_handler);
+	clear_ref(touch_handler);
 
 	return;
 }

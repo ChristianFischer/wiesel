@@ -147,7 +147,7 @@ TEST(SharedObject, ObjectLifetime_Keep_SafeRelease) {
 	EXPECT_EQ(1, object->getReferenceCount());
 	
 	// now release the object
-	safe_release(object);
+	clear_ref(object);
 	
 	// the object's state should be 'destroyed'
 	EXPECT_EQ(State_Destroyed, state);
@@ -371,7 +371,7 @@ TEST(SharedObject, RefWithExternalReference) {
 	EXPECT_EQ(1, object2->getReferenceCount());
 	
 	// now release our extrnal reference
-	safe_release(object2);
+	clear_ref(object2);
 	
 	// the object's state should be 'destroyed'
 	EXPECT_EQ(State_Destroyed, state);

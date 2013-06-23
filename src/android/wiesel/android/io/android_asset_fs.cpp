@@ -40,7 +40,7 @@ AndroidAssetFileSystem::AndroidAssetFileSystem(AAssetManager *assetManager) {
 }
 
 AndroidAssetFileSystem::~AndroidAssetFileSystem() {
-	safe_release(root);
+	clear_ref(root);
 	return;
 }
 

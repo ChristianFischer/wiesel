@@ -49,8 +49,8 @@ XmlParser::XmlParser(XmlParserCallback *callback) {
 XmlParser::~XmlParser() {
 	assert(state == NULL); // parsing was not finished?
 
-	safe_release(callback);
-	safe_release(state);
+	clear_ref(callback);
+	clear_ref(state);
 
 	return;
 }
@@ -77,7 +77,7 @@ void XmlParser::start() {
 	assert(state == NULL); // last parsing was not finished?
 
 	if (state) {
-		safe_release(state);
+		clear_ref(state);
 	}
 
 	state = new XmlDocumentState();
@@ -100,7 +100,7 @@ void XmlParser::finish() {
 			callback->onDocumentFinished(state);
 		}
 
-		safe_release(state);
+		clear_ref(state);
 	}
 
 	return;

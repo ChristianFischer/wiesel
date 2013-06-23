@@ -48,7 +48,7 @@ public:
 	}
 
 	virtual ~LibTinyXml2ParserVisitor() {
-		safe_release(parser);
+		clear_ref(parser);
 	}
 
 public:

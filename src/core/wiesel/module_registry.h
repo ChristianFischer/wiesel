@@ -395,7 +395,7 @@ namespace wiesel {
 		 * but the module loader will create a new instance next time calling \ref create().
 		 */
 		virtual void release() {
-			safe_release(instance);
+			clear_ref(instance);
 		}
 
 	private:

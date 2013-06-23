@@ -180,7 +180,7 @@ TEST(ModuleApi, ModuleLoaders) {
 		ASSERT_EQ(17, testmod1->getTestValue());
 		
 		// release the object after usage
-		safe_release(testmod1);
+		clear_ref(testmod1);
 	}
 
 	// after we left the scope, the registry should be empty
@@ -236,7 +236,7 @@ TEST(ModuleApi, ModuleConstruction) {
 		ASSERT_EQ(0, TrackingModuleImpl::destruction_count);
 
 		// release the first module
-		safe_release(module1);
+		clear_ref(module1);
 
 		// the first one should be destructed, but the first one should be still alive.
 		ASSERT_EQ(2, TrackingModuleImpl::construction_count);
@@ -251,7 +251,7 @@ TEST(ModuleApi, ModuleConstruction) {
 	ASSERT_EQ(1, TrackingModuleImpl::destruction_count);
 
 	// now release the second module
-	safe_release(module2);
+	clear_ref(module2);
 
 	// ... and check, if it's really gone
 	ASSERT_EQ(2, TrackingModuleImpl::construction_count);
@@ -316,7 +316,7 @@ TEST(ModuleApi, ModuleConstructionSingleton) {
 		ASSERT_EQ(3, module2->getReferenceCount());
 
 		// release the first module
-		safe_release(module1);
+		clear_ref(module1);
 
 		// there should still be only one valid object, it should not be released
 		ASSERT_EQ(1, TrackingModuleImpl::construction_count);
@@ -337,7 +337,7 @@ TEST(ModuleApi, ModuleConstructionSingleton) {
 	ASSERT_EQ(1, module2->getReferenceCount());
 
 	// now release the second module
-	safe_release(module2);
+	clear_ref(module2);
 
 	// ... and check, if it's really gone
 	ASSERT_EQ(1, TrackingModuleImpl::construction_count);
@@ -385,9 +385,9 @@ TEST(ModuleApi, ApiVersionOrder) {
 		EXPECT_EQ(17, testmod3->getTestValue());
 		
 		// release all modules after usage
-		safe_release(testmod1);
-		safe_release(testmod2);
-		safe_release(testmod3);
+		clear_ref(testmod1);
+		clear_ref(testmod2);
+		clear_ref(testmod3);
 	}
 
 	// after we left the scope, the registry should be empty
@@ -437,9 +437,9 @@ TEST(ModuleApi, PriorityOrder) {
 		EXPECT_EQ(42, testmod3->getTestValue());
 		
 		// release all modules after usage
-		safe_release(testmod1);
-		safe_release(testmod2);
-		safe_release(testmod3);
+		clear_ref(testmod1);
+		clear_ref(testmod2);
+		clear_ref(testmod3);
 	}
 
 	// after we left the scope, the registry should be empty
@@ -488,9 +488,9 @@ TEST(ModuleApi, CombinedOrder) {
 		EXPECT_EQ(23, testmod3->getTestValue());
 		
 		// release all modules after usage
-		safe_release(testmod1);
-		safe_release(testmod2);
-		safe_release(testmod3);
+		clear_ref(testmod1);
+		clear_ref(testmod2);
+		clear_ref(testmod3);
 	}
 
 	// after we left the scope, the registry should be empty

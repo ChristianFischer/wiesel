@@ -357,7 +357,7 @@ SpriteSheet::SpriteSheet(Texture* texture)
 SpriteSheet::~SpriteSheet() {
 	clear();
 
-	safe_release(texture);
+	clear_ref(texture);
 
 	return;
 }

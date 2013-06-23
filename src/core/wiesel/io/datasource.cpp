@@ -48,7 +48,7 @@ BufferDataSource::BufferDataSource(DataBuffer::mutable_data_t data, size_t size)
 }
 
 BufferDataSource::~BufferDataSource() {
-	safe_release(buffer);
+	clear_ref(buffer);
 }
 
 DataBuffer *BufferDataSource::getDataBuffer() {

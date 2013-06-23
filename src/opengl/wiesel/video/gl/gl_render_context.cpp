@@ -141,10 +141,10 @@ void OpenGlRenderContext::setModelviewMatrix(const matrix4x4& matrix) {
 void OpenGlRenderContext::setShader(Shader* shader) {
 	if (this->active_shader != shader) {
 		// clear the old shader
-		safe_release(this->active_shader);
+		clear_ref(this->active_shader);
 
 		// ... and it's implementation
-		safe_release(this->active_shader_content);
+		clear_ref(this->active_shader_content);
 
 		// store the new shader
 		if (shader) {
@@ -237,10 +237,10 @@ void OpenGlRenderContext::setTexture(uint16_t index, Texture* texture) {
 		GlTextureContent *active_texture_content = this->active_textures_content[index];
 
 		// clear the old texture
-		safe_release(active_texture);
+		clear_ref(active_texture);
 
 		// and it's implementation
-		safe_release(active_texture_content);
+		clear_ref(active_texture_content);
 
 		// store the new texture
 		if (texture) {

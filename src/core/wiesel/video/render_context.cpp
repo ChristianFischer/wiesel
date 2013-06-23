@@ -73,7 +73,7 @@ void RenderContext::popRenderBuffer(RenderBuffer* render_buffer) {
 			release(renderbuffer_stack.top());
 			renderbuffer_stack.pop();
 
-			safe_release(active_renderbuffer);
+			clear_ref(active_renderbuffer);
 		}
 
 		// when there are still renderbuffers available, enable the top one

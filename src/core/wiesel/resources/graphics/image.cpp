@@ -45,7 +45,7 @@ Image::Image(DataBuffer* data, PixelFormat format, const dimension& size) {
 
 
 Image::~Image() {
-	safe_release(pixel_data);
+	clear_ref(pixel_data);
 }
 
 
@@ -54,7 +54,7 @@ bool Image::assignImageData(DataBuffer* data, PixelFormat format, const dimensio
 	assert(new_image_size == data->getSize());
 
 	if (new_image_size == data->getSize()) {
-		safe_release(this->pixel_data);
+		clear_ref(this->pixel_data);
 
 		this->pixel_data   = keep(data);
 		this->pixel_format = format;

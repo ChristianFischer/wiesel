@@ -114,11 +114,11 @@ namespace wiesel {
 
 	/**
 	 * @brief Takes a pointer of a \ref SharedObject to release it.
-	 * When the pointer is \ref NULL, nothing happens.
-	 * The pointer will be set to \ref NULL after releasing the object.
+	 * When the pointer is \c NULL, nothing happens.
+	 * The pointer will be set to \c NULL after releasing the object.
 	 */
 	template <class OBJ>
-	inline void safe_release(OBJ*& obj) {
+	inline void clear_ref(OBJ*& obj) {
 		if (obj != NULL) {
 			_release(obj);
 			obj  = NULL;
@@ -157,13 +157,13 @@ namespace wiesel {
 		}
 
 		~ref() {
-			safe_release(pointer);
+			clear_ref(pointer);
 		}
 		
 	public:
 		inline const ref<T> operator=(T* p) {
 			if (this->pointer != p) {
-				safe_release(this->pointer);
+				clear_ref(this->pointer);
 				this->pointer = keep(p);
 			}
 
@@ -172,7 +172,7 @@ namespace wiesel {
 
 		inline const ref<T> operator=(const ref<T>& other) {
 			if (this->pointer != other.pointer) {
-				safe_release(this->pointer);
+				clear_ref(this->pointer);
 				this->pointer = keep(other.pointer);
 			}
 

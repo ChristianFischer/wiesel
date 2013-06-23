@@ -54,8 +54,8 @@ Sdl2VideoDeviceDriver::~Sdl2VideoDeviceDriver() {
 	if (platform) {
 		platform->removeReceiver(this);
 	}
-	
-	safe_release(render_context);
+
+	clear_ref(render_context);
 
 	return;
 }
@@ -89,7 +89,7 @@ bool Sdl2VideoDeviceDriver::init(const dimension &size, unsigned int flags) {
 	}
 
 	// remove the old context, if any
-	safe_release(render_context);
+	clear_ref(render_context);
 
 	// initialize the new render context
 	render_context = keep(new Sdl2GlRenderContext(getScreen()));
@@ -106,7 +106,7 @@ bool Sdl2VideoDeviceDriver::init(const dimension &size, unsigned int flags) {
 
 
 bool Sdl2VideoDeviceDriver::shutdown() {
-	safe_release(render_context);
+	clear_ref(render_context);
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 

@@ -47,8 +47,8 @@ Touch::Touch(TouchID id, float x, float y) {
 }
 
 Touch::~Touch() {
-	safe_release(owner);
-	safe_release(node);
+	clear_ref(owner);
+	clear_ref(node);
 	return;
 }
 
