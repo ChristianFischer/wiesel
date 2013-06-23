@@ -40,7 +40,7 @@ Texture::Texture() {
 }
 
 Texture::~Texture() {
-	safe_release(data);
+	clear_ref(data);
 	return;
 }
 

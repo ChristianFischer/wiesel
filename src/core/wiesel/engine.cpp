@@ -54,7 +54,7 @@ Engine::Engine() {
 Engine::~Engine() {
 	shutdown();
 
-	safe_release(mainthread);
+	clear_ref(mainthread);
 
 	return;
 }
@@ -253,7 +253,7 @@ void Engine::run(Application *app) {
 
 	// release the application object
 	application->onShutdown();
-	safe_release(application);
+	clear_ref(application);
 
 	return;
 }

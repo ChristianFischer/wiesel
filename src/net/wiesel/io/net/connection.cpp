@@ -62,7 +62,7 @@ public:
 	}
 
 	virtual ~CreateConnectionAsyncTask() {
-		safe_release(listener);
+		clear_ref(listener);
 	}
 
 	virtual void run() {

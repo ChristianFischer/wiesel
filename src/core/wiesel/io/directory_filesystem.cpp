@@ -36,8 +36,8 @@ DirectoryFileSystem::DirectoryFileSystem(Directory *enclosed_root) {
 }
 
 DirectoryFileSystem::~DirectoryFileSystem() {
-	safe_release(root);
-	safe_release(enclosed_root);
+	clear_ref(root);
+	clear_ref(enclosed_root);
 	return;
 }
 
@@ -70,7 +70,7 @@ DirectoryFileSystemDirectory::DirectoryFileSystemDirectory(DirectoryFileSystem *
 }
 
 DirectoryFileSystemDirectory::~DirectoryFileSystemDirectory() {
-	safe_release(enclosed_directory);
+	clear_ref(enclosed_directory);
 	return;
 }
 
@@ -215,7 +215,7 @@ DirectoryFileSystemFile::DirectoryFileSystemFile(DirectoryFileSystemDirectory *p
 }
 
 DirectoryFileSystemFile::~DirectoryFileSystemFile() {
-	safe_release(enclosed_file);
+	clear_ref(enclosed_file);
 	return;
 }
 

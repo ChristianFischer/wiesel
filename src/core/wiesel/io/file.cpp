@@ -34,7 +34,7 @@ File::File(Directory *parent)
 }
 
 File::~File() {
-	safe_release(parent);
+	clear_ref(parent);
 	return;
 }
 
@@ -129,8 +129,8 @@ FileDataSource::FileDataSource(File *file)
 }
 
 FileDataSource::~FileDataSource() {
-	safe_release(file);
-	safe_release(content);
+	clear_ref(file);
+	clear_ref(content);
 }
 
 DataBuffer *FileDataSource::getDataBuffer() {
@@ -142,7 +142,7 @@ DataBuffer *FileDataSource::getDataBuffer() {
 }
 
 void FileDataSource::releaseDataBuffer() {
-	safe_release(content);
+	clear_ref(content);
 }
 
 File *FileDataSource::getFile() {

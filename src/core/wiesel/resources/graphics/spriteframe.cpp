@@ -96,7 +96,7 @@ SpriteFrame::SpriteFrame(const string& name, Texture* texture,
 }
 
 SpriteFrame::~SpriteFrame() {
-	safe_release(texture);
+	clear_ref(texture);
 }
 
 

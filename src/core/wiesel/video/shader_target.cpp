@@ -44,7 +44,7 @@ ShaderTarget::~ShaderTarget() {
 
 void ShaderTarget::setShader(Shader* shader) {
 	if (this->shader != shader) {
-		safe_release(this->shader);
+		clear_ref(this->shader);
 
 		if (shader) {
 			this->shader = shader;

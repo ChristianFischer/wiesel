@@ -39,7 +39,7 @@ Directory::Directory(FileSystem *fs, Directory *parent)
 
 Directory::~Directory() {
 	// release parent directory
-	safe_release(parent);
+	clear_ref(parent);
 	return;
 }
 

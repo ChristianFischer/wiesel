@@ -87,7 +87,7 @@ Thread::~Thread() {
 		}
 	#endif
 
-	safe_release(runnable);
+	clear_ref(runnable);
 
 	return;
 }

@@ -125,7 +125,7 @@ bool LibXml2SaxParser::parse(DataBuffer *buffer, XmlParserCallback *callback) {
 
 	// parser cleanup
 	parser->finish();
-	safe_release(parser);
+	clear_ref(parser);
 
 	// libxml cleanup
 	xmlCleanupParser();
@@ -167,7 +167,7 @@ bool LibXml2SaxParser::parse(File* file, XmlParserCallback *callback) {
 
 		// parser cleanup
 		parser->finish();
-		safe_release(parser);
+		clear_ref(parser);
 
 		// libxml cleanup
 		xmlCleanupParser();

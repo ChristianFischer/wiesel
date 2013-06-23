@@ -47,8 +47,8 @@ MessageDispatcher::MessageDispatcher() {
 }
 
 MessageDispatcher::~MessageDispatcher() {
-	safe_release(connection);
-	safe_release(thread);
+	clear_ref(connection);
+	clear_ref(thread);
 }
 
 
@@ -125,7 +125,7 @@ void MessageDispatcher::run() {
 			);
 
 			// release the object (we're creating a new one)
-			safe_release(connection);
+			clear_ref(connection);
 
 			// stop here, when no reconnect-flag is set
 			if (!hasFlag(AutoReconnect)) {
@@ -171,12 +171,12 @@ void MessageDispatcher::run() {
 	current_thread->lock();
 
 	if (this->thread) {
-		safe_release(this->thread);
+		clear_ref(this->thread);
 	}
 
 	if (connection) {
 		connection->disconnect();
-		safe_release(connection);
+		clear_ref(connection);
 	}
 
 	if (current_thread) {
