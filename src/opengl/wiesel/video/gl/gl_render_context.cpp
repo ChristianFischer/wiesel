@@ -481,12 +481,15 @@ bool OpenGlRenderContext::bind(const VertexBuffer* vertex_buffer) {
 		}
 
 		// assign textures
-		int num_textures = vertex_buffer->getNumberOfTextureLayers();
+		int num_textures_in_vbo = vertex_buffer->getNumberOfTextureLayers();
+		int num_textures_active = active_textures.size();
+		int num_textures        = std::max(num_textures_in_vbo, num_textures_active);
+
 		for(int i=0; i<num_textures; i++) {
 			GLint  attr_vertex_texcoord = active_shader_content->getAttribHandle(Shader::VertexTextureCoordinate, i);
 			GLint  attr_vertex_texture  = active_shader_content->getAttribHandle(Shader::Texture, i);
 
-			if (attr_vertex_texcoord != -1) {
+			if (attr_vertex_texcoord != -1 && i < num_textures_in_vbo) {
 				glVertexAttribPointer(
 						attr_vertex_texcoord,
 						vertex_buffer->getTextureDescription(i).fields,

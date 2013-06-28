@@ -28,6 +28,7 @@
 #include "wiesel/video/shader.h"
 #include "wiesel/video/shader_target.h"
 #include "wiesel/video/texture.h"
+#include "wiesel/video/texture_target.h"
 #include "wiesel/video/vertexbuffer.h"
 #include "wiesel/geometry.h"
 
@@ -60,7 +61,10 @@ namespace wiesel {
 	/**
 	 * @brief A Node for displaying a single sprite.
 	 */
-	class WIESEL_CORE_EXPORT SpriteNode : public Node2D, public video::ShaderTarget
+	class WIESEL_CORE_EXPORT SpriteNode :
+			public Node2D,
+			public video::ShaderTarget,
+			public video::SingleTextureTarget
 	{
 	public:
 		/**
@@ -105,11 +109,6 @@ namespace wiesel {
 		void setSpriteFrame(SpriteFrame *sprite);
 
 		/**
-		 * @brief Set the texture to be rendered.
-		 */
-		void setTexture(video::Texture *texture);
-
-		/**
 		 * @brief Set the area within the texture, which will be drawn.
 		 */
 		void setTextureRect(const rectangle &texture_rect);
@@ -129,13 +128,6 @@ namespace wiesel {
 		}
 
 		/**
-		 * @brief Get the currently used texture.
-		 */
-		inline video::Texture *getTexture() {
-			return texture;
-		}
-
-		/**
 		 * @brief Get the area within the texture, which will be drawn.
 		 */
 		inline const rectangle& getTextureRect() const {
@@ -145,6 +137,10 @@ namespace wiesel {
 	// node2s stuff
 	public:
 		virtual bool hitBy(const vector2d &local) const;
+
+	// TextureTarget
+	protected:
+		virtual void onTextureChanged(uint16_t index, video::Texture *old_texture, video::Texture *new_texture);
 
 	// overridables
 	protected:
@@ -156,7 +152,6 @@ namespace wiesel {
 		SpriteHitDetection		hit_detection;
 
 		SpriteFrame*			sprite;
-		video::Texture*			texture;
 		rectangle				texture_rect;
 
 		video::VertexBuffer*	vbo;
