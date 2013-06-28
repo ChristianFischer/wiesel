@@ -32,7 +32,6 @@ using namespace wiesel::video;
 
 SpriteNode::SpriteNode() {
 	this->sprite		= NULL;
-	this->texture		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -43,7 +42,6 @@ SpriteNode::SpriteNode() {
 
 SpriteNode::SpriteNode(Texture *texture) {
 	this->sprite		= NULL;
-	this->texture		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -59,7 +57,6 @@ SpriteNode::SpriteNode(Texture *texture, const rectangle &texture_rect) {
 	assert(texture);
 
 	this->sprite		= NULL;
-	this->texture		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -75,7 +72,6 @@ SpriteNode::SpriteNode(SpriteFrame *sprite) {
 	assert(sprite);
 
 	this->sprite		= NULL;
-	this->texture		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
 	this->hit_detection	= SpriteHitDetection_InnerBounds;
@@ -91,23 +87,6 @@ SpriteNode::~SpriteNode() {
 
 	setTexture(NULL);
 	setShader(NULL);
-
-	return;
-}
-
-
-void SpriteNode::setTexture(Texture* texture) {
-	clear_ref(this->texture);
-
-	if (texture) {
-		this->texture = keep(texture);
-	}
-
-	// reset current sprite, when texture was set manually
-	clear_ref(this->sprite);
-
-	// need to update the vertex buffer
-	vbo_dirty = true;
 
 	return;
 }
@@ -161,7 +140,7 @@ bool SpriteNode::hitBy(const vector2d& local) const {
 			}
 
 			// when a texture is set, check the texture rect
-			if (texture) {
+			if (getTexture()) {
 				return texture_rect.contains(local);
 			}
 
@@ -173,17 +152,29 @@ bool SpriteNode::hitBy(const vector2d& local) const {
 }
 
 
+void SpriteNode::onTextureChanged(uint16_t index, Texture *old_texture, Texture *new_texture) {
+	SingleTextureTarget::onTextureChanged(index, old_texture, new_texture);
+
+	// reset current sprite, when texture was set manually
+	clear_ref(this->sprite);
+
+	// need to update the vertex buffer
+	vbo_dirty = true;
+
+	return;
+}
+
+
 void SpriteNode::onDraw(video::RenderContext *render_context) {
-	if (texture) {
+	if (getTexture()) {
 		if (vbo_dirty) {
 			rebuildVertexBuffer();
 		}
 
 		this->applyShaderConfigTo(render_context);
-		render_context->setModelviewMatrix(getWorldTransform());
-		render_context->prepareTextureLayers(1);
-		render_context->setTexture(0, texture);
+		this->applyTextureConfigTo(render_context);
 
+		render_context->setModelviewMatrix(getWorldTransform());
 		render_context->draw(video::TriangleStrip, vbo);
 	}
 
@@ -206,8 +197,8 @@ void SpriteNode::rebuildVertexBuffer() {
 			float sprite_h = getSpriteFrame()->getInnerRect().size.height;
 
 			const SpriteFrame::TextureCoords &tex_coords = getSpriteFrame()->getTextureCoordinates();
-			float texture_w = texture->getSize().width;
-			float texture_h = texture->getSize().height;
+			float texture_w = getTexture()->getSize().width;
+			float texture_h = getTexture()->getSize().height;
 
 			vbo->clear();
 			vbo->setupVertexPositions(2);
@@ -227,8 +218,8 @@ void SpriteNode::rebuildVertexBuffer() {
 			float sprite_y   = 0.0f;
 			float sprite_w   = texture_rect.size.width;
 			float sprite_h   = texture_rect.size.height;
-			float texture_w  = texture->getSize().width;
-			float texture_h  = texture->getSize().height;
+			float texture_w  = getTexture()->getSize().width;
+			float texture_h  = getTexture()->getSize().height;
 			float texcoord_l = texture_rect.getMinX() / texture_w;
 			float texcoord_t = texture_rect.getMinY() / texture_h;
 			float texcoord_r = texture_rect.getMaxX() / texture_w;

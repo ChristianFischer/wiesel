@@ -97,6 +97,15 @@ const ShaderBase::SourcesList *ShaderBase::getSources() const {
 
 
 
+size_t ShaderBase::getAttributeCount(Attribute attr) const {
+	if (attributes.size() > attr) {
+		return attributes[attr].size();
+	}
+
+	return 0;
+}
+
+
 std::string ShaderBase::getAttributeName(Shader::Attribute attr, uint8_t index) const {
 	if (attributes.size() > attr && attributes[attr].size() > index) {
 		return attributes[attr][index];

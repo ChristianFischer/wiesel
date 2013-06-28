@@ -165,6 +165,11 @@ namespace video {
 		const PreprocessorConstantList* getPreprocessorConstants() const;
 
 		/**
+		 * @brief Get the number of indices of a specific attribute.
+		 */
+		std::size_t getAttributeCount(Attribute attr) const;
+
+		/**
 		 * @brief Get the name of a shader attribute.
 		 */
 		std::string getAttributeName(Attribute attr, uint8_t index) const;

@@ -161,7 +161,7 @@ namespace wiesel {
 		}
 		
 	public:
-		inline const ref<T> operator=(T* p) {
+		inline ref<T>& operator=(T* p) {
 			if (this->pointer != p) {
 				clear_ref(this->pointer);
 				this->pointer = keep(p);
@@ -170,7 +170,7 @@ namespace wiesel {
 			return *this;
 		}
 
-		inline const ref<T> operator=(const ref<T>& other) {
+		inline const ref<T>& operator=(const ref<T>& other) {
 			if (this->pointer != other.pointer) {
 				clear_ref(this->pointer);
 				this->pointer = keep(other.pointer);

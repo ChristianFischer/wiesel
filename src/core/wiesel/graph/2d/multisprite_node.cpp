@@ -32,7 +32,6 @@ using namespace wiesel::video;
 
 
 MultiSpriteNode::MultiSpriteNode() {
-	this->texture		= NULL;
 	this->indices		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
@@ -43,7 +42,6 @@ MultiSpriteNode::MultiSpriteNode() {
 
 
 MultiSpriteNode::MultiSpriteNode(Texture *texture) {
-	this->texture		= NULL;
 	this->indices		= NULL;
 	this->vbo			= NULL;
 	this->vbo_dirty		= true;
@@ -60,28 +58,6 @@ MultiSpriteNode::~MultiSpriteNode() {
 
 	setTexture(NULL);
 	clear();
-
-	return;
-}
-
-
-void MultiSpriteNode::setTexture(Texture* texture) {
-	clear_ref(this->texture);
-
-	if (texture) {
-		this->texture = keep(texture);
-
-		// check, if the new texture is different to
-		// the texture used in the sprite frames
-		if (
-				entries.size()
-			&&	entries.front().sprite
-			&&	entries.front().sprite->getTexture() != texture
-		) {
-			// we have to clear the sprite list
-			clear();
-		}
-	}
 
 	return;
 }
@@ -197,17 +173,36 @@ bool MultiSpriteNode::hitBy(const vector2d& local) const {
 }
 
 
+void MultiSpriteNode::onTextureChanged(uint16_t index, Texture *old_texture, Texture *new_texture) {
+	SingleTextureTarget::onTextureChanged(index, old_texture, new_texture);
+
+	if (getTexture()) {
+		// check, if the new texture is different to
+		// the texture used in the sprite frames
+		if (
+				entries.size()
+			&&	entries.front().sprite
+			&&	entries.front().sprite->getTexture() != getTexture()
+		) {
+			// we have to clear the sprite list
+			clear();
+		}
+	}
+
+	return;
+}
+
+
 void MultiSpriteNode::onDraw(video::RenderContext *render_context) {
-	if (texture && !entries.empty()) {
+	if (getTexture() && !entries.empty()) {
 		if (vbo_dirty) {
 			rebuildVertexBuffer();
 		}
 
 		applyShaderConfigTo(render_context);
-		render_context->setModelviewMatrix(getWorldTransform());
-		render_context->prepareTextureLayers(1);
-		render_context->setTexture(0, texture);
+		applyTextureConfigTo(render_context);
 
+		render_context->setModelviewMatrix(getWorldTransform());
 		render_context->draw(video::Triangles, vbo, indices);
 	}
 
@@ -241,8 +236,8 @@ void MultiSpriteNode::rebuildVertexBuffer() {
 			indices->setBytesPerElement(2);
 		}
 
-		float texture_w = texture->getSize().width;
-		float texture_h = texture->getSize().height;
+		float texture_w = getTexture()->getSize().width;
+		float texture_h = getTexture()->getSize().height;
 
 		for (EntryList::const_iterator it=entries.begin(); it!=entries.end(); it++) {
 			SpriteFrame *frame = it->sprite;
